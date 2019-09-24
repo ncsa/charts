@@ -1,0 +1,69 @@
+{{- if .Values.monitor.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "clowder.fullname" . }}-monitor
+  labels:
+{{ include "clowder.labels" . | indent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "clowder.name" . }}-monitor
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "clowder.name" . }}-monitor
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+    {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      initContainers:
+        - name: check-rabbitmq
+          image: clowder/clowder-check:latest
+          command: ['./check_rabbitmq']
+          env:
+            - name: RABBITMQ_URI
+              value: {{ include "clowder.rabbitmquri" . | quote }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}/monitor:develop"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: monitor
+              containerPort: 9999
+              protocol: TCP
+          env:
+            - name: RABBITMQ_URI
+              value: {{ include "clowder.rabbitmquri" . | quote }}
+            - name: CLOWDER_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}
+                  key: clowder-secret
+          livenessProbe:
+            httpGet:
+              path: /
+              port: monitor
+          readinessProbe:
+            httpGet:
+              path: /
+              port: monitor
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+{{- end }}

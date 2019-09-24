@@ -1,0 +1,33 @@
+{{- if .Values.ingress.enabled -}}
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: {{ include "pecan.fullname" }}-docs
+  labels:
+{{ include "pecan.labels" . | indent 4 }}
+  {{- with .Values.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+{{- if .Values.ingress.tls }}
+  tls:
+    - hosts:
+      {{- if  .Values.ingress.hostName }}
+        - {{ .Values.ingress.hostName }}
+      {{- end }}
+      secretName: {{  .Values.ingress.tlsSecret }}
+{{- end }}
+  rules:
+  {{- if .Values.ingress.hostName }}
+    - host: {{ .Values.ingress.hostName }}
+      http:
+  {{- else }}
+    - http:
+  {{- end }}
+        paths:
+          - path: /
+            backend:
+              serviceName: {{ include "pecan.fullname" }}-docs
+              servicePort: pecan-docs
+{{- end }}

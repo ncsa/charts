@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "pecan.fullname" . }}-config
+  labels:
+{{ include "pecan.labels" . | indent 4 }}
+data:
+  database.yaml: |-
+    production:
+      adapter: postgis
+      encoding: utf8
+      reconnect: false
+      database: <%= ENV['BETYDATABASE'] %>
+      pool: 5
+      username: <%= ENV['BETYUSER'] %>
+      password: <%= ENV['BETYPASSWORD'] %>
+      host: postgis
+      port: 5432

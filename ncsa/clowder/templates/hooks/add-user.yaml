@@ -1,0 +1,62 @@
+{{ if .Values.user.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "clowder.fullname" . }}-init
+  labels:
+{{ include "clowder.labels" . | indent 4 }}
+  annotations:
+    # This is what defines this resource as a hook. Without this line, the
+    # job is considered part of the release.
+    "helm.sh/hook": "post-install"
+    "helm.sh/hook-delete-policy": "hook-succeeded,before-hook-creation"
+    "helm.sh/hook-weight": "5"
+spec:
+  template:
+    metadata:
+      name: {{ include "clowder.fullname" . }}-init
+      labels:
+{{ include "clowder.labels" . | indent 8 }}
+    spec:
+      {{- with .Values.hooks.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+      {{- end }}
+      restartPolicy: Never
+      {{- if .Values.image.imagePullSecrets }}
+      imagePullSecrets:
+{{ toYaml .Values.image.imagePullSecrets | indent 8 }}
+      {{- end }}
+      initContainers:
+        - name: check-mongo
+          image: clowder/clowder-check:latest
+          command: ['./check_mongodb']
+          env:
+            - name: MONGO_URI
+              value: {{ include "clowder.mongodburi" . | quote }}
+      containers:
+        - name: mongo-init-job
+          #image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          image: "{{ .Values.image.repository }}/mongo-init:develop"
+          env:
+            - name: MONGO_URI
+              value: {{ include "clowder.mongodburi" . | quote }}
+{{- if .Values.user.username }}
+            - name: USERNAME
+              value: {{ .Values.user.username | quote }}
+{{- end }}
+            - name: PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}
+                  key: user-password
+            - name: EMAIL_ADDRESS
+              value: {{ .Values.user.email | quote }}
+            - name: FIRST_NAME
+              value: {{ .Values.user.firstname | quote }}
+            - name: LAST_NAME
+              value: {{ .Values.user.lastname | quote }}
+            - name: ADMIN
+              value: {{ .Values.user.admin | quote }}
+{{ end }}

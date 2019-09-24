@@ -1,0 +1,12 @@
+{{- if .Values.configmap }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "mongodb.fullname" . }}
+  labels:
+{{ include "postgis.labels" . | indent 4 }}
+data:
+  POSTGRES_DB: postgres
+  POSTGRES_USER: postgres
+  POSTGRES_PASSWORD: ""
+{{- end }}

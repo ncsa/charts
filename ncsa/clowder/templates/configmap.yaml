@@ -1,0 +1,48 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "clowder.fullname" . }}-config
+  labels:
+{{ include "clowder.labels" . | indent 4 }}
+data:
+  play.plugins: |-
+{{- if .Values.rabbitmq.enabled }}
+    9992:services.RabbitmqPlugin
+{{- end }}
+{{- if .Values.elasticsearch.enabled }}
+    10002:services.ElasticsearchPlugin
+{{- end }}
+  custom.conf: |-
+    application.context="{{ .Values.ingress.path }}"
+    securesocial.onLoginGoTo="{{ .Values.ingress.path }}"
+    securesocial.onLogoutGoTo="{{ .Values.ingress.path }}"
+    securesocial.ssl={{ .Values.ingress.ssl }}
+    # security options
+    application.secret="${CLOWDER_SECRET}"
+    commKey="${CLOWDER_KEY}"
+    # default admin and should admin approve everybody
+    registerThroughAdmins=false
+    initialAdmins="admin@example.com"
+    # email options
+{{- if .Values.clowder.smtp.mock }}
+    smtp.mock=true
+{{- else }}
+    smtp.host={{ .Values.clowder.smtp.host | default "stmp" | quote }}
+{{- end }}
+    # storage
+    service.byteStorage=services.filesystem.DiskByteStorageService
+    clowder.diskStorage.path="/home/clowder/data"
+    # mongo server
+    mongodbURI={{ include "clowder.mongodburi" . | quote }}
+{{- if .Values.rabbitmq.enabled }}
+    # rabbitmq
+    clowder.rabbitmq.uri={{ include "clowder.rabbitmquri" . | quote }}
+    clowder.rabbitmq.exchange=clowder
+    clowder.rabbitmq.clowderurl="http://clowder:9000"
+{{- end }}
+{{- if .Values.elasticsearch.enabled }}
+    # elasticsearch
+    elasticsearchSettings.clusterName="clowder"
+    elasticsearchSettings.serverAddress="elasticsearch"
+    elasticsearchSettings.serverPort=9300
+{{- end }}

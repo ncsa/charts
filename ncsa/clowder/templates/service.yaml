@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "clowder.fullname" . }}
+  labels:
+{{ include "clowder.labels" . | indent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: clowder
+      protocol: TCP
+      name: clowder
+  selector:
+    app.kubernetes.io/name: {{ include "clowder.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}

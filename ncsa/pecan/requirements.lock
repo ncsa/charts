@@ -1,0 +1,6 @@
+dependencies:
+- name: postgis
+  repository: http://127.0.0.1:8879/
+  version: 0.1.0
+digest: sha256:de5fe6c1fa563e13421e15fbd3651b04b2465f8833b5cd10a68c1133e8683429
+generated: "2019-09-14T21:47:07.868044-05:00"

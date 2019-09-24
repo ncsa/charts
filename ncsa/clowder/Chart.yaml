@@ -1,0 +1,10 @@
+apiVersion: v1
+version: 0.1.0
+name: clowder
+appVersion: "1.7.3"
+icon: https://isda.ncsa.illinois.edu/~kooper/charts/images/clowder.png
+description: Open Source Data Management for Long Tail Data.
+home: https://clowderframework.org/
+maintainers:
+- name: Rob Kooper
+  email: kooper@illinois.edu

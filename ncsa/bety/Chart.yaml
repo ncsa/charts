@@ -1,0 +1,10 @@
+apiVersion: v1
+version: 0.1.0
+name: bety
+appVersion: "5.2.1"
+icon: https://isda.ncsa.illinois.edu/~kooper/charts/images/bety.png
+description: Web-interface to the Biofuel Ecophysiological Traits and Yields Database (used by PEcAn and TERRA REF)
+home: https://www.betydb.org
+maintainers:
+- name: Rob Kooper
+  email: kooper@illinois.edu

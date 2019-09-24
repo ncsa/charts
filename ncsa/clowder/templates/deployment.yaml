@@ -1,0 +1,82 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "clowder.fullname" . }}
+  labels:
+{{ include "clowder.labels" . | indent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "clowder.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "clowder.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+    {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      initContainers:
+        - name: check-mongo
+          image: clowder/clowder-check:latest
+          command: ['./check_mongodb']
+          env:
+            - name: MONGO_URI
+              value: {{ include "clowder.mongodburi" . | quote }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}/{{ .Values.image.name }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: clowder
+              containerPort: 9000
+              protocol: TCP
+          env:
+            - name: CLOWDER_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}
+                  key: clowder-key
+            - name: CLOWDER_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}
+                  key: clowder-secret
+          volumeMounts:
+            - name: custom-volume
+              mountPath: /home/clowder/custom
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.ingress.path }}api/status
+              port: clowder
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.ingress.path }}api/status
+              port: clowder
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+        - name: custom-volume
+          configMap:
+            name: {{ include "clowder.fullname" . }}-config
+            items:
+              - key: custom.conf
+                path: custom.conf
+              - key: play.plugins
+                path: play.plugins
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
