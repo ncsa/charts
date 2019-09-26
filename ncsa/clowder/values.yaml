@@ -22,13 +22,12 @@ smtp:
   mock: false
   ## host to use when sending emails
   ## TODO add user/password
-  host: smtp.ncsa.illinois.edu
+  host: smtp
 
 ## List of admins for Clowder. These people will at every restart of clowder be given admin
 ## priveleges. Can also be used to recover system by giving existing user admin rights.
 initialAdmins: 
   - admin@example.com
-  - people@example.com
 
 ## Should the admin be required to approve all new users. Setting this to false will result
 ## in all new users immediatly be given access to Clowder.
@@ -144,7 +143,7 @@ ingress:
   enabled: true
   annotations: {}
     # kubernetes.io/ingress.class: "nginx"
-  host: kooper.dyn.ncsa.edu
+  #host: clowder.localhost
   path: /
   tls:
   #  - secretName: chart-example-tls

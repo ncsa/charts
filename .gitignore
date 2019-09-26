@@ -1,1 +1,8 @@
+# clone repository of offical helm charts
+bitname/
+
+# generated helm charts folder
 charts/
+
+# custom values
+*-values.yaml
