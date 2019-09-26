@@ -1,5 +1,4 @@
-{{- if .Values.clowder }}
-{{- if .Values.clowder.users }}
+{{- if .Values.users }}
 {{- $mongodburi := include "clowder.mongodburi" . }}
 apiVersion: batch/v1
 kind: Job
@@ -37,7 +36,7 @@ spec:
             - name: MONGO_URI
               value: {{ $mongodburi | quote }}
       containers:
-{{- range $index, $element := .Values.clowder.users }}
+{{- range $index, $element := .Values.users }}
         - name: mongo-add-user-{{ $index }}
           image: "{{ $.Values.image.repository }}/mongo-init:develop"
           env:
@@ -60,6 +59,5 @@ spec:
               value: {{ .lastname | quote }}
             - name: ADMIN
               value: {{ .admin | quote }}
-{{ end }}
 {{ end }}
 {{ end }}

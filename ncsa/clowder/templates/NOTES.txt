@@ -1,22 +1,20 @@
 {{- $fullname := include "clowder.fullname" . }}
 ** Please be patient while the chart is being deployed **
 
+{{- if .Values.users }}
 Credentials:
-{{- if .Values.clowder }}
-  {{- if .Values.clowder.users }}
-    {{- range $index, $element := .Values.clowder.users }}
+  {{- range $index, $element := .Values.users }}
 {{- if .username }}
     Username      : {{ .username }}
 {{- else }}
     Username      : {{ .email }}
 {{- end }}
-    {{- end }}
+  echo "Password      : $(kubectl get secret --namespace {{ $.Release.Namespace }} {{  $fullname }} -o jsonpath="{.data.password-{{ $index }}}" | base64 --decode)"
   {{- end }}
 {{- end }}
-  echo "Password      : $(kubectl get secret --namespace {{ $.Release.Namespace }} {{  $fullname }} -o jsonpath="{.data.user-password-$index}" | base64 --decode)"
-    echo "Clowder Key   : $(kubectl get secret --namespace {{ .Release.Namespace }} {{ $fullname }} -o jsonpath="{.data.clowder-key}" | base64 --decode)"
 
-RabbitMQ can be accessed within the cluster on port {{ .Values.service.nodePort }} at {{ template "clowder.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
+Clowder Admin Key:
+    echo "Clowder Key   : $(kubectl get secret --namespace {{ .Release.Namespace }} {{ $fullname }} -o jsonpath="{.data.clowder-key}" | base64 --decode)"
 
 To access for outside the cluster, perform the following steps:
 
