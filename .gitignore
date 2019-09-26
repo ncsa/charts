@@ -4,5 +4,8 @@ bitname/
 # generated helm charts folder
 charts/
 
+# dependencies (helm dep up)
+ncsa/*/charts/
+
 # custom values
 *-values.yaml
