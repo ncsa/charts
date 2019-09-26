@@ -8,4 +8,4 @@ charts/
 ncsa/*/charts/
 
 # custom values
-*-values.yaml
+/values-*.yaml
