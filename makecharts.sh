@@ -22,4 +22,4 @@ helm package -d charts ncsa/clowder
 helm repo index charts
 
 # copy charts to isda
-#rsync -av --delete charts/ snuffy:public_html/charts/
+echo rsync -av --delete charts/ snuffy:public_html/charts/

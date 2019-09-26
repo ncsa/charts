@@ -15,19 +15,87 @@ imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 
-clowder:
-  smtp:
-    mock: false
-    host: smtp.ncsa.illinois.edu
+## SMTP configration values. Clowder will send emails when users register, added/removed from
+## a space, etc. 
+smtp:
+  ## will print email to console, but will not send any actual emaisl
+  mock: false
+  ## host to use when sending emails
+  ## TODO add user/password
+  host: smtp.ncsa.illinois.edu
 
-user:
-  enabled: true
-  #username:
-  password: secret
-  email: admin@example.com
-  firstname: Admin
-  lastname: User
-  admin: true
+## List of admins for Clowder. These people will at every restart of clowder be given admin
+## priveleges. Can also be used to recover system by giving existing user admin rights.
+initialAdmins: 
+  - admin@example.com
+  - people@example.com
+
+## Should the admin be required to approve all new users. Setting this to false will result
+## in all new users immediatly be given access to Clowder.
+registerThroughAdmins: false
+
+## Administrator key. This key will give administrator level access to Clowder and is not
+## associated with any user. This is deprecated and should not be used.
+#commKey:
+
+## Secret key used for cookies. This should be set the same for all clowder instances in
+## a replicated setup. Best is for kubernetes to generate a random key.
+#secretKey:
+
+## List of initial users. These users will be added after clowder is installed. The
+## users will still need to accept the data policy.
+## email     : Email address, also used to login
+## password  : Initial password, if not set a random password is generated
+## firstname : First name of the user
+## lastname  : Last name of the user
+## admin     : should user be given admin privileges
+users:
+  - email: admin@example.com
+    #password: secret
+    firstname: Admin
+    lastname: User
+    admin: true
+
+## Should the url passed to extractors be rewrittent to use the internal name of clowder.
+## Set this to true if you plan on running this on your localhost, and all extractors run
+## inside the kubernetes environment.
+fixRabbitmqClowderUrl: false
+
+## list of extractors to be installed. Each extractor should have the 
+## following fields:
+## enabled      : true/false - should the extractor be installed
+## image        : dokeer/image:tag - the extractor docker image
+## replicaCount : number - the number of this extractor to install
+## env          : additional environment variables to pass to extractor.
+extractors:
+  file-digest:
+    enabled: true
+    image: clowder/extractors-digest:latest
+    replicaCount: 1
+    # env:
+    #   - name: foo
+    #     value: "bar"
+  image-preview:
+    enabled: true
+    image: clowder/extractors-image-preview:latest
+    replicaCount: 1
+  image-metadata:
+    enabled: true
+    image: clowder/extractors-image-metadata:latest
+    replicaCount: 1
+  audio-preview:
+    enabled: true
+    image: clowder/extractors-audio-preview:latest
+    replicaCount: 1
+  pdf-preview:
+    enabled: true
+    image: clowder/extractors-pdf-preview:latest
+    replicaCount: 1
+  video-preview:
+    enabled: true
+    image: clowder/extractors-video-preview:latest
+    replicaCount: 1
+
 
 service:
   ## ServiceType
@@ -54,7 +122,6 @@ persistence:
   ##
   mountPath: /home/clowder/data
 
-  ## PostgreSQL data Persistent Volume Storage Class
   ## If defined, storageClassName: <storageClass>
   ## If set to "-", storageClassName: "", which disables dynamic provisioning
   ## If undefined (the default) or set to null, no storageClassName spec is
@@ -62,9 +129,11 @@ persistence:
   ##   GKE, AWS & OpenStack)
   ##
   #storageClass: "-"
-  accessModes:
-    - ReadWriteOnce
+
+  ## sisze of the storage class
   size: 20Gi
+
+  ## Annotations
   annotations: {}
 
 # ----------------------------------------------------------------------
@@ -109,36 +178,6 @@ monitor:
     #      - chart-example.local
 
 # ----------------------------------------------------------------------
-extractors:
-  # list of extractors to be installed. Each extractor should have the 
-  # following fields:
-  #   enabled: true/false - should the extractor be installed
-  #   image: dokeer/image:tag - the extractor docker image
-  #   replicaCount: number - the number of this extractor to install
-  file-digest:
-    enabled: true
-    image: clowder/extractors-digest:latest
-    replicaCount: 1
-  image-preview:
-    enabled: true
-    image: clowder/extractors-image-preview:latest
-    replicaCount: 1
-  image-metadata:
-    enabled: true
-    image: clowder/extractors-image-metadata:latest
-    replicaCount: 1
-  audio-preview:
-    enabled: true
-    image: clowder/extractors-audio-preview:latest
-    replicaCount: 1
-  pdf-preview:
-    enabled: true
-    image: clowder/extractors-pdf-preview:latest
-    replicaCount: 1
-  video-preview:
-    enabled: true
-    image: clowder/extractors-video-preview:latest
-    replicaCount: 1
 
 # ----------------------------------------------------------------------
 # clowder requires mongodb to be able to run

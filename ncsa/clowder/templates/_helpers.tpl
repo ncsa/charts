@@ -45,6 +45,13 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end -}}
 
 {{/*
+Clowder URI
+*/}}
+{{- define "clowder.clowderuri" -}}
+http://{{ include "clowder.fullname" . }}:9000/{{ .Values.clowder.ingress.path }}
+{{- end -}}
+
+{{/*
 Mongo URI
 */}}
 {{- define "clowder.mongodburi" -}}

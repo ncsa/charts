@@ -41,6 +41,9 @@ spec:
           env:
             - name: RABBITMQ_URI
               value: {{ $rabbitmqURI | quote }}
+{{- if .env }}
+            {{- toYaml .env | nindent 12 }}
+{{- end }}
 {{- if $.Values.resources }}
           resources:
             {{- toYaml $.Values.resources | nindent 12 }}

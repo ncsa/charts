@@ -1,16 +1,20 @@
-
+{{- $fullname := include "clowder.fullname" . }}
 ** Please be patient while the chart is being deployed **
 
 Credentials:
-{{- if .Values.user.enabled }}
-{{- if .Values.user.username }}
-    Username      : {{ .Values.user.username }}
+{{- if .Values.clowder }}
+  {{- if .Values.clowder.users }}
+    {{- range $index, $element := .Values.clowder.users }}
+{{- if .username }}
+    Username      : {{ .username }}
 {{- else }}
-    Username      : {{ .Values.user.email }}
+    Username      : {{ .email }}
 {{- end }}
-    echo "Password      : $(kubectl get secret --namespace {{ .Release.Namespace }} {{ template "clowder.fullname" . }} -o jsonpath="{.data.user-password}" | base64 --decode)"
+    {{- end }}
+  {{- end }}
 {{- end }}
-    echo "Clowder Key   : $(kubectl get secret --namespace {{ .Release.Namespace }} {{ template "clowder.fullname" . }} -o jsonpath="{.data.clowder-key}" | base64 --decode)"
+  echo "Password      : $(kubectl get secret --namespace {{ $.Release.Namespace }} {{  $fullname }} -o jsonpath="{.data.user-password-$index}" | base64 --decode)"
+    echo "Clowder Key   : $(kubectl get secret --namespace {{ .Release.Namespace }} {{ $fullname }} -o jsonpath="{.data.clowder-key}" | base64 --decode)"
 
 RabbitMQ can be accessed within the cluster on port {{ .Values.service.nodePort }} at {{ template "clowder.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
 

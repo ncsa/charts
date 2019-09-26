@@ -1,8 +1,10 @@
-{{ if .Values.user.enabled }}
+{{- if .Values.clowder }}
+{{- if .Values.clowder.users }}
+{{- $mongodburi := include "clowder.mongodburi" . }}
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: {{ include "clowder.fullname" . }}-init
+  name: {{ include "clowder.name" . }}-init
   labels:
 {{ include "clowder.labels" . | indent 4 }}
   annotations:
@@ -14,7 +16,7 @@ metadata:
 spec:
   template:
     metadata:
-      name: {{ include "clowder.fullname" . }}-init
+      name: {{ include "clowder.name" . }}-init
       labels:
 {{ include "clowder.labels" . | indent 8 }}
     spec:
@@ -33,30 +35,31 @@ spec:
           command: ['./check_mongodb']
           env:
             - name: MONGO_URI
-              value: {{ include "clowder.mongodburi" . | quote }}
+              value: {{ $mongodburi | quote }}
       containers:
-        - name: mongo-init-job
-          #image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          image: "{{ .Values.image.repository }}/mongo-init:develop"
+{{- range $index, $element := .Values.clowder.users }}
+        - name: mongo-add-user-{{ $index }}
+          image: "{{ $.Values.image.repository }}/mongo-init:develop"
           env:
             - name: MONGO_URI
-              value: {{ include "clowder.mongodburi" . | quote }}
-{{- if .Values.user.username }}
+              value: {{ $mongodburi | quote }}
+{{- if .username }}
             - name: USERNAME
-              value: {{ .Values.user.username | quote }}
+              value: {{ .username | quote }}
 {{- end }}
             - name: PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Release.Name }}
-                  key: user-password
+                  name: {{ $.Release.Name }}
+                  key: "password-{{ $index }}"
             - name: EMAIL_ADDRESS
-              value: {{ .Values.user.email | quote }}
+              value: {{ .email | quote }}
             - name: FIRST_NAME
-              value: {{ .Values.user.firstname | quote }}
+              value: {{ .firstname | quote }}
             - name: LAST_NAME
-              value: {{ .Values.user.lastname | quote }}
+              value: {{ .lastname | quote }}
             - name: ADMIN
-              value: {{ .Values.user.admin | quote }}
+              value: {{ .admin | quote }}
+{{ end }}
+{{ end }}
 {{ end }}

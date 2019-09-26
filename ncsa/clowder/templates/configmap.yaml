@@ -21,13 +21,13 @@ data:
     application.secret="${CLOWDER_SECRET}"
     commKey="${CLOWDER_KEY}"
     # default admin and should admin approve everybody
-    registerThroughAdmins=false
-    initialAdmins="admin@example.com"
+    registerThroughAdmins={{ .Values.registerThroughAdmins }}
+    initialAdmins={{ join "," .Values.initialAdmins | quote }}
     # email options
-{{- if .Values.clowder.smtp.mock }}
+{{- if .Values.smtp.mock }}
     smtp.mock=true
 {{- else }}
-    smtp.host={{ .Values.clowder.smtp.host | default "stmp" | quote }}
+    smtp.host={{ .Values.smtp.host | default "stmp" | quote }}
 {{- end }}
     # storage
     service.byteStorage=services.filesystem.DiskByteStorageService
@@ -38,7 +38,9 @@ data:
     # rabbitmq
     clowder.rabbitmq.uri={{ include "clowder.rabbitmquri" . | quote }}
     clowder.rabbitmq.exchange=clowder
-    clowder.rabbitmq.clowderurl="http://clowder:9000"
+{{- if .Values.fixRabbitmqClowderUrl }}
+    clowder.rabbitmq.clowderurl="http://{{ include "clowder.clowderuri" . }}"
+{{- end }}
 {{- end }}
 {{- if .Values.elasticsearch.enabled }}
     # elasticsearch
