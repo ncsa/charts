@@ -1,5 +1,5 @@
 # clone repository of offical helm charts
-bitname/
+bitnami/
 
 # generated helm charts folder
 charts/
