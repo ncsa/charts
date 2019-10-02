@@ -14,11 +14,10 @@ For issues and support for Helm and Charts see [Support Channels](CONTRIBUTING.m
 To add the Incubator charts for your local client, run `helm repo add`:
 
 ```
-$ helm repo add ncsa https://isda.ncsa.illinois.edu/~kooper/charts/
+$ helm repo add ncsa https://opensource.ncsa.illinois.edu/charts/
 "incubator" has been added to your repositories
 ```
 
-The location https://isda.ncsa.illinois.edu/~kooper/charts/ is not permanent and will change in the future.
 
 You can then run `helm search ncsa` to see the charts.
 
@@ -36,7 +35,7 @@ Before contributing a Chart, become familiar with the format. Note that the proj
 
 ## Repository Structure
 
-This GitHub repository contains the source for the packaged and versioned charts released in the [`https://isda.ncsa.illinois.edu/~kooper/charts/`](https://isda.ncsa.illinois.edu/~kooper/charts/) (the Chart Repository).
+This GitHub repository contains the source for the packaged and versioned charts released in the [`https://opensource.ncsa.illinois.edu/charts/`](https://opensource.ncsa.illinois.edu/charts/) (the Chart Repository).
 
 The Charts in the `ncsa/` directory in the master branch of this repository match the latest packaged Chart in the Chart Repository, though there may be previous versions of a Chart available in that Chart Repository.
 
