@@ -6,7 +6,8 @@ replicaCount: 1
 
 image:
   repository: pecan/bety
-  tag: 5.2.1
+  #tag: 5.2.1
+  tag: test
   pullPolicy: IfNotPresent
 
 imagePullSecrets: []
@@ -17,29 +18,40 @@ service:
   type: ClusterIP
   port: 8000
 
-bety:
-  initialize: true
+## Should the database be initialized after setup, this will wipe the database
+initialize: false
 
-  localServer: 99
+## local id to be used, 99 is VM/docker
+localServer: 99
 
-  remoteservers: "0, 1, 2, 5"
+## ID's of servers to synchronize with
+remoteservers: "0, 1, 2, 5"
 
-  processes: 1
+## number of workers for BETY, this is the number of simultanous connections.
+workers: 1
 
-  #secretKey: notasecret
+##
+#secretKey: notasecret
 
-  username: bety
+## 
+betyUser: bety
 
-  #password: bety
+#betyPassword: bety
 
-  database: bety
+betyDatabase: bety
+
+addGuestUser: true
+
+addSampleUsers: false
 
 postgis:
   enabled: true
   postgresHost: postgis
-# postgresUser: postgres
+  # postgresUser: postgres
   # postgresPassword: password
   # postgresDb: postgres
+  image:
+    tag: 11
   
 ## Configure the ingress resource that allows you to access the
 ## BETY installation. Set up the URL
@@ -47,7 +59,7 @@ postgis:
 ##
 ingress:
   ## Set to true to enable ingress record generation
-  enabled: false
+  enabled: true
 
   ## Ingress path
   path: /

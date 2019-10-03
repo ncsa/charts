@@ -2,9 +2,9 @@
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: {{ include "bety.fullname" }}
+  name: {{ include "betydb.fullname" . }}
   labels:
-{{ include "bety.labels" . | indent 4 }}
+{{ include "betydb.labels" . | indent 4 }}
   {{- with .Values.ingress.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
@@ -28,6 +28,6 @@ spec:
         paths:
           - path: {{ .Values.ingress.path }}
             backend:
-              serviceName: {{ include "bety.fullname" }}
+              serviceName: {{ include "betydb.fullname" . }}
               servicePort: bety
 {{- end }}

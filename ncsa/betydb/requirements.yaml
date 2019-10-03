@@ -1,0 +1,5 @@
+dependencies:
+- name: postgis
+  version: ~0.1
+  repository: https://isda.ncsa.illinois.edu/~kooper/charts/
+  condition: postgis.enabled

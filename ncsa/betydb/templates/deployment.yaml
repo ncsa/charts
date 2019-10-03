@@ -1,0 +1,143 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "betydb.fullname" . }}
+  labels:
+{{ include "betydb.labels" . | indent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "betydb.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "betydb.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+    {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      initContainers:
+        - name: check-postgres
+          image: pecan/pecan-check:latest
+          imagePullPolicy: Always
+          command: ['./check_postgresql']
+          env:
+            - name: PGHOST
+              value: {{ include "betydb.postgisHost" . | quote }}
+            - name: PGPORT
+              value: {{ .Values.postgis.service.port | quote }}
+            - name: PGUSER
+              value: {{ .Values.postgis.postgresUser | quote }}
+        - name: bety-init
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: Always
+          #command: ['sleep', '3600']
+          args: ['onetimeinit']
+          env:
+            - name: LOCAL_SERVER
+              value: {{ .Values.localServer | quote }}
+            - name: INITIALIZE_URL
+              value: ""
+            - name: PGHOST
+              value: {{ include "betydb.postgisHost" . | quote }}
+            - name: PGPORT
+              value: {{ .Values.postgis.service.port | quote }}
+            - name: PGUSER
+              value: {{ .Values.postgis.postgresUser | quote }}
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-postgis
+                  key: postgres-password
+            - name: BETYUSER
+              value: {{ .Values.betyUser | quote }}
+            - name: BETYPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "betydb.fullname" . }}
+                  key: bety-password
+            - name: BETYDATABASE
+              value: {{ .Values.betyDatabase | quote }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          #imagePullPolicy: {{ .Values.image.pullPolicy }}
+          imagePullPolicy: Always
+          ports:
+            - name: bety
+              containerPort: 8000
+              protocol: TCP
+          env:
+            - name: UNICORN_WORKER_PROCESSES
+              value: {{ .Values.workers | quote }}
+            - name: SECRET_KEY_BASE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "betydb.fullname" . }}
+                  key: secretKey
+            - name: RAILS_RELATIVE_URL_ROOT
+              value: {{ .Values.ingress.path | default "" | trimSuffix "/" | quote }}
+            - name: RAILS_LOG_TO_STDOUT
+              value: "true"
+            - name: LOCAL_SERVER
+              value: {{ .Values.localServer | quote }}
+            - name: PGHOST
+              value: {{ include "betydb.postgisHost" . | quote }}
+            - name: PGPORT
+              value: {{ .Values.postgis.service.port | quote }}
+            - name: PGUSER
+              value: {{ .Values.postgis.postgresUser | quote }}
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-postgis
+                  key: postgres-password
+            - name: BETYUSER
+              value: {{ .Values.betyUser | quote }}
+            - name: BETYPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "betydb.fullname" . }}
+                  key: bety-password
+            - name: BETYDATABASE
+              value: {{ .Values.betyDatabase | quote }}
+          volumeMounts:
+            - name: database-yaml
+              mountPath: /home/bety/config/database.yml
+              subPath: database.yaml
+          # startupProbe:
+          #   httpGet:
+          #     path: {{ .Values.ingress.path }}
+          #     port: bety
+          #   failureThreshold: 30
+          #   periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: bety
+            initialDelaySeconds: 60
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.ingress.path }}
+              port: bety
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+        - name: database-yaml
+          configMap:
+              name: {{ include "betydb.fullname" . }}-config
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
