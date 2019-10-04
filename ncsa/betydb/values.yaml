@@ -1,8 +1,44 @@
-# Default values for bety.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
-
+## replicaCount is the number of instances for BETYDB. Each instance can also
+## have multuiple workers as defined by workers below.
 replicaCount: 1
+
+## workers is the number of workers for each BETYDB replica. The total number
+## of simultanous connections is replicaCount * workers.
+workers: 1
+
+## localServer is the ID for this intance. To be able to synchronize your data
+## with the PEcAn network you will need to request a unique number. This can
+## be done at https://forms.gle/m3SnMVh8WVHyL6eH8
+localServer: 99
+
+## remoteservers is the list of all remote servers you want to synchronize with.
+## This is the list you will receive data from.
+remoteservers: "0, 1, 2, 5"
+
+## betyUser is the user that is used with PostgreSQL. BETYDB and PEcAn will use
+## this user to connect to the database and read and write to the database. 
+betyUser: bety
+
+## betyPassword the password used when connecting to the database from BETYDB
+## and PEcAn. If the password is generated it will need to be saved to prevent
+## the system from not being able to connect on upgrades. After the chart is
+## installed it will show instructions on how to save the password.
+#betyPassword: bety
+
+## betyDatabase the database that will be created and that BETYDB adn PEcAn
+## will connect to and write data.
+betyDatabase: bety
+
+## addGuestUser when true, the guestuser account will be added to the local
+## list of users. This will enable the guest login button on the web interface.
+addGuestUser: false
+
+## addSampleUsers when true will add sample users to the database. All of the
+## users will have a well known password, this should only be set to true
+## for demo instances or testing.
+addSampleUsers: false
+
+# -------------------------------------------------------------------------------
 
 image:
   repository: pecan/bety
@@ -11,55 +47,49 @@ image:
   pullPolicy: IfNotPresent
 
 imagePullSecrets: []
+
+# -------------------------------------------------------------------------------
+
 nameOverride: ""
 fullnameOverride: ""
+
+# -------------------------------------------------------------------------------
 
 service:
   type: ClusterIP
   port: 8000
 
-## Should the database be initialized after setup, this will wipe the database
-initialize: false
+# -------------------------------------------------------------------------------
 
-## local id to be used, 99 is VM/docker
-localServer: 99
-
-## ID's of servers to synchronize with
-remoteservers: "0, 1, 2, 5"
-
-## number of workers for BETY, this is the number of simultanous connections.
-workers: 1
-
-##
-#secretKey: notasecret
-
-## 
-betyUser: bety
-
-#betyPassword: bety
-
-betyDatabase: bety
-
-addGuestUser: true
-
-addSampleUsers: false
-
+## All data for BETYDB will be stored in PostgreSQL and PostGIS.
 postgis:
+  ## enabled should the postgresql/postgis chart be installed as well. If not make
+  ## sure that the other values are provied to get access to the database.
   enabled: true
-  postgresHost: postgis
+
+  ## postgresHost host where postgresql is installed.
+  # postgresHost: postgis
+
+  ## postgresUser is the initial user added to the system. This is freqently the
+  ## postgres user. This user will have superuser abilities.
   # postgresUser: postgres
+
+  ## postgresPassword the password for postgresUser, if using auto generated password
+  ## make sure to save the password as described in the notes. When upgrading you will
+  ## need to provide this secret otherwise a new secret will be generated but not
+  ## saved in the database.
   # postgresPassword: password
-  # postgresDb: postgres
-  image:
-    tag: 11
-  
+
+  ## postgresDb the initial database generated.
+  #postgresDb: postgres
+
 ## Configure the ingress resource that allows you to access the
 ## BETY installation. Set up the URL
 ## ref: http://kubernetes.io/docs/user-guide/ingress/
 ##
 ingress:
   ## Set to true to enable ingress record generation
-  enabled: true
+  enabled: false
 
   ## Ingress path
   path: /

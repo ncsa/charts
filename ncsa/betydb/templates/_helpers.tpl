@@ -48,7 +48,7 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 Postgres Host
 */}}
 {{- define "betydb.postgisHost" -}}
-{{ .Release.Name }}-{{ .Values.postgis.postgresHost }}
+{{ .Release.Name }}-{{ .Values.postgis.postgresHost | default "postgis" }}
 {{- end -}}
 
 {{/*

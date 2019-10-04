@@ -1,21 +1,31 @@
+## postgresUser is the initial user added to the system. This is freqently the
+## postgres user. This user will have superuser abilities.
+postgresUser: postgres
+
+## postgresPassword the password for postgresUser, if using auto generated password
+## make sure to save the password as described in the notes. When upgrading you will
+## need to provide this secret otherwise a new secret will be generated but not
+## saved in the database.
+# postgresPassword: password
+
+## postgresDb the initial database generated.
+postgresDb: postgres
+
+# -------------------------------------------------------------------------------
+
 image:
   repository: mdillon/postgis
   tag: 9.5
   pullPolicy: IfNotPresent
 
 imagePullSecrets: []
+
+# -------------------------------------------------------------------------------
+
 nameOverride: ""
 fullnameOverride: ""
 
-# commKey:
-# appsecret:
-
-## PostgreSQL custom user and database
-## ref: 
-##
-postgresUser: postgres
-# postgresPassword: password
-postgresDb: postgres
+# -------------------------------------------------------------------------------
 
 ## Kubernetes service type
 service:
