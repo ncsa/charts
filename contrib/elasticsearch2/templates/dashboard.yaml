@@ -1,0 +1,93 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: "{{ template "elasticsearch2.fullname" . }}-elastichq"
+  labels:
+    app: {{ template "elasticsearch2.name" . }}
+    chart: {{ template "elasticsearch2.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    component: "elastichq"
+spec:
+  type: ClusterIP
+  ports:
+    - port: 5000
+      targetPort: ui
+      protocol: TCP
+      name: ui
+  selector:
+    app: {{ template "elasticsearch2.name" . }}
+    release: {{ .Release.Name }}
+    component: "elastichq"
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: "{{ template "elasticsearch2.fullname" . }}-elastichq"
+  labels:
+    app: {{ template "elasticsearch2.name" . }}
+    chart: {{ template "elasticsearch2.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    component: "elastichq"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ template "elasticsearch2.name" . }}
+      release: {{ .Release.Name }}
+      component: "elastichq"
+  template:
+    metadata:
+      labels:
+        app: {{ template "elasticsearch2.name" . }}
+        release: {{ .Release.Name }}
+        component: "elastichq"
+    spec:
+      containers:
+       - name: elastichq
+         image: elastichq/elasticsearch-hq
+         env:
+          - name: HQ_DEFAULT_URL
+            value: "http://{{ template "elasticsearch2.fullname" . }}-api:9200"
+         ports:
+          - name: ui
+            containerPort: 5000
+---
+{{- if .Values.ingress.enabled -}}
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: "{{ template "elasticsearch2.fullname" . }}-elastichq"
+  labels:
+    app: {{ template "elasticsearch2.name" . }}
+    chart: {{ template "elasticsearch2.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    component: "elastichq"
+spec:
+  # FIXME: These rules will almost certainly conflict with another service (e.g. /api conflicts with Clowder)
+  # Recommend either wildcard DNS or a distinct hostname (e.g. elastic.kooper.dyn.ncsa.edu) pointing to the same IP.
+  rules:
+  - host: {{ .Values.ingress.host }}
+    http:
+      paths:
+      - path: /api/
+        backend:
+          serviceName: "{{ template "elasticsearch2.fullname" . }}-elastichq"
+          servicePort: "ui"
+      - path: /favicon.ico
+        backend:
+          serviceName: "{{ template "elasticsearch2.fullname" . }}-elastichq"
+          servicePort: "ui"
+      - path: /static/
+        backend:
+          serviceName: "{{ template "elasticsearch2.fullname" . }}-elastichq"
+          servicePort: "ui"
+      - path: /elastic
+        backend:
+          serviceName: "{{ template "elasticsearch2.fullname" . }}-elastichq"
+          servicePort: "ui"
+---
+{{- end -}}
+
