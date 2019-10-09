@@ -45,12 +45,11 @@ spec:
                   name: {{ .Release.Name }}
                   key: clowder-secret
           livenessProbe:
-            httpGet:
-              path: /
+            tcpSocket:
               port: monitor
           readinessProbe:
             httpGet:
-              path: /
+              path: {{ .Values.monitor.ingress.path }}
               port: monitor
           resources:
             {{- toYaml .Values.resources | nindent 12 }}

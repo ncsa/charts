@@ -7,8 +7,7 @@ replicaCount: 1
 image:
   repository: clowder
   name: clowder
-  #tag: 1.7.3
-  tag: test
+  tag: 1.7.3
   pullPolicy: IfNotPresent
 
 imagePullSecrets: []
@@ -59,6 +58,26 @@ users:
 ## Set this to true if you plan on running this on your localhost, and all extractors run
 ## inside the kubernetes environment.
 fixRabbitmqClowderUrl: false
+
+## Where should clowder store the files. The default is to use disk storage that is
+## mounted into the clowder pod.
+storage:
+  disk: {}
+
+  ## S3 storage, this uses S3 storage, following are parameters needed
+  ## bucket: the bucket data is written
+  ## region: what datacenter the data is stored at
+  ## endpoint: URL to access the data
+  ## access_key: needed to access the data
+  ## secret_key: needed to access the data
+  # s3:
+  #   bucket: clowder
+  #   region: us-east-1
+  #   endpoint: https://clowder.s3-us-east-1.amazonaws.com
+  #   access_key: access_key
+  #   secret_key: secret_key
+
+
 
 ## list of extractors to be installed. Each extractor should have the 
 ## following fields:
@@ -143,7 +162,8 @@ ingress:
   enabled: false
   annotations: {}
     # kubernetes.io/ingress.class: "nginx"
-  #host: clowder.localhost
+  # hosts:
+  #   - clowder.localhost
   path: /
   tls:
   #  - secretName: chart-example-tls
@@ -168,8 +188,8 @@ monitor:
   ingress:
     enabled: true
     annotations: {}
-      # kubernetes.io/ingress.class: "nginx"
-    host: kooper.dyn.ncsa.edu
+    #hosts:
+    #  - clowder.localhost
     path: /monitor/
     tls:
     #  - secretName: chart-example-tls
@@ -226,7 +246,8 @@ rabbitmq:
 #
 elasticsearch:
   enabled: false
-  
+  replicaCount: 1
+
 # ----------------------------------------------------------------------
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious

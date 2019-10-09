@@ -30,8 +30,19 @@ data:
     smtp.host={{ .Values.smtp.host | default "stmp" | quote }}
 {{- end }}
     # storage
+{{- if .Values.storage.s3 }}
+    service.byteStorage=services.s3.S3ByteStorageService
+    clowder.s3.serviceEndpoint={{ .Values.storage.s3.endpoint | quote }}
+    clowder.s3.bucketName={{ .Values.storage.s3.bucket | quote }}
+{{- if .Values.storage.s3.region }}
+    clowder.s3.region={{ .Values.storage.s3.region | quote }}
+{{- end }}
+    clowder.s3.accessKey={{ .Values.storage.s3.access_key | quote }}
+    clowder.s3.secretKey={{ .Values.storage.s3.secret_key | quote }}
+{{- else }}
     service.byteStorage=services.filesystem.DiskByteStorageService
     clowder.diskStorage.path="/home/clowder/data"
+{{- end }}
     # mongo server
     mongodbURI={{ include "clowder.mongodburi" . | quote }}
 {{- if .Values.rabbitmq.enabled }}

@@ -23,12 +23,23 @@ spec:
   {{- end }}
 {{- end }}
   rules:
-    - host: {{ .Values.monitor.ingress.host }}
+{{- if .Values.monitor.ingress.hosts }}
+  {{- range .Values.monitor.ingress.hosts }}
+    - host: {{ . }}
       http:
         paths:
-          - path: {{ .Values.monitor.ingress.path }}
+          - path: {{ $.Values.monitor.ingress.path }}
             backend:
               serviceName: {{ $fullName }}-monitor
               servicePort: monitor
+  {{- end }}
+{{- else }}
+    - http:
+        paths:
+          - path: {{ $.Values.monitor.ingress.path }}
+            backend:
+              serviceName: {{ $fullName }}-monitor
+              servicePort: monitor
+{{- end }}
 {{- end }}
 {{- end }}
