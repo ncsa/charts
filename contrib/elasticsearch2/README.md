@@ -25,7 +25,7 @@ Below are the supported configuration options that can be overridden or customiz
 | `storage.storageClass` | The storage class to use to provision the elasticsearch data PVC | (empty - use cluster default) |
 | `storage.capacity` | The size of the PVC to provision for elasticsearch data | `1Gi` |
 | `image.repository` | The Docker image repo/name to run | `elasticsearch` |
-| `image.tag` | The Docker image tag to run | `2` |
+| `image.tag` | The Docker image tag to run | `2.4.6` |
 | `image.pullPolicy` | The Docker image pullPolicy to use when running | `IfNotPresent` |
 | `ingress.enabled` | Whether an ingress rule should be deployed for ElasticHQ | `true` |
 | `ingress.host` | The hostname to use for the ingress rule | `kooper.dyn.ncsa.edu` |

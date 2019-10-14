@@ -13,5 +13,7 @@ data:
     network.host: _local_, _site_
     http.cors.allow-origin: "*"
     http.cors.enabled: true
+    path.data: "/usr/share/elasticsearch/data"
+    path.logs: "/usr/share/elasticsearch/logs"
     node.name: ${HOSTNAME}
 {{ toYaml .Values.elasticsearch.config | indent 4 }}

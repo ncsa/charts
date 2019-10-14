@@ -15,15 +15,13 @@ image:
 
 # Whether we should create an ingress rule for the elastichq dashboard
 ingress:
-  enabled: true
-  host: kooper.dyn.ncsa.edu
+  enabled: false
+  host: "elasticsearch.localhost"
 
 # Drop-in values for elasticsearch.yml config file:
 elasticsearch:
   config:
     cluster.name: "clowder"
-    path.data: "/usr/share/elasticsearch/data"
-    path.logs: "/usr/share/elasticsearch/logs"
     #discovery.zen.minimum_master_nodes: 2 # ${NODE_QUORUM}
 
 
