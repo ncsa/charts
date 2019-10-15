@@ -1,0 +1,71 @@
+apiVersion: apps/v1beta2
+kind: StatefulSet
+metadata:
+  name: {{ template "elasticsearch2.fullname" . }}
+  labels:
+    app: {{ template "elasticsearch2.name" . }}
+    chart: {{ template "elasticsearch2.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    component: "elasticsearch"
+spec:
+  replicas: {{ .Values.replicaCount }}
+  serviceName: {{ template "elasticsearch2.name" . }}
+  selector:
+    matchLabels:
+      app: {{ template "elasticsearch2.name" . }}
+      release: {{ .Release.Name }}
+      component: "elasticsearch"
+  template:
+    metadata:
+      labels:
+        app: {{ template "elasticsearch2.name" . }}
+        release: {{ .Release.Name }}
+        component: "elasticsearch"
+    spec:
+      volumes:
+        - name: es-config
+          configMap:
+            name: {{ template "elasticsearch2.fullname" . }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: api
+              containerPort: 9200
+              protocol: TCP
+            - name: transport
+              containerPort: 9300
+              protocol: TCP
+          volumeMounts:
+            - name: es-config
+              mountPath: /usr/share/elasticsearch/config/elasticsearch.yml
+              subPath: elasticsearch.yml
+            - name: {{ template "elasticsearch2.fullname" . }}-data
+              mountPath: "/usr/share/elasticsearch/data"
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+    {{- with .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+  volumeClaimTemplates:
+  - metadata:
+      name: {{ template "elasticsearch2.fullname" . }}-data
+    spec:
+      accessModes: {{ .Values.storage.accessModes }}
+      {{- with .Values.storage.storageClass }}
+      storageClassName: {{ .Values.storage.storageClass }}
+      {{- end }}
+      resources:
+        requests:
+          storage: {{ .Values.storage.capacity }}

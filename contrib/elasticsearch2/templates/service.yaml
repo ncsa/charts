@@ -1,0 +1,47 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: "{{ template "elasticsearch2.fullname" . }}-discovery"
+  annotations:
+    service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
+  labels:
+    app: {{ template "elasticsearch2.name" . }}
+    chart: {{ template "elasticsearch2.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    component: "elasticsearch"
+spec:
+  clusterIP: None
+  type: ClusterIP
+  publishNotReadyAddresses: true
+  ports:
+    - port: 9300
+      targetPort: transport
+      protocol: TCP
+      name: transport
+  selector:
+    app: {{ template "elasticsearch2.name" . }}
+    release: {{ .Release.Name }}
+    component: "elasticsearch"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: "{{ template "elasticsearch2.fullname" . }}-api"
+  labels:
+    app: {{ template "elasticsearch2.name" . }}
+    chart: {{ template "elasticsearch2.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    component: "elasticsearch"
+spec:
+  type: ClusterIP
+  ports:
+    - port: 9200
+      targetPort: api
+      protocol: TCP
+      name: api
+  selector:
+    app: {{ template "elasticsearch2.name" . }}
+    release: {{ .Release.Name }}
+    component: "elasticsearch"

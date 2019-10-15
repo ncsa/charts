@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "elasticsearch2.fullname" . }}
+  labels:
+    app: {{ template "elasticsearch2.name" . }}
+    chart: {{ template "elasticsearch2.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+data:
+  elasticsearch.yml: |
+    discovery.zen.ping.unicast.hosts: "{{ template "elasticsearch2.fullname" . }}-discovery"
+    network.host: _local_, _site_
+    http.cors.allow-origin: "*"
+    http.cors.enabled: true
+    path.data: "/usr/share/elasticsearch/data"
+    path.logs: "/usr/share/elasticsearch/logs"
+    node.name: ${HOSTNAME}
+{{ toYaml .Values.elasticsearch.config | indent 4 }}
