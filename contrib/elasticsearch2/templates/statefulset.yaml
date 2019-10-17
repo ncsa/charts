@@ -23,6 +23,9 @@ spec:
         release: {{ .Release.Name }}
         component: "elasticsearch"
     spec:
+      securityContext:
+        runAsUser: 101
+        fsGroup: 101
       volumes:
         - name: es-config
           configMap:
