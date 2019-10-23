@@ -1,5 +1,5 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: apps/v1beta2
+kind: StatefulSet
 metadata:
   name: {{ include "postgis.fullname" . }}
   labels:
@@ -31,7 +31,7 @@ spec:
           env:
             {{- if .Values.postgresUser }}
             - name: POSTGRES_USER
-              value: {{ .Values.postgresUser }}
+              value: {{ .Values.postgresUser | quote }}
             {{- end }}
             - name: POSTGRES_PASSWORD
               valueFrom:
@@ -40,19 +40,41 @@ spec:
                   key: postgres-password
             {{- if .Values.postgresDB }}
             - name: POSTGRES_DB
-              value: {{ .Values.postgresDB  }}
+              value: {{ .Values.postgresDB | quote }}
             {{- end }}
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
           livenessProbe:
-            tcpSocket:
-              port: postgres
-            initialDelaySeconds: 10
+            exec:
+              command:
+                - sh
+                - -c
+                - pg_isready -U {{ .Values.postgresUser | quote }} -h 127.0.0.1 -p {{ .Values.service.port }}
+            initialDelaySeconds: 240
           readinessProbe:
             exec:
               command:
-                - pg_isready
+                - sh
+                - -c
+                - pg_isready -U {{ .Values.postgresUser | quote }} -h 127.0.0.1 -p {{ .Values.service.port }}
             initialDelaySeconds: 10
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+        - name: data
+      {{- if not .Values.persistence.enabled }}
+          emptyDir: {}
+      {{- else }}
+          persistentVolumeClaim:
+        {{- if .Values.persistence.existingClaim }}
+          {{- with .Values.persistence.existingClaim }}
+            claimName: {{ tpl . $ }}
+          {{- end }}
+        {{- else }}
+            claimName: {{ include "postgis.fullname" . }}
+        {{- end }}
+      {{- end }}
     {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
