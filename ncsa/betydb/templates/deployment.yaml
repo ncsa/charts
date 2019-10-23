@@ -22,46 +22,19 @@ spec:
     {{- end }}
       initContainers:
         - name: check-postgres
-          image: pecan/pecan-check:latest
+          image: pecan/check:test
           imagePullPolicy: Always
           command: ['./check_postgresql']
           env:
-            - name: PGHOST
-              value: {{ include "betydb.postgisHost" . | quote }}
-            - name: PGPORT
-              value: {{ .Values.postgis.service.port | quote }}
-            - name: PGUSER
-              value: {{ .Values.postgis.postgresUser | quote }}
+{{ include "betydb.postgisEnv" . | indent 12 }}
         - name: bety-init
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: Always
           #command: ['sleep', '3600']
           args: ['onetimeinit']
           env:
-            - name: LOCAL_SERVER
-              value: {{ .Values.localServer | quote }}
-            - name: INITIALIZE_URL
-              value: ""
-            - name: PGHOST
-              value: {{ include "betydb.postgisHost" . | quote }}
-            - name: PGPORT
-              value: {{ .Values.postgis.service.port | quote }}
-            - name: PGUSER
-              value: {{ .Values.postgis.postgresUser | quote }}
-            - name: PGPASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Release.Name }}-postgis
-                  key: postgres-password
-            - name: BETYUSER
-              value: {{ .Values.betyUser | quote }}
-            - name: BETYPASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "betydb.fullname" . }}
-                  key: bety-password
-            - name: BETYDATABASE
-              value: {{ .Values.betyDatabase | quote }}
+{{ include "betydb.postgisEnv" . | indent 12 }}
+{{ include "betydb.betydbEnv" . | indent 12 }}
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -83,28 +56,8 @@ spec:
               value: {{ .Values.ingress.path | default "" | trimSuffix "/" | quote }}
             - name: RAILS_LOG_TO_STDOUT
               value: "true"
-            - name: LOCAL_SERVER
-              value: {{ .Values.localServer | quote }}
-            - name: PGHOST
-              value: {{ include "betydb.postgisHost" . | quote }}
-            - name: PGPORT
-              value: {{ .Values.postgis.service.port | quote }}
-            - name: PGUSER
-              value: {{ .Values.postgis.postgresUser | quote }}
-            - name: PGPASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Release.Name }}-postgis
-                  key: postgres-password
-            - name: BETYUSER
-              value: {{ .Values.betyUser | quote }}
-            - name: BETYPASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "betydb.fullname" . }}
-                  key: bety-password
-            - name: BETYDATABASE
-              value: {{ .Values.betyDatabase | quote }}
+{{ include "betydb.postgisEnv" . | indent 12 }}
+{{ include "betydb.betydbEnv" . | indent 12 }}
           volumeMounts:
             - name: database-yaml
               mountPath: /home/bety/config/database.yml

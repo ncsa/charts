@@ -38,26 +38,9 @@ addGuestUser: false
 ## for demo instances or testing.
 addSampleUsers: false
 
-# -------------------------------------------------------------------------------
-
-image:
-  repository: pecan/bety
-  #tag: 5.2.1
-  tag: test
-  pullPolicy: IfNotPresent
-
-imagePullSecrets: []
-
-# -------------------------------------------------------------------------------
-
-nameOverride: ""
-fullnameOverride: ""
-
-# -------------------------------------------------------------------------------
-
-service:
-  type: ClusterIP
-  port: 8000
+## initializeURL is the URL that has the initial set of data. The default is
+## a full dump of the BETY database (all servers).
+initializeURL: "https://ebi-forecast.igb.illinois.edu/pecan/dump/all/bety.tar.gz"
 
 # -------------------------------------------------------------------------------
 
@@ -82,6 +65,29 @@ postgis:
 
   ## postgresDb the initial database generated.
   #postgresDb: postgres
+
+# -------------------------------------------------------------------------------
+
+image:
+  repository: pecan/bety
+  #tag: 5.2.1
+  tag: test
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+
+# -------------------------------------------------------------------------------
+
+nameOverride: ""
+fullnameOverride: ""
+
+# -------------------------------------------------------------------------------
+
+service:
+  type: ClusterIP
+  port: 8000
+
+# -------------------------------------------------------------------------------
 
 ## Configure the ingress resource that allows you to access the
 ## BETY installation. Set up the URL

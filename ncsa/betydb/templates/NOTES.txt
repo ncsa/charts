@@ -30,8 +30,13 @@
 
     rm secrets-betydb.yaml
     echo betyPassword: $(kubectl get secret --namespace {{ .Release.Namespace }} {{ include "betydb.fullname" . }} -o jsonpath="{.data.bety-password}" | base64 --decode) >> secrets-betydb.yaml
+    echo secretKey: $(kubectl get secret --namespace {{ .Release.Namespace }} {{ include "betydb.fullname" . }} -o jsonpath="{.data.secretKey}" | base64 --decode) >> secrets-betydb.yaml
     echo "postgis:" >> secrets-betydb.yaml
+{{- if and (not .Values.postgis.enabled) .Values.postgis.postgresPassword }}
+    echo "  postgresPassword: $(kubectl get secret --namespace {{ .Release.Namespace }} {{ include "betydb.fullname" . }} -o jsonpath="{.data.postgres-password}" | base64 --decode)" >> secrets-betydb.yaml
+{{- else }}
     echo "  postgresPassword: $(kubectl get secret --namespace {{ .Release.Namespace }} {{ .Release.Name }}-postgis -o jsonpath="{.data.postgres-password}" | base64 --decode)" >> secrets-betydb.yaml
+{{- end }}
 
   Followed by the actual upgrade
 

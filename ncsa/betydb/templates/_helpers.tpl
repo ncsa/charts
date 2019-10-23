@@ -48,8 +48,44 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 Postgres Host
 */}}
 {{- define "betydb.postgisHost" -}}
-{{ .Release.Name }}-{{ .Values.postgis.postgresHost | default "postgis" }}
+{{- if .Values.postgis.enabled -}}
+{{ .Release.Name }}-{{ .Values.postgis.postgresHost }}
+{{- else -}}
+{{ .Values.postgis.postgresHost }}
 {{- end -}}
+{{- end -}}
+
+{{/*
+Postgres Host
+*/}}
+{{- define "betydb.postgisPort" -}}
+{{- if .Values.postgis.service -}}
+{{ .Values.postgis.service.port }}
+{{- else -}}
+{{ .Values.postgis.postgresPort | default "5432" }}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Environment variables for PostgreSQL
+*/}}
+{{- define "betydb.postgisEnv" -}}
+- name: PGHOST
+  value: {{ include "betydb.postgisHost" . | quote }}
+- name: PGPORT
+  value: {{ include "betydb.postgisPort" . | quote }}
+- name: PGUSER
+  value: {{ .Values.postgis.postgresUser | default "postgres" | quote }}
+- name: PGPASSWORD
+  valueFrom:
+    secretKeyRef:
+{{- if .Values.postgis.enabled -}}
+      name: {{ .Release.Name }}-postgis
+{{- else }}
+      name: {{ include "betydb.fullname" . }}
+{{- end }}
+      key: postgres-password
+{{- end }}
 
 {{/*
 Create the flags needed when initializing the BETY database
@@ -68,3 +104,24 @@ $flags = ""
   {{- end -}}
 {{- end -}}
 {{- end -}}
+
+{{/*
+Environment variables for BetyDB
+*/}}
+{{- define "betydb.betydbEnv" -}}
+- name: BETYUSER
+  value: {{ .Values.betyUser | quote }}
+- name: BETYPASSWORD
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "betydb.fullname" . }}
+      key: bety-password
+- name: BETYDATABASE
+  value: {{ .Values.betyDatabase | quote }}
+- name: LOCAL_SERVER
+  value: {{ .Values.localServer | quote }}
+{{- if .Values.initializeURL }}
+- name: INITIALIZE_URL
+  value: "-w {{ .Values.initializeURL }}"
+{{- end }}
+{{- end }}

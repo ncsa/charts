@@ -15,4 +15,4 @@ data:
       password: <%= ENV['BETYPASSWORD'] %>
       database: {{ .Values.betyDatabase }}
       host: {{ include "betydb.postgisHost" . }}
-      port: {{ .Values.postgis.service.port }}
+      port: {{ include "betydb.postgisPort" . }}
