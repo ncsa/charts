@@ -5,10 +5,10 @@ metadata:
   labels:
 {{ include "pecan.labels" . | indent 4 }}
 spec:
-  type: {{ .Values.service.type }}
+  type: {{ .Values.docs.service.type }}
   ports:
     - name: pecan-docs
-      port: 80
+      port: {{ .Values.docs.service.port }}
       targetPort: pecan-docs
       protocol: TCP
   selector:

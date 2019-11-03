@@ -1,0 +1,75 @@
+{{- if .Values.models }}
+{{- $fullname := include "pecan.fullname" . }}
+{{- $labels := include "pecan.labels" . }}
+{{- $rabbitmqEnv := include "pecan.env.rabbitmq" . }}
+{{- range $key, $val := .Values.models }}
+{{- if .enabled }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $fullname }}-model-{{ $key }}
+  labels:
+{{ $labels | indent 4 }}
+spec:
+  replicas: {{ .replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ $fullname }}-model-{{ $key }}
+      app.kubernetes.io/instance: {{ $.Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ $fullname }}-model-{{ $key }}
+        app.kubernetes.io/instance: {{ $.Release.Name }}
+    spec:
+    {{- with $.Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      initContainers:
+        - name: check-rabbitmq
+          image: "{{ $.Values.image.project }}/check:{{ $.Values.image.tag }}"
+          imagePullPolicy: {{ $.Values.image.pullPolicy }}
+          command: ['./check_rabbitmq']
+          env:
+{{ $rabbitmqEnv | indent 12 }}
+      containers:
+        - name: {{ $.Chart.Name }}-model-{{ $key }}
+          image: "{{ .project | default $.Values.image.project }}/{{ .image }}:{{ .tag | default $.Values.image.tag }}"
+          imagePullPolicy: {{ $.Values.image.pullPolicy }}
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          env:
+{{ $rabbitmqEnv | indent 12 }}
+{{- if .env }}
+            {{- toYaml .env | nindent 12 }}
+{{- end }}
+{{- if .resources }}
+          resources:
+            {{- toYaml .resources | nindent 12 }}
+{{- end }}
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+{{- if $.Values.persistence.existingClaim }}
+            claimName: {{ $.Values.persistence.existingClaim }}
+{{- else }}
+            claimName: {{ $fullname }}-data
+{{- end }}
+      {{- with .nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+{{- end }}
+{{- end }}
+{{- end }}

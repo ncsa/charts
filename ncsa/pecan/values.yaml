@@ -1,55 +1,43 @@
-# Default values for pecan.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
-
-replicaCount: 1
+## -------------------------------------------------------------------------------
+## PECAN COMMON VARIABLES
+## -------------------------------------------------------------------------------
 
 image:
   project: pecan
-  tag: 5.2.1
+  tag: 1.7.1
   pullPolicy: IfNotPresent
 
 imagePullSecrets: []
+
 nameOverride: ""
 fullnameOverride: ""
 
-service:
-  type: ClusterIP
+## -------------------------------------------------------------------------------
+## CLUSTER CONFIGURATION
+## -------------------------------------------------------------------------------
+#clustername: docker
+#clusterfqdn: docker.example.com
 
-bety:
-  initialize: true
+## initializeData when set to true will initialize the database with some data on
+## a new install. This will add an extra wait of about 5 minutes.
+initializeData: false
 
-  localServer: 98
-
-  remoteservers: "0, 1, 2, 5"
-
-  processes: 1
-
-  # secretKey: notasecret
-
-  username: pecan
-
-  # password: pecan
-
-  database: pecan
-
-  postgis:
-    install: true
-    username: postgres
-    # database: postgres
-    # password: 
+## -------------------------------------------------------------------------------
+## INGRESS RULES
+## -------------------------------------------------------------------------------
 
 ## Configure the ingress resource that allows you to access the
-## BETY installation. Set up the URL
+## PECAN installation.
 ## ref: http://kubernetes.io/docs/user-guide/ingress/
-##
 ingress:
-  ## Set to true to enable ingress record generation
-  enabled: false
+  ## should ingress rules be enabled (betydb is set below)
+  enabled: &pecan_ingress false
 
-  ## The list of hostnames to be covered with this ingress record.
-  ## Most likely this will be just one host, but in the event more hosts are needed, this is an array
-  # hostName: pecan.example.com
+  ## path prefix for all applications (betydb is set below)
+  path: /
+
+  ## hostName used for the ingress rules (betydb is set below)
+  hostName: &pecan_hostname pecan.localhost
 
   tls: []
   #  - secretName: chart-example-tls
@@ -67,6 +55,312 @@ ingress:
   annotations:
   #  kubernetes.io/ingress.class: nginx
   #  kubernetes.io/tls-acme: true
+
+## -------------------------------------------------------------------------------
+## PECAN DOCUMENTATION
+## -------------------------------------------------------------------------------
+
+docs:
+  ## replicaCount is the number of instances that should be running.
+  replicaCount: 1
+
+  ## service options
+  service:
+    ## ServiceType
+    ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
+    type: ClusterIP
+
+    ## port the service is listening on
+    ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service
+    port: 8000
+
+  ## Resources
+  ## ref: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container
+  resources: {}
+
+  ## Support Node, affinity and tolerations for flower pod assignment
+  ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector
+  ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+  ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#taints-and-tolerations-beta-feature
+  nodeSelector: {}
+  affinity: {}
+  tolerations: []
+
+## -------------------------------------------------------------------------------
+## PECAN WEB APP
+## -------------------------------------------------------------------------------
+
+web:
+  ## replicaCount is the number of instances that should be running.
+  replicaCount: 1
+
+  ## service options
+  service:
+    ## ServiceType
+    ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
+    type: ClusterIP
+
+    ## port the service is listening on
+    ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service
+    port: 8888
+
+  ## Resources
+  ## ref: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container
+  resources: {}
+
+  ## Support Node, affinity and tolerations for flower pod assignment
+  ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector
+  ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+  ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#taints-and-tolerations-beta-feature
+  nodeSelector: {}
+  affinity: {}
+  tolerations: []
+
+## -------------------------------------------------------------------------------
+## PECAN EXECUTOR
+## -------------------------------------------------------------------------------
+
+executor:
+  ## replicaCount is the number of instances that should be running.
+  replicaCount: 1
+
+  ## Resources
+  ## ref: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container
+  resources: {}
+
+  ## Support Node, affinity and tolerations for flower pod assignment
+  ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector
+  ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+  ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#taints-and-tolerations-beta-feature
+  nodeSelector: {}
+  affinity: {}
+  tolerations: []
+
+## -------------------------------------------------------------------------------
+## PECAN MODEL MONITOR
+## -------------------------------------------------------------------------------
+
+monitor:
+  ## replicaCount is the number of instances that should be running.
+  replicaCount: 1
+
+  ## service options
+  service:
+    ## ServiceType
+    ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
+    type: ClusterIP
+
+    ## port the service is listening on
+    ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service
+    port: 9999
+
+  ## Resources
+  ## ref: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container
+  resources: {}
+
+  ## Support Node, affinity and tolerations for flower pod assignment
+  ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector
+  ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+  ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#taints-and-tolerations-beta-feature
+  nodeSelector: {}
+  affinity: {}
+  tolerations: []
+
+## -------------------------------------------------------------------------------
+## PECAN RSTUDIO
+## -------------------------------------------------------------------------------
+
+rstudio:
+  ## enabled is set to true if rstudio should be added  
+  enabled: true
+  
+  ## replicaCount is the number of instances that should be running.
+  replicaCount: 1
+
+  ## service options
+  service:
+    ## ServiceType
+    ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
+    type: ClusterIP
+
+    ## port the service is listening on
+    ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service
+    port: 8787
+
+  ## ingress options
+  ingress:
+    ## enabled should be true when the ingress route should be added
+    enabled: false
+
+    ## hostName is the hostname that the ingress route should listen for
+    # hostName
+
+    ## path is the path that is used when the ingress route is to be exposed
+    path: /rstudio/
+
+  ## Resources
+  ## ref: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container
+  resources: {}
+
+  ## Support Node, affinity and tolerations for flower pod assignment
+  ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector
+  ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+  ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#taints-and-tolerations-beta-feature
+  nodeSelector: {}
+  affinity: {}
+  tolerations: []
+
+## -------------------------------------------------------------------------------
+## PECAN MODELS
+## -------------------------------------------------------------------------------
+
+## list of models to be installed. Each model should have the  following fields:
+## enabled      : true/false - should the extractor be installed
+## project      : the project (or server) where the image is stored, if this is
+##                not specified it will use the same as image.project
+## image        : docker/image:tag - the extractor docker image
+## tag.         : the tagof the image to be used, if this is not specified it
+##                will use the same as image.tag
+## replicaCount : number - the number of this extractor to install
+## env          : additional environment variables to pass to extractor.
+## you can also specify resources, nodeSelector, affinity and tolerations.
+##
+## the image that is pulled will be create based on project/image:tag.
+models:
+  biocro-0-95:
+    enabled: true
+    image: model-biocro-0.95
+  ed2-git:
+    enabled: true
+    image: model-ed2-git
+  maespa-git:
+    enabled: true
+    image: model-maespa-git
+  sipnet-git:
+    enabled: true
+    image: model-sipnet-git
+  sipnet-136:
+    enabled: true
+    image: model-sipnet-r136
+
+## -------------------------------------------------------------------------------
+## BETYDB APPLICATION AND DATABASE
+## -------------------------------------------------------------------------------
+
+betydb:
+  ## replicaCount is the number of instances for BETYDB. Each instance can also
+  ## have multuiple workers as defined by workers below.
+  replicaCount: 1
+
+  ## workers is the number of workers for each BETYDB replica. The total number
+  ## of simultanous connections is replicaCount * workers.
+  workers: 1
+
+  ## localServer is the ID for this intance. To be able to synchronize your data
+  ## with the PEcAn network you will need to request a unique number. This can
+  ## be done at https://forms.gle/m3SnMVh8WVHyL6eH8
+  localServer: 99
+
+  ## remoteservers is the list of all remote servers you want to synchronize with.
+  ## This is the list you will receive data from.
+  remoteservers: "0, 1, 2, 5"
+
+  ## betyUser is the user that is used with PostgreSQL. BETYDB and PEcAn will use
+  ## this user to connect to the database and read and write to the database. 
+  betyUser: bety
+
+  ## betyPassword the password used when connecting to the database from BETYDB
+  ## and PEcAn. If the password is generated it will need to be saved to prevent
+  ## the system from not being able to connect on upgrades. After the chart is
+  ## installed it will show instructions on how to save the password.
+  #betyPassword: bety
+
+  ## betyDatabase the database that will be created and that BETYDB adn PEcAn
+  ## will connect to and write data.
+  betyDatabase: bety
+
+  ## addGuestUser when true, the guestuser account will be added to the local
+  ## list of users. This will enable the guest login button on the web interface.
+  addGuestUser: false
+
+  ## addSampleUsers when true will add sample users to the database. All of the
+  ## users will have a well known password, this should only be set to true
+  ## for demo instances or testing.
+  addSampleUsers: false
+
+  # -----------------------------------------------------------------------------
+
+  ingress:
+    ## should ingress rules be enabled (betydb is set below, monitor is set below)
+    enabled: *pecan_ingress
+
+    ## path prefix for all applications (betydb is set below)
+    path: /bety/
+
+    ## hostName used for the ingress rules (betydb is set below)
+    hostName: *pecan_hostname
+
+  # -----------------------------------------------------------------------------
+
+  ## All data for BETYDB will be stored in PostgreSQL and PostGIS.
+  postgis:
+    ## enabled should the postgresql/postgis chart be installed as well. If not make
+    ## sure that the other values are provied to get access to the database.
+    enabled: true
+
+    ## postgresHost host where postgresql is installed.
+    # postgresHost: postgis
+
+    ## postgresUser is the initial user added to the system. This is freqently the
+    ## postgres user. This user will have superuser abilities.
+    # postgresUser: postgres
+
+    ## postgresPassword the password for postgresUser, if using auto generated password
+    ## make sure to save the password as described in the notes. When upgrading you will
+    ## need to provide this secret otherwise a new secret will be generated but not
+    ## saved in the database.
+    # postgresPassword: password
+
+    ## postgresDb the initial database generated.
+    #postgresDb: postgres
+
+## -------------------------------------------------------------------------------
+## PECAN APPLICATION DATA
+## -------------------------------------------------------------------------------
+
+## Enable persistence using Persistent Volume Claims
+## ref: http://kubernetes.io/docs/user-guide/persistent-volumes/
+persistence:
+  ## A manually managed Persistent Volume and Claim
+  ## If defined, PVC must be created manually before volume will be bound
+  ##
+  # existingClaim:
+
+  ## The path the volume will be mounted at, useful when using different
+  ## PostgreSQL images.
+  ##
+  mountPath: /data
+
+  ## If defined, storageClassName: <storageClass>
+  ## If set to "-", storageClassName: "", which disables dynamic provisioning
+  ## If undefined (the default) or set to null, no storageClassName spec is
+  ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+  ##   GKE, AWS & OpenStack)
+  ##
+  #storageClass: "-"
+
+  ## sisze of the storage class
+  size: 20Gi
+
+  ## Annotations
+  annotations: {}
+
+# -------------------------------------------------------------------------------
+
+service:
+  type: ClusterIP
+
+# -------------------------------------------------------------------------------
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious

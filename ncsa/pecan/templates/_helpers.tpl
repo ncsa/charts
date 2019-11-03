@@ -43,3 +43,69 @@ app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end -}}
+
+{{/*
+Cluster environment
+*/}}
+{{- define "pecan.env.cluster" -}}
+- name: NAME
+  value: {{ required "A valid .Values.clustername entry required!" .Values.clustername }}
+- name: FQDN
+{{- if .Values.clusterfqdn }}
+  value: {{ .Values.clusterfqdn | quote }}
+{{- else }}
+  value: {{ .Values.clustername | quote }}
+{{- end }}
+{{- end -}}
+
+{{/*
+RabbitMQ URI environment
+*/}}
+{{- define "pecan.env.rabbitmq" -}}
+- name: RABBITMQ_PASSWORD
+  valueFrom:
+    secretKeyRef:
+      name: {{ .Release.Name }}-rabbitmq
+      key: rabbitmq-password
+- name: RABBITMQ_URI
+  value: "amqp://{{ .Values.rabbitmq.rabbitmq.username }}:$(RABBITMQ_PASSWORD)@{{ .Release.Name }}-rabbitmq/%2F"
+{{- end -}}
+
+{{/*
+Postgresql Environment for postgres
+*/}}
+{{- define "pecan.env.postgres" -}}
+- name: PGHOST
+{{- if .Values.betydb.postgis.postgresHost }}
+  value: {{ .Values.betydb.postgis.postgresHost | quote }}
+{{- else }}
+  value: "{{ .Release.Name }}-postgis"
+{{- end }}
+- name: PGPORT
+  value: {{ .Values.betydb.postgis.service.port | default 5432 | quote }}
+- name: PGUSER
+  value: {{ .Values.betydb.postgis.postgresUser | default "postgres" | quote }}
+- name: PGPASSWORD
+  valueFrom:
+    secretKeyRef:
+      name: {{ .Release.Name }}-postgis
+      key: postgres-password
+- name: BETYUSER
+  value: {{ .Values.betydb.betyUser | default "bety" | quote }}
+- name: BETYPASSWORD
+  valueFrom:
+    secretKeyRef:
+      name: {{ .Release.Name }}-betydb
+      key: bety-password
+- name: BETYDATABASE
+  value: {{ .Values.betydb.betyDatabase | quote }}
+{{- end -}}
+
+{{/*
+BETYDB Environment for postgres
+*/}}
+{{- define "pecan.env.betydb" -}}
+- name: BETYDBURL
+  value: "http://{{ .Release.Name }}-betydb:{{ .Values.betydb.service.port | default "8000" }}{{ .Values.betydb.ingress.path | default "/" }}"
+{{- end -}}
+

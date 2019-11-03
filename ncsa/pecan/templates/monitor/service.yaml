@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "pecan.fullname" . }}-monitor
+  labels:
+{{ include "pecan.labels" . | indent 4 }}
+spec:
+  type: {{ .Values.monitor.service.type }}
+  ports:
+    - name: pecan-monitor
+      port: {{ .Values.monitor.service.port }}
+      targetPort: pecan-monitor
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: {{ include "pecan.name" . }}-monitor
+    app.kubernetes.io/instance: {{ .Release.Name }}

@@ -1,0 +1,35 @@
+{{- if .Values.rstudio.enabled }}
+{{- if .Values.rstudio.ingress.enabled -}}
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: {{ include "pecan.fullname" . }}-rstudio
+  labels:
+{{ include "pecan.labels" . | indent 4 }}
+  {{- with .Values.rstudio.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+{{- if .Values.rstudio.ingress.tls }}
+  tls:
+    - hosts:
+      {{- if  .Values.rstudio.ingress.hostName }}
+        - {{ .Values.rstudio.ingress.hostName }}
+      {{- end }}
+      secretName: {{  .Values.rstudio.ingress.tlsSecret }}
+{{- end }}
+  rules:
+  {{- if .Values.rstudio.ingress.hostName }}
+    - host: {{ .Values.rstudio.ingress.hostName }}
+      http:
+  {{- else }}
+    - http:
+  {{- end }}
+        paths:
+          - path: {{ .Values.rstudio.ingress.path }}
+            backend:
+              serviceName: {{ include "pecan.fullname" . }}-rstudio
+              servicePort: {{ include "pecan.name" . }}-rstudio
+{{- end }}
+{{- end }}

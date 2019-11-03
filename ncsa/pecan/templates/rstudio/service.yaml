@@ -1,0 +1,18 @@
+{{- if .Values.rstudio.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "pecan.fullname" . }}-rstudio
+  labels:
+{{ include "pecan.labels" . | indent 4 }}
+spec:
+  type: {{ .Values.rstudio.service.type }}
+  ports:
+    - name: {{ include "pecan.name" . }}-rstudio
+      port: 80
+      targetPort: 80
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: {{ include "pecan.name" . }}-rstudio
+    app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}

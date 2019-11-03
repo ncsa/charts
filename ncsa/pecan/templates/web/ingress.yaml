@@ -2,7 +2,7 @@
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: {{ include "pecan.fullname" }}-docs
+  name: {{ include "pecan.fullname" . }}-web
   labels:
 {{ include "pecan.labels" . | indent 4 }}
   {{- with .Values.ingress.annotations }}
@@ -26,8 +26,8 @@ spec:
     - http:
   {{- end }}
         paths:
-          - path: /
+          - path: {{ .Values.ingress.path }}pecan/
             backend:
-              serviceName: {{ include "pecan.fullname" }}-docs
-              servicePort: pecan-docs
+              serviceName: {{ include "pecan.fullname" . }}-web
+              servicePort: pecan-web
 {{- end }}

@@ -1,0 +1,61 @@
+{{- if and .Values.initializeData }}
+# do we want to add .Release.IsInstall to only run on install?
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "pecan.fullname" . }}-load-data
+  labels:
+{{ include "pecan.labels" . | indent 4 }}
+  # annotations:
+  #   # This is what defines this resource as a hook. Without this line, the
+  #   # job is considered part of the release.
+  #   "helm.sh/hook": post-install, post-upgrade
+  #   "helm.sh/hook-delete-policy": hook-succeeded
+spec:
+  ttlSecondsAfterFinished: 1
+  template:
+    metadata:
+      name: "{{.Release.Name}}"
+      labels:
+        app.kubernetes.io/name: {{ include "pecan.fullname" . }}-load-data
+        app.kubernetes.io/instance: {{ $.Release.Name }}
+    spec:
+      restartPolicy: Never
+    {{- with $.Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      initContainers:
+        - name: check-postgres
+          image: "{{ $.Values.image.project }}/check:{{ $.Values.image.tag }}"
+          imagePullPolicy: {{ $.Values.image.pullPolicy }}
+          command: ['./check_postgresql']
+          env:
+{{ include "pecan.env.postgres" . | indent 12 }}
+        - name: check-betydb
+          image: "{{ .Values.image.project }}/check:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ['./check_betydb']
+          env:
+{{ include "pecan.env.betydb" . | indent 12 }}
+      containers:
+        - name: post-install-job
+          image: "{{ $.Values.image.project }}/data:{{ $.Values.image.tag }}"
+          imagePullPolicy: {{ $.Values.image.pullPolicy }}
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          env:
+{{ include "pecan.env.postgres" . | indent 12 }}
+{{ include "pecan.env.cluster" . | indent 12 }}
+            - name: PSQL
+              value: "psql -d {{ .Values.betydb.betyDatabase }} -q -t -c"
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+{{- if $.Values.persistence.existingClaim }}
+            claimName: {{ $.Values.persistence.existingClaim }}
+{{- else }}
+            claimName: {{ include "pecan.fullname" . }}-data
+{{- end }}
+{{- end }}

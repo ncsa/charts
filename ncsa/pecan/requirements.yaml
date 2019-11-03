@@ -1,5 +1,9 @@
 dependencies:
 - name: rabbitmq
-  version: 6.4.x
-#  repository: https://isda.ncsa.illinois.edu/~kooper/charts/
-  repository: http://127.0.0.1:8879/
+  version: ~6.4
+  repository: https://kubernetes-charts.storage.googleapis.com/
+  condition: rabbitmq.enabled
+- name: betydb
+  version: ~0.1
+  repository: https://opensource.ncsa.illinois.edu/charts/
+  condition: betydb.enabled

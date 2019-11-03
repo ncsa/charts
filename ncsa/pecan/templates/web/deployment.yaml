@@ -1,0 +1,90 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "pecan.fullname" . }}-web
+  labels:
+{{ include "pecan.labels" . | indent 4 }}
+spec:
+  replicas: {{ .Values.web.replicaCount | default 1 }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "pecan.name" . }}-web
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "pecan.name" . }}-web
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+    {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      initContainers:
+        - name: check-rabbitmq
+          image: "{{ .Values.image.project }}/check:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ['./check_rabbitmq']
+          env:
+{{ include "pecan.env.rabbitmq" . | indent 12 }}
+        - name: check-postgres
+          image: "{{ $.Values.image.project }}/check:{{ $.Values.image.tag }}"
+          imagePullPolicy: {{ $.Values.image.pullPolicy }}
+          command: ['./check_postgresql']
+          env:
+{{ include "pecan.env.postgres" . | indent 12 }}
+        - name: check-betydb
+          image: "{{ .Values.image.project }}/check:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ['./check_betydb']
+          env:
+{{ include "pecan.env.betydb" . | indent 12 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.project }}/web:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: pecan-web
+              containerPort: 80
+              protocol: TCP
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          env:
+{{ include "pecan.env.rabbitmq" . | indent 12 }}
+{{ include "pecan.env.postgres" . | indent 12 }}
+{{ include "pecan.env.cluster" . | indent 12 }}
+            - name: SECRET_KEY_BASE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-betydb
+                  key: secretKey
+          livenessProbe:
+            tcpSocket:
+              port: pecan-web
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.ingress.path }}/pecan/
+              port: pecan-web
+          resources:
+            {{- toYaml .Values.web.resources | nindent 12 }}
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+{{- if $.Values.persistence.existingClaim }}
+            claimName: {{ $.Values.persistence.existingClaim }}
+{{- else }}
+            claimName: {{ include "pecan.fullname" . }}-data
+{{- end }}
+      {{- with .Values.web.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .Values.web.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.web.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}

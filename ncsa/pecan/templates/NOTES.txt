@@ -15,12 +15,32 @@
   export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ include "bety.fullname" . }} -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
   echo http://$SERVICE_IP:{{ .Values.service.port }}
 {{- else if contains "ClusterIP" .Values.service.type }}
-  export POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/name={{ include "bety.name" . }},app.kubernetes.io/instance={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
+  export POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/name={{ include "betydb.name" . }},app.kubernetes.io/instance={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
   echo "Visit http://127.0.0.1:8080 to use your application"
   kubectl port-forward $POD_NAME 8080:80
 {{- end }}
 
 2. Login with the following credentials
 
-  echo Username: {{ .Values.bety.username }}
-  echo Password: $(kubectl get secret --namespace {{ .Release.Namespace }} {{ include "bety.fullname" . }} -o jsonpath="{.data.bety-password}" | base64 --decode)
+  echo Username: {{ .Values.betydb.username }}
+  echo Password: $(kubectl get secret --namespace {{ .Release.Namespace }} {{ include "betydb.fullname" . }} -o jsonpath="{.data.betydb-password}" | base64 --decode)
+
+    rm secrets-pecan.yaml
+    echo "betydb:" >> secrets-pecan.yaml
+    echo "  betyPassword: $(kubectl get secret --namespace {{ .Release.Namespace }} {{ .Release.Name }}-betydb -o jsonpath="{.data.bety-password}" | base64 --decode)" >> secrets-pecan.yaml
+    echo "  postgis:" >> secrets-pecan.yaml
+    echo "    postgresPassword: $(kubectl get secret --namespace {{ .Release.Namespace }} {{ .Release.Name }}-postgis -o jsonpath="{.data.postgres-password}" | base64 --decode)" >> secrets-pecan.yaml
+    echo "rabbitmq:" >> secrets-pecan.yaml
+    echo "  rabbitmq:" >> secrets-pecan.yaml
+    echo "    erlangCookie: $(kubectl get secret --namespace {{ .Release.Namespace }} {{ .Release.Name }}-rabbitmq -o jsonpath="{.data.rabbitmq-erlang-cookie}" | base64 --decode)" >> secrets-pecan.yaml
+    echo "    password: $(kubectl get secret --namespace {{ .Release.Namespace }} {{ .Release.Name }}-rabbitmq -o jsonpath="{.data.rabbitmq-password}" | base64 --decode)" >> secrets-pecan.yaml
+
+  Followed by the actual upgrade
+
+    helm upgrade {{ .Release.Name }}  ncsa/{{ .Chart.Name }} -f secrets-pecan.yaml
+
+{{- if .Values.initializeData }}
+A job is added that will load some example data. Once this job is finished you can safely remove it using:
+   kubectl delete job/{{ include "pecan.fullname" . }}-load-data
+
+{{- end}}

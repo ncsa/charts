@@ -1,0 +1,17 @@
+{{- if not .Values.persistence.existingClaim }}
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ include "pecan.fullname" . }}-data
+  labels:
+{{ include "pecan.labels" . | indent 4 }}
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: {{ .Values.persistence.size | quote }}
+  {{- if .Values.persistence.storageClass -}}
+  storageClassName: {{ .Values.persistence.storageClass }}
+  {{- end -}}
+{{- end }}
