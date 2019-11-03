@@ -1,9 +1,12 @@
 dependencies:
 - name: mongodb
   repository: https://kubernetes-charts.storage.googleapis.com/
-  version: 7.2.9
+  version: 7.2.11
 - name: rabbitmq
   repository: https://kubernetes-charts.storage.googleapis.com/
-  version: 6.7.3
-digest: sha256:4385e3102e4b729b8059476e11f455ad56f9e61b22dc213e2e252bd47cf72623
-generated: "2019-09-21T12:27:18.283935-05:00"
+  version: 6.4.5
+- name: elasticsearch2
+  repository: https://opensource.ncsa.illinois.edu/charts/
+  version: 0.1.0
+digest: sha256:21b417b7717e74916e9bcd5e7461dd3447c7a03606528be4656d5a4074e484d6
+generated: "2019-10-14T21:35:36.65046-05:00"

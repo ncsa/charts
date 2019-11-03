@@ -12,6 +12,8 @@ spec:
       app.kubernetes.io/instance: {{ .Release.Name }}
   template:
     metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
       labels:
         app.kubernetes.io/name: {{ include "clowder.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
@@ -49,10 +51,11 @@ spec:
           volumeMounts:
             - name: custom-volume
               mountPath: /home/clowder/custom
+              #BROKEN NEED MOUNT HERE
           livenessProbe:
-            httpGet:
-              path: {{ .Values.ingress.path }}api/status
+            tcpSocket:
               port: clowder
+            initialDelaySeconds: 60
           readinessProbe:
             httpGet:
               path: {{ .Values.ingress.path }}api/status

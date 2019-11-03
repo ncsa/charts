@@ -224,7 +224,8 @@ mongodb:
 #
 rabbitmq:
   # either rabbitmq is installed as part of this chart, or you need to
-  # specify the rabbitmq uri
+  # specify the rabbitmq uri. If neither is specified rabbitmq will not
+  # be used by clowder.
   enabled: true
   #uri: amqp://username:password@server/database
 
@@ -236,16 +237,20 @@ rabbitmq:
 
   ingress:
     enabled: false
-    hostName: kooper.dyn.ncsa.edu
-    path: /rabbitmq/
+    hostName: rabbitmq.localhost
+    path: /
 
 # ----------------------------------------------------------------------
-# clowder uses rabbitmq to distribute messages, this is optional, but
-# highly recommended. If you want to use extractors you need to install
-# rabbitmq
+# clowder uses elasticsearch to enable searching for metadata, as well
+# as speeding up tag cloud etc.
 #
 elasticsearch:
-  enabled: false
+  # either elasticsearch is installed as part of this chart, or you need
+  # to specify the elasticsearch parameters manually.
+  enabled: true
+
+  # replicaCount is the number of elastic search nodes are part of the
+  # cluster. It is best to have this 3 or higher in production.
   replicaCount: 1
 
 # ----------------------------------------------------------------------

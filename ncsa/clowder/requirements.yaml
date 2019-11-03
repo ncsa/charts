@@ -7,3 +7,8 @@ dependencies:
   version: ~6.4
   repository: https://kubernetes-charts.storage.googleapis.com/
   condition: rabbitmq.enabled
+- name: elasticsearch2
+  alias: elasticsearch
+  version: ~0.1
+  repository: https://opensource.ncsa.illinois.edu/charts/
+  condition: elasticsearch.enabled

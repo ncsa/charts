@@ -55,7 +55,7 @@ data:
 {{- end }}
 {{- if .Values.elasticsearch.enabled }}
     # elasticsearch
-    elasticsearchSettings.clusterName="clowder"
-    elasticsearchSettings.serverAddress="elasticsearch"
+    elasticsearchSettings.clusterName={{ (index .Values.elasticsearch.elasticsearch.config "cluster.name") | default "clowder" | quote }}
+    elasticsearchSettings.serverAddress={{ include "clowder.fullname" . }}-elasticsearch-discovery
     elasticsearchSettings.serverPort=9300
 {{- end }}
