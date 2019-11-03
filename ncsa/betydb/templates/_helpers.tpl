@@ -49,7 +49,7 @@ Postgres Host
 */}}
 {{- define "betydb.postgisHost" -}}
 {{- if .Values.postgis.enabled -}}
-{{ .Release.Name }}-{{ .Values.postgis.postgresHost }}
+{{ .Release.Name }}-{{ .Values.postgis.postgresHost | default "postgis" }}
 {{- else -}}
 {{ .Values.postgis.postgresHost }}
 {{- end -}}
@@ -79,7 +79,7 @@ Environment variables for PostgreSQL
 - name: PGPASSWORD
   valueFrom:
     secretKeyRef:
-{{- if .Values.postgis.enabled -}}
+{{- if .Values.postgis.enabled }}
       name: {{ .Release.Name }}-postgis
 {{- else }}
       name: {{ include "betydb.fullname" . }}
