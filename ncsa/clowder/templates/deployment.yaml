@@ -24,7 +24,7 @@ spec:
     {{- end }}
       initContainers:
         - name: check-mongo
-          image: clowder/clowder-check:latest
+          image: "clowder/check:{{ .Values.image.tag }}"
           command: ['./check_mongodb']
           env:
             - name: MONGO_URI

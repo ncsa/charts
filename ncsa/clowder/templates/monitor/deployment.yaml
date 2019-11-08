@@ -23,14 +23,14 @@ spec:
     {{- end }}
       initContainers:
         - name: check-rabbitmq
-          image: clowder/clowder-check:latest
+          image: "clowder/check:{{ .Values.image.tag }}"
           command: ['./check_rabbitmq']
           env:
             - name: RABBITMQ_URI
               value: {{ include "clowder.rabbitmquri" . | quote }}
       containers:
         - name: {{ .Chart.Name }}
-          image: "{{ .Values.image.repository }}/monitor:develop"
+          image: "{{ .Values.image.repository }}/monitor:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: monitor

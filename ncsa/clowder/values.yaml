@@ -7,7 +7,7 @@ replicaCount: 1
 image:
   repository: clowder
   name: clowder
-  tag: 1.7.3
+  tag: 1.8.0
   pullPolicy: IfNotPresent
 
 imagePullSecrets: []
