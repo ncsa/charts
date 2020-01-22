@@ -15,7 +15,7 @@ To add the Incubator charts for your local client, run `helm repo add`:
 
 ```
 $ helm repo add ncsa https://opensource.ncsa.illinois.edu/charts/
-"incubator" has been added to your repositories
+"ncsa" has been added to your repositories
 ```
 
 
