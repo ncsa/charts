@@ -45,65 +45,48 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end -}}
 
 {{/*
-Postgres Host
+postgresql Host
 */}}
-{{- define "betydb.postgisHost" -}}
-{{- if .Values.postgis.enabled -}}
-{{ .Release.Name }}-{{ .Values.postgis.postgresHost | default "postgis" }}
+{{- define "betydb.postgresqlHost" -}}
+{{- if .Values.postgresql.enabled -}}
+{{ .Release.Name }}-postgresql
 {{- else -}}
-{{ .Values.postgis.postgresHost }}
+{{ .Values.postgresql.postgresqlHost }}
 {{- end -}}
 {{- end -}}
 
 {{/*
-Postgres Host
+postgresql Port
 */}}
-{{- define "betydb.postgisPort" -}}
-{{- if .Values.postgis.service -}}
-{{ .Values.postgis.service.port }}
+{{- define "betydb.postgresqlPort" -}}
+{{- if .Values.postgresql.service -}}
+{{ .Values.postgresql.service.port }}
 {{- else -}}
-{{ .Values.postgis.postgresPort | default "5432" }}
+{{ .Values.postgresql.postgresqlPort | default "5432" }}
 {{- end -}}
 {{- end -}}
 
 {{/*
 Environment variables for PostgreSQL
 */}}
-{{- define "betydb.postgisEnv" -}}
+{{- define "betydb.postgresqlEnv" -}}
 - name: PGHOST
-  value: {{ include "betydb.postgisHost" . | quote }}
+  value: {{ include "betydb.postgresqlHost" . | quote }}
 - name: PGPORT
-  value: {{ include "betydb.postgisPort" . | quote }}
+  value: {{ include "betydb.postgresqlPort" . | quote }}
 - name: PGUSER
-  value: {{ .Values.postgis.postgresUser | default "postgres" | quote }}
+  value: {{ .Values.postgresql.postgresqlUsername | default "postgres" | quote }}
 - name: PGPASSWORD
   valueFrom:
     secretKeyRef:
-{{- if .Values.postgis.enabled }}
-      name: {{ .Release.Name }}-postgis
+{{- if .Values.postgresql.enabled }}
+      name: {{ .Release.Name }}-postgresql
+      key: postgresql-password
 {{- else }}
       name: {{ include "betydb.fullname" . }}
+      key: postgresqlPassword
 {{- end }}
-      key: postgres-password
 {{- end }}
-
-{{/*
-Create the flags needed when initializing the BETY database
-*/}}
-{{- define "betydb.initializeFlags" -}}
-$flags = ""
-{{- if .Values.addGuestUser -}}
-  {{- if .Values.addSampleUsers -}}
--g -u
-  {{- else -}}
--g
-  {{- end -}}
-{{- else -}} 
-  {{- if .Values.addSampleUsers -}}
--u
-  {{- end -}}
-{{- end -}}
-{{- end -}}
 
 {{/*
 Environment variables for BetyDB
@@ -115,13 +98,11 @@ Environment variables for BetyDB
   valueFrom:
     secretKeyRef:
       name: {{ include "betydb.fullname" . }}
-      key: bety-password
+      key: betyPassword
 - name: BETYDATABASE
   value: {{ .Values.betyDatabase | quote }}
 - name: LOCAL_SERVER
   value: {{ .Values.localServer | quote }}
-{{- if .Values.initializeURL }}
-- name: INITIALIZE_URL
-  value: "-w {{ .Values.initializeURL }}"
-{{- end }}
+- name: REMOTE_SERVERS
+  value: {{ .Values.remoteServers | quote }}
 {{- end }}

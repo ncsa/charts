@@ -1,0 +1,59 @@
+{{- if .Values.users }}
+{{- $imagetag := printf "%s:%s" .Values.image.repository .Values.image.tag }}
+{{- $pgenv := include "betydb.postgresqlEnv" . }}
+{{- $betyenv := include "betydb.betydbEnv" . }}
+{{- $pullPolicy := .Values.image.pullPolicy }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "betydb.fullname" . }}-add-user
+  labels:
+{{ include "betydb.labels" . | indent 4 }}
+  annotations:
+    # This is what defines this resource as a hook. Without this line, the
+    # job is considered part of the release.
+    "helm.sh/hook": "post-install"
+    "helm.sh/hook-delete-policy": "hook-succeeded,before-hook-creation"
+    "helm.sh/hook-weight": "10"
+spec:
+  template:
+    metadata:
+      name: {{ include "betydb.name" . }}-add-user
+      labels:
+{{ include "betydb.labels" . | indent 8 }}
+    spec:
+      {{- with .Values.hooks.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+      {{- end }}
+      restartPolicy: Never
+    {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      initContainers:
+        - name: check-postgresql
+          image: pecan/check:test
+          imagePullPolicy: Always
+          command: ['./check_postgresql']
+          env:
+{{ include "betydb.postgresqlEnv" . | indent 12 }}
+{{ include "betydb.betydbEnv" . | indent 12 }}
+      containers:
+{{- range $index, $element := .Values.users }}
+        - name: bety-add-user-{{ $index }}
+          image: {{ $imagetag | quote }}
+          imagePullPolicy: {{ $pullPolicy }}
+          args:
+            - user
+            - {{ .username | quote }}
+            - {{ .password | quote }}
+            - {{ .fullname | quote }}
+            - {{ .email | quote }}
+            - {{ .data | quote }}
+            - {{ .page | quote }}
+          env:
+{{ $pgenv | indent 12 }}
+{{ $betyenv | indent 12 }}
+{{ end }}
+{{ end }}

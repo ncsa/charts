@@ -1,10 +1,15 @@
-apiVersion: v1
-version: 0.1.0
+apiVersion: v2
+version: 0.5.0
 name: betydb
-appVersion: "5.2.1"
+appVersion: "5.3.1"
 icon: https://isda.ncsa.illinois.edu/~kooper/charts/images/betydb.png
 description: Web-interface to the Biofuel Ecophysiological Traits and Yields Database (used by PEcAn and TERRA REF)
 home: https://www.betydb.org
 maintainers:
 - name: Rob Kooper
   email: kooper@illinois.edu
+dependencies:
+- name: postgresql
+  version: ~8.9
+  repository: https://charts.bitnami.com/bitnami
+  condition: postgres.enabled

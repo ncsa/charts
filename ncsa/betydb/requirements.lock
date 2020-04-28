@@ -1,6 +1,0 @@
-dependencies:
-- name: postgis
-  repository: https://opensource.ncsa.illinois.edu/charts/
-  version: 0.1.0
-digest: sha256:787c41fcb33d50395c0ffc1e6fbe95fb61a50cefd5fd5f3eff6cd801cf463aaf
-generated: "2019-10-22T21:13:46.645549-05:00"

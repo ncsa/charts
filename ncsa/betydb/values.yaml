@@ -13,68 +13,87 @@ localServer: 99
 
 ## remoteservers is the list of all remote servers you want to synchronize with.
 ## This is the list you will receive data from.
-remoteservers: "0, 1, 2, 5"
+remoteServers: "0, 1, 2, 5"
 
 ## betyUser is the user that is used with PostgreSQL. BETYDB and PEcAn will use
 ## this user to connect to the database and read and write to the database. 
 betyUser: bety
 
 ## betyPassword the password used when connecting to the database from BETYDB
-## and PEcAn. If the password is generated it will need to be saved to prevent
-## the system from not being able to connect on upgrades. After the chart is
-## installed it will show instructions on how to save the password.
-#betyPassword: bety
+## and PEcAn.
+betyPassword: bety
 
 ## betyDatabase the database that will be created and that BETYDB adn PEcAn
 ## will connect to and write data.
 betyDatabase: bety
 
-## addGuestUser when true, the guestuser account will be added to the local
-## list of users. This will enable the guest login button on the web interface.
-addGuestUser: false
+## secretKey the key that will be used to encrypt the passwords. If this is
+## changed users will not be able to login with their existing passwords.
+secretKey: thisisnotasecret
 
-## addSampleUsers when true will add sample users to the database. All of the
-## users will have a well known password, this should only be set to true
-## for demo instances or testing.
-addSampleUsers: false
+## dbtag is the tag of the database to load. Normally will use latest to
+## make sure latest tag is loaded, this might not work with an older database.
+dbtag: latest
 
-## initializeURL is the URL that has the initial set of data. The default is
-## a full dump of the BETY database (all servers).
-initializeURL: "https://ebi-forecast.igb.illinois.edu/pecan/dump/all/bety.tar.gz"
+## addUsers is a hash of users that should be added to the database when it is
+## initialized.
+# data : 1=Restricted, 2=Internal, 3=External, 4=Public
+# page : 1=Admin,      2=Manager,  3=Creator,  4=Viewer
 
-# -------------------------------------------------------------------------------
-
-## All data for BETYDB will be stored in PostgreSQL and PostGIS.
-postgis:
-  ## enabled should the postgresql/postgis chart be installed as well. If not make
-  ## sure that the other values are provied to get access to the database.
-  enabled: true
-
-  ## postgresHost host where postgresql is installed.
-  # postgresHost: postgis
-
-  ## postgresUser is the initial user added to the system. This is freqently the
-  ## postgres user. This user will have superuser abilities.
-  # postgresUser: postgres
-
-  ## postgresPassword the password for postgresUser, if using auto generated password
-  ## make sure to save the password as described in the notes. When upgrading you will
-  ## need to provide this secret otherwise a new secret will be generated but not
-  ## saved in the database.
-  # postgresPassword: password
-
-  ## postgresDb the initial database generated.
-  #postgresDb: postgres
+users:
+  - username: carya
+    password: illinois
+    fullname: Demo User
+    email: betydb@gmail.com
+    data: 1
+    page: 1
+  - username: guestuser
+    password: guestuser
+    fullname: Guest User
+    email: betydb@gmail.com
+    data: 4
+    page: 4
 
 # -------------------------------------------------------------------------------
 
 image:
   repository: pecan/bety
-  #tag: 5.2.1
-  tag: test
+  tag: 5.3.1
   pullPolicy: IfNotPresent
 
 imagePullSecrets: []
+
+# -------------------------------------------------------------------------------
+
+## All data for BETYDB will be stored in PostgreSQL
+postgresql:
+  ## enabled should the postgresql chart be installed as well. If not make
+  ## sure that the other values are provied to get access to the database.
+  enabled: true
+
+  ## it takes some time to start postgresql, wait 5 min before start liveness.
+  livenessProbe:
+    initialDelaySeconds: 300
+
+  ## postgresqlHost host where postgresql is installed.
+  # postgresqlHost: postgres
+
+  ## postgresqlPort port to connect to postgresql
+  # postgresqlPort: 5432
+
+  ## postgresqlUsername is the initial user added to the system. This is freqently the
+  ## postgres user. This user will have superuser abilities.
+  # postgresqlUsername: postgres
+
+  ## postgresqlPassword the password for postgresqlUsername, if using auto generated
+  ## password make sure to save the password as described in the notes. When upgrading
+  ## you will need to provide this secret otherwise a new secret will be generated but
+  ## not saved in the database.
+  postgresqlPassword: supersecret
+
+  # need more space
+  persistence:
+    size: 20Gi
 
 # -------------------------------------------------------------------------------
 

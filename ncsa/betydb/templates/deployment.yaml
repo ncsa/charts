@@ -21,19 +21,12 @@ spec:
         {{- toYaml . | nindent 8 }}
     {{- end }}
       initContainers:
-        - name: check-postgres
+        - name: check-postgresql
           image: pecan/check:test
           imagePullPolicy: Always
           command: ['./check_postgresql']
           env:
-{{ include "betydb.postgisEnv" . | indent 12 }}
-        - name: bety-init
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          imagePullPolicy: Always
-          #command: ['sleep', '3600']
-          args: ['onetimeinit']
-          env:
-{{ include "betydb.postgisEnv" . | indent 12 }}
+{{ include "betydb.postgresqlEnv" . | indent 12 }}
 {{ include "betydb.betydbEnv" . | indent 12 }}
       containers:
         - name: {{ .Chart.Name }}
@@ -56,12 +49,8 @@ spec:
               value: {{ .Values.ingress.path | default "" | trimSuffix "/" | quote }}
             - name: RAILS_LOG_TO_STDOUT
               value: "true"
-{{ include "betydb.postgisEnv" . | indent 12 }}
+{{ include "betydb.postgresqlEnv" . | indent 12 }}
 {{ include "betydb.betydbEnv" . | indent 12 }}
-          volumeMounts:
-            - name: database-yaml
-              mountPath: /home/bety/config/database.yml
-              subPath: database.yaml
           # startupProbe:
           #   httpGet:
           #     path: {{ .Values.ingress.path }}
@@ -78,10 +67,6 @@ spec:
               port: bety
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-      volumes:
-        - name: database-yaml
-          configMap:
-              name: {{ include "betydb.fullname" . }}-config
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
