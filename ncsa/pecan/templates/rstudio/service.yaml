@@ -1,4 +1,4 @@
-{{- if .Values.rstudio.enabled }}
+{{- if .Values.rstudioUsers }}
 apiVersion: v1
 kind: Service
 metadata:

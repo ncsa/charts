@@ -6,11 +6,12 @@ metadata:
   name: {{ include "pecan.fullname" . }}-load-data
   labels:
 {{ include "pecan.labels" . | indent 4 }}
-  # annotations:
-  #   # This is what defines this resource as a hook. Without this line, the
-  #   # job is considered part of the release.
-  #   "helm.sh/hook": post-install, post-upgrade
-  #   "helm.sh/hook-delete-policy": hook-succeeded
+  annotations:
+    # This is what defines this resource as a hook. Without this line, the
+    # job is considered part of the release.
+    "helm.sh/hook": "post-install"
+    "helm.sh/hook-delete-policy": "hook-succeeded,before-hook-creation"
+    "helm.sh/hook-weight": "20"
 spec:
   ttlSecondsAfterFinished: 1
   template:
@@ -26,35 +27,29 @@ spec:
         {{- toYaml . | nindent 8 }}
     {{- end }}
       initContainers:
-        - name: check-postgres
-          image: "{{ $.Values.image.project }}/check:{{ $.Values.image.tag }}"
-          imagePullPolicy: {{ $.Values.image.pullPolicy }}
-          command: ['./check_postgresql']
-          env:
-{{ include "pecan.env.postgres" . | indent 12 }}
-        - name: check-betydb
+        - name: check-postgresql
           image: "{{ .Values.image.project }}/check:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command: ['./check_betydb']
+          command: ['./check_postgresql']
           env:
-{{ include "pecan.env.betydb" . | indent 12 }}
+{{ include "pecan.env.postgresql" . | indent 12 }}
       containers:
         - name: post-install-job
-          image: "{{ $.Values.image.project }}/data:{{ $.Values.image.tag }}"
-          imagePullPolicy: {{ $.Values.image.pullPolicy }}
+          image: "{{ .Values.image.project }}/check:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           volumeMounts:
             - name: data
               mountPath: /data
           env:
-{{ include "pecan.env.postgres" . | indent 12 }}
+{{ include "pecan.env.postgresql" . | indent 12 }}
 {{ include "pecan.env.cluster" . | indent 12 }}
             - name: PSQL
               value: "psql -d {{ .Values.betydb.betyDatabase }} -q -t -c"
       volumes:
         - name: data
           persistentVolumeClaim:
-{{- if $.Values.persistence.existingClaim }}
-            claimName: {{ $.Values.persistence.existingClaim }}
+{{- if .Values.persistence.existingClaim }}
+            claimName: {{ .Values.persistence.existingClaim }}
 {{- else }}
             claimName: {{ include "pecan.fullname" . }}-data
 {{- end }}

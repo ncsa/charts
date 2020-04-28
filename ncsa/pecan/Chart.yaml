@@ -1,10 +1,19 @@
-apiVersion: v1
-version: 0.1.0
+apiVersion: v2
+version: 0.5.0
 name: pecan
-appVersion: "1.7.1"
+appVersion: "1.8.0"
 icon: https://isda.ncsa.illinois.edu/~kooper/charts/images/pecan.png
 description: Web-interface to the Biofuel Ecophysiological Traits and Yields Database (used by PEcAn and TERRA REF)
 home: https://www.pecanproject.org
 maintainers:
 - name: Rob Kooper
   email: kooper@illinois.edu
+dependencies:
+- name: rabbitmq
+  version: ~6
+  repository: https://charts.bitnami.com/bitnami
+  condition: rabbitmq.enabled
+- name: betydb
+  version: ~0.5
+  repository: https://opensource.ncsa.illinois.edu/charts/
+  condition: betydb.enabled

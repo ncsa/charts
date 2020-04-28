@@ -1,4 +1,4 @@
-{{- if .Values.ingress.enabled -}}
+{{- if .Values.enableIngress -}}
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
@@ -19,8 +19,8 @@ spec:
       secretName: {{  .Values.ingress.tlsSecret }}
 {{- end }}
   rules:
-  {{- if .Values.ingress.hostName }}
-    - host: {{ .Values.ingress.hostName }}
+  {{- if .Values.clusterfqdn }}
+    - host: {{ .Values.clusterfqdn}}
       http:
   {{- else }}
     - http:

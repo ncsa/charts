@@ -1,26 +1,116 @@
 ## -------------------------------------------------------------------------------
+## CLUSTER CONFIGURATION
+## -------------------------------------------------------------------------------
+
+## clustername is set to the short name that is shown in the pull down menu
+clustername: demo
+
+## clusterfqdn is set to the name that is stored in the machines table. This
+## should be a Fully Qualified Domain Name. Probably want to set:
+## betydb.ingress.hostName to the same value.
+clusterfqdn: pecan.localhost
+
+## enableIngress if this is set to true all pieces of pecan will be visible on
+## clusterfqdn. Probably want to set: betydb.ingress.enabled to the same value.
+enableIngress: false
+
+## initializeData should be set to true to load demo data.
+initializeData: true
+
+## rstudioUsers is set to a list of rstudio users, each with their own instance
+## of rstudio. If not set no instance of rstudio is created. The list will need
+## 2 parameters, username and password.
+rstudioUsers:
+  - username: carya
+    password: illinois
+
+## -------------------------------------------------------------------------------
+## PECAN MODELS
+## -------------------------------------------------------------------------------
+
+## list of models to be installed. Each model should have the  following fields:
+## enabled      : true/false - should the extractor be installed
+## project      : the project (or server) where the image is stored, if this is
+##                not specified it will use the same as image.project
+## image        : docker/image:tag - the extractor docker image
+## tag.         : the tagof the image to be used, if this is not specified it
+##                will use the same as image.tag
+## replicaCount : number - the number of this extractor to install
+## env          : additional environment variables to pass to extractor.
+## you can also specify resources, nodeSelector, affinity and tolerations.
+##
+## the image that is pulled will be create based on project/image:tag.
+models:
+  biocro-0-95:
+    enabled: true
+    image: model-biocro-0.95
+    replicaCount: 1
+  ed2-2-2-0:
+    enabled: true
+    image: model-ed2-2.2.0
+    replicaCount: 1
+  ed2-git:
+    enabled: true
+    image: model-ed2-git
+    replicaCount: 1
+  maespa-git:
+    enabled: true
+    image: model-maespa-git
+    replicaCount: 1
+  sipnet-git:
+    enabled: true
+    image: model-sipnet-git
+    replicaCount: 1
+  sipnet-136:
+    enabled: true
+    image: model-sipnet-r136
+    replicaCount: 1
+
+## -------------------------------------------------------------------------------
+## BETYDB APPLICATION
+## -------------------------------------------------------------------------------
+
+betydb:
+  ingress:
+    ## should ingress rules be enabled (betydb is set below, monitor is set below)
+    ## best set to the same value as PEcAn.
+    enabled: false
+
+    ## hostName used for the ingress rules (betydb is set below), best set to the
+    ## same value as PEcAn.
+    hostName: pecan.example.com
+
+    ## path prefix for all applications (betydb is set below)
+    path: /bety/
+
+## -------------------------------------------------------------------------------
+## RABBITMQ APPLICATION
+## -------------------------------------------------------------------------------
+
+rabbitmq:
+  rabbitmq:
+    #username: guest
+    #password: guest
+    #erlangCookie: 1234thisisasupersecretoflength32
+
+  ingress:
+    enabled: false
+    hostName: rabbitmq.example.com
+    path: /
+
+## -------------------------------------------------------------------------------
 ## PECAN COMMON VARIABLES
 ## -------------------------------------------------------------------------------
 
 image:
   project: pecan
-  tag: 1.7.1
+  tag: 1.8.0
   pullPolicy: IfNotPresent
 
 imagePullSecrets: []
 
 nameOverride: ""
 fullnameOverride: ""
-
-## -------------------------------------------------------------------------------
-## CLUSTER CONFIGURATION
-## -------------------------------------------------------------------------------
-#clustername: docker
-#clusterfqdn: docker.example.com
-
-## initializeData when set to true will initialize the database with some data on
-## a new install. This will add an extra wait of about 5 minutes.
-initializeData: false
 
 ## -------------------------------------------------------------------------------
 ## INGRESS RULES
@@ -30,14 +120,8 @@ initializeData: false
 ## PECAN installation.
 ## ref: http://kubernetes.io/docs/user-guide/ingress/
 ingress:
-  ## should ingress rules be enabled (betydb is set below)
-  enabled: &pecan_ingress false
-
   ## path prefix for all applications (betydb is set below)
   path: /
-
-  ## hostName used for the ingress rules (betydb is set below)
-  hostName: &pecan_hostname pecan.localhost
 
   tls: []
   #  - secretName: chart-example-tls
@@ -141,9 +225,6 @@ executor:
 ## -------------------------------------------------------------------------------
 
 monitor:
-  ## replicaCount is the number of instances that should be running.
-  replicaCount: 1
-
   ## service options
   service:
     ## ServiceType
@@ -171,11 +252,9 @@ monitor:
 ## -------------------------------------------------------------------------------
 
 rstudio:
-  ## enabled is set to true if rstudio should be added  
-  enabled: true
-  
-  ## replicaCount is the number of instances that should be running.
-  replicaCount: 1
+  ## path is the path that is used when the ingress route is to be exposed
+  ## in case of multiple rstudio this is the prefix of rstudio
+  path: /rstudio/
 
   ## service options
   service:
@@ -186,17 +265,6 @@ rstudio:
     ## port the service is listening on
     ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service
     port: 8787
-
-  ## ingress options
-  ingress:
-    ## enabled should be true when the ingress route should be added
-    enabled: false
-
-    ## hostName is the hostname that the ingress route should listen for
-    # hostName
-
-    ## path is the path that is used when the ingress route is to be exposed
-    path: /rstudio/
 
   ## Resources
   ## ref: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container
@@ -211,120 +279,6 @@ rstudio:
   tolerations: []
 
 ## -------------------------------------------------------------------------------
-## PECAN MODELS
-## -------------------------------------------------------------------------------
-
-## list of models to be installed. Each model should have the  following fields:
-## enabled      : true/false - should the extractor be installed
-## project      : the project (or server) where the image is stored, if this is
-##                not specified it will use the same as image.project
-## image        : docker/image:tag - the extractor docker image
-## tag.         : the tagof the image to be used, if this is not specified it
-##                will use the same as image.tag
-## replicaCount : number - the number of this extractor to install
-## env          : additional environment variables to pass to extractor.
-## you can also specify resources, nodeSelector, affinity and tolerations.
-##
-## the image that is pulled will be create based on project/image:tag.
-models:
-  biocro-0-95:
-    enabled: true
-    image: model-biocro-0.95
-  ed2-git:
-    enabled: true
-    image: model-ed2-git
-  maespa-git:
-    enabled: true
-    image: model-maespa-git
-  sipnet-git:
-    enabled: true
-    image: model-sipnet-git
-  sipnet-136:
-    enabled: true
-    image: model-sipnet-r136
-
-## -------------------------------------------------------------------------------
-## BETYDB APPLICATION AND DATABASE
-## -------------------------------------------------------------------------------
-
-betydb:
-  ## replicaCount is the number of instances for BETYDB. Each instance can also
-  ## have multuiple workers as defined by workers below.
-  replicaCount: 1
-
-  ## workers is the number of workers for each BETYDB replica. The total number
-  ## of simultanous connections is replicaCount * workers.
-  workers: 1
-
-  ## localServer is the ID for this intance. To be able to synchronize your data
-  ## with the PEcAn network you will need to request a unique number. This can
-  ## be done at https://forms.gle/m3SnMVh8WVHyL6eH8
-  localServer: 99
-
-  ## remoteservers is the list of all remote servers you want to synchronize with.
-  ## This is the list you will receive data from.
-  remoteservers: "0, 1, 2, 5"
-
-  ## betyUser is the user that is used with PostgreSQL. BETYDB and PEcAn will use
-  ## this user to connect to the database and read and write to the database. 
-  betyUser: bety
-
-  ## betyPassword the password used when connecting to the database from BETYDB
-  ## and PEcAn. If the password is generated it will need to be saved to prevent
-  ## the system from not being able to connect on upgrades. After the chart is
-  ## installed it will show instructions on how to save the password.
-  #betyPassword: bety
-
-  ## betyDatabase the database that will be created and that BETYDB adn PEcAn
-  ## will connect to and write data.
-  betyDatabase: bety
-
-  ## addGuestUser when true, the guestuser account will be added to the local
-  ## list of users. This will enable the guest login button on the web interface.
-  addGuestUser: false
-
-  ## addSampleUsers when true will add sample users to the database. All of the
-  ## users will have a well known password, this should only be set to true
-  ## for demo instances or testing.
-  addSampleUsers: false
-
-  # -----------------------------------------------------------------------------
-
-  ingress:
-    ## should ingress rules be enabled (betydb is set below, monitor is set below)
-    enabled: *pecan_ingress
-
-    ## path prefix for all applications (betydb is set below)
-    path: /bety/
-
-    ## hostName used for the ingress rules (betydb is set below)
-    hostName: *pecan_hostname
-
-  # -----------------------------------------------------------------------------
-
-  ## All data for BETYDB will be stored in PostgreSQL and PostGIS.
-  postgis:
-    ## enabled should the postgresql/postgis chart be installed as well. If not make
-    ## sure that the other values are provied to get access to the database.
-    enabled: true
-
-    ## postgresHost host where postgresql is installed.
-    # postgresHost: postgis
-
-    ## postgresUser is the initial user added to the system. This is freqently the
-    ## postgres user. This user will have superuser abilities.
-    # postgresUser: postgres
-
-    ## postgresPassword the password for postgresUser, if using auto generated password
-    ## make sure to save the password as described in the notes. When upgrading you will
-    ## need to provide this secret otherwise a new secret will be generated but not
-    ## saved in the database.
-    # postgresPassword: password
-
-    ## postgresDb the initial database generated.
-    #postgresDb: postgres
-
-## -------------------------------------------------------------------------------
 ## PECAN APPLICATION DATA
 ## -------------------------------------------------------------------------------
 
@@ -334,7 +288,7 @@ persistence:
   ## A manually managed Persistent Volume and Claim
   ## If defined, PVC must be created manually before volume will be bound
   ##
-  # existingClaim:
+  #existingClaim: pecan-data
 
   ## The path the volume will be mounted at, useful when using different
   ## PostgreSQL images.

@@ -27,25 +27,19 @@ spec:
           command: ['./check_rabbitmq']
           env:
 {{ include "pecan.env.rabbitmq" . | indent 12 }}
-        - name: check-postgres
+        - name: check-postgresql
           image: "{{ .Values.image.project }}/check:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command: ['./check_postgresql']
           env:
-{{ include "pecan.env.postgres" . | indent 12 }}
-        - name: check-betydb
-          image: "{{ .Values.image.project }}/check:{{ .Values.image.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command: ['./check_betydb']
-          env:
-{{ include "pecan.env.betydb" . | indent 12 }}
+{{ include "pecan.env.postgresql" . | indent 12 }}
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.project }}/monitor:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
 {{ include "pecan.env.rabbitmq" . | indent 12 }}
-{{ include "pecan.env.postgres" . | indent 12 }}
+{{ include "pecan.env.postgresql" . | indent 12 }}
 {{ include "pecan.env.cluster" . | indent 12 }}
             - name: RABBITMQ_MGMT_PATH
               value: {{ .Values.rabbitmq.ingress.path | default "/" | quote }}
@@ -58,7 +52,7 @@ spec:
               port: pecan-monitor
           readinessProbe:
             httpGet:
-              path: {{ .Values.ingress.path }}/monitor/
+              path: {{ .Values.ingress.path }}monitor/
               port: pecan-monitor
           resources:
             {{- toYaml .Values.monitor.resources | nindent 12 }}

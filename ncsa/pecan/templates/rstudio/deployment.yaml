@@ -1,4 +1,4 @@
-{{- if .Values.rstudio.enabled }}
+{{- if .Values.rstudioUsers }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -6,7 +6,7 @@ metadata:
   labels:
 {{ include "pecan.labels" . | indent 4 }}
 spec:
-  replicas: {{ .Values.rstudio.replicaCount }}
+  replicas: 1
   selector:
     matchLabels:
       app.kubernetes.io/name: {{ include "pecan.name" . }}-rstudio
@@ -28,18 +28,12 @@ spec:
           command: ['./check_rabbitmq']
           env:
 {{ include "pecan.env.rabbitmq" . | indent 12 }}
-        - name: check-postgres
+        - name: check-postgresql
           image: "{{ .Values.image.project }}/check:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command: ['./check_postgresql']
           env:
-{{ include "pecan.env.postgres" . | indent 12 }}
-        - name: check-betydb
-          image: "{{ .Values.image.project }}/check:{{ .Values.image.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command: ['./check_betydb']
-          env:
-{{ include "pecan.env.betydb" . | indent 12 }}
+{{ include "pecan.env.postgresql" . | indent 12 }}
       containers:
         - name: {{ .Chart.Name }}-rstudio-nginx
           image: "nginx:alpine"
@@ -53,7 +47,7 @@ spec:
               port: http
           readinessProbe:
             httpGet:
-              path: {{ .Values.rstudio.ingress.path }}
+              path: {{ .Values.rstudio.path }}
               port: http
           volumeMounts:
             - name: nginx-conf
@@ -67,7 +61,7 @@ spec:
           command: ["/init"]
           env:
 {{ include "pecan.env.rabbitmq" . | indent 12 }}
-{{ include "pecan.env.postgres" . | indent 12 }}
+{{ include "pecan.env.postgresql" . | indent 12 }}
 {{ include "pecan.env.cluster" . | indent 12 }}
             - name: RABBITMQ_MGMT_PATH
               value: {{ .Values.rabbitmq.ingress.path | default "/" | quote }}

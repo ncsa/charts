@@ -25,10 +25,10 @@ data:
     server {
       listen 80;
 
-      location {{ .Values.rstudio.ingress.path }} {
-        rewrite ^{{ .Values.rstudio.ingress.path }}(.*)$ /$1 break;
+      location {{ .Values.rstudio.path }} {
+        rewrite ^{{ .Values.rstudio.path }}(.*)$ /$1 break;
         proxy_pass http://localhost:8787;
-        proxy_redirect http://localhost:8787/ $scheme://$http_host{{ .Values.rstudio.ingress.path }};
+        proxy_redirect http://localhost:8787/ $scheme://$http_host{{ .Values.rstudio.path }};
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection $connection_upgrade;

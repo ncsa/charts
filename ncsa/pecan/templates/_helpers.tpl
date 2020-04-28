@@ -74,35 +74,35 @@ RabbitMQ URI environment
 {{/*
 Postgresql Environment for postgres
 */}}
-{{- define "pecan.env.postgres" -}}
+{{- define "pecan.env.postgresql" -}}
 - name: PGHOST
-{{- if .Values.betydb.postgis.postgresHost }}
-  value: {{ .Values.betydb.postgis.postgresHost | quote }}
+{{- if .Values.betydb.postgresql.postgresqlHost }}
+  value: {{ .Values.betydb.postgresql.postgresqlHost | quote }}
 {{- else }}
-  value: "{{ .Release.Name }}-postgis"
+  value: "{{ .Release.Name }}-postgresql"
 {{- end }}
 - name: PGPORT
-  value: {{ .Values.betydb.postgis.service.port | default 5432 | quote }}
+  value: {{ .Values.betydb.postgresql.service.port | default 5432 | quote }}
 - name: PGUSER
-  value: {{ .Values.betydb.postgis.postgresUser | default "postgres" | quote }}
+  value: {{ .Values.betydb.postgresql.postgresqlUser | default "postgres" | quote }}
 - name: PGPASSWORD
   valueFrom:
     secretKeyRef:
-      name: {{ .Release.Name }}-postgis
-      key: postgres-password
+      name: {{ .Release.Name }}-postgresql
+      key: postgresql-password
 - name: BETYUSER
   value: {{ .Values.betydb.betyUser | default "bety" | quote }}
 - name: BETYPASSWORD
   valueFrom:
     secretKeyRef:
       name: {{ .Release.Name }}-betydb
-      key: bety-password
+      key: betyPassword
 - name: BETYDATABASE
   value: {{ .Values.betydb.betyDatabase | quote }}
 {{- end -}}
 
 {{/*
-BETYDB Environment for postgres
+BETYDB Environment for postgresql
 */}}
 {{- define "pecan.env.betydb" -}}
 - name: BETYDBURL
