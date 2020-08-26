@@ -17,6 +17,7 @@ image:
 ingress:
   enabled: false
   host: "elasticsearch.localhost"
+  path: "/elastichq/"
 
 # Drop-in values for elasticsearch.yml config file:
 elasticsearch:

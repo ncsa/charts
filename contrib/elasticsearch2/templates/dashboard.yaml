@@ -20,7 +20,7 @@ spec:
     release: {{ .Release.Name }}
     component: "elastichq"
 ---
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: "{{ template "elasticsearch2.fullname" . }}-elastichq"
@@ -72,19 +72,7 @@ spec:
   - host: {{ .Values.ingress.host }}
     http:
       paths:
-      - path: /api/
-        backend:
-          serviceName: "{{ template "elasticsearch2.fullname" . }}-elastichq"
-          servicePort: "ui"
-      - path: /favicon.ico
-        backend:
-          serviceName: "{{ template "elasticsearch2.fullname" . }}-elastichq"
-          servicePort: "ui"
-      - path: /static/
-        backend:
-          serviceName: "{{ template "elasticsearch2.fullname" . }}-elastichq"
-          servicePort: "ui"
-      - path: /elastic
+      - path: {{ .Values.ingress.path }}
         backend:
           serviceName: "{{ template "elasticsearch2.fullname" . }}-elastichq"
           servicePort: "ui"
