@@ -24,11 +24,54 @@ spec:
     {{- end }}
       initContainers:
         - name: check-mongo
-          image: "clowder/check:{{ .Values.image.tag }}"
+          image: "{{ $.Values.image.repository }}/check:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           command: ['./check_mongodb']
           env:
             - name: MONGO_URI
-              value: {{ include "clowder.mongodburi" . | quote }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}
+                  key: mongodb-uri
+{{- if not (or .Values.storage.s3 .Values.minio.enabled) }}
+        - name: data-chown
+          command: [chown, -R, "10001:root", /home/clowder/data]
+          image: busybox:latest
+          volumeMounts:
+          - name: data
+            mountPath: /home/clowder/data
+{{- end }}
+{{- if .Values.users }}
+{{- $mongodburi := include "clowder.mongodburi" . }}
+{{- range $index, $element := .Values.users }}
+        - name: mongo-add-user-{{ $index }}
+          image: "{{ $.Values.image.repository }}/mongo-init:{{ $.Values.image.tag }}"
+          imagePullPolicy: {{ $.Values.image.pullPolicy }}
+          env:
+            - name: MONGO_URI
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $.Release.Name }}
+                  key: mongodb-uri
+{{- if .username }}
+            - name: USERNAME
+              value: {{ .username | quote }}
+{{- end }}
+            - name: PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $.Release.Name }}
+                  key: "password-{{ $index }}"
+            - name: EMAIL_ADDRESS
+              value: {{ .email | quote }}
+            - name: FIRST_NAME
+              value: {{ .firstname | quote }}
+            - name: LAST_NAME
+              value: {{ .lastname | quote }}
+            - name: ADMIN
+              value: {{ .admin | quote }}
+{{- end }}
+{{- end }}
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}/{{ .Values.image.name }}:{{ .Values.image.tag }}"
@@ -48,18 +91,62 @@ spec:
                 secretKeyRef:
                   name: {{ .Release.Name }}
                   key: clowder-secret
+{{- if .Values.storage.s3 }}
+            - name: S3_ACCESSKEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}
+                  key: s3-access-key
+            - name: S3_SECRETKEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}
+                  key: s3-secret-key
+{{- else if .Values.minio.enabled }}
+            - name: S3_ACCESSKEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "clowder.fullname" . }}-minio
+                  key: access-key
+            - name: S3_SECRETKEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "clowder.fullname" . }}-minio
+                  key: secret-key
+{{- end }}
+            - name: RABBITMQ_URI
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}
+                  key: rabbitmq-uri
+            - name: MONGODB_URI
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}
+                  key: mongodb-uri
           volumeMounts:
             - name: custom-volume
               mountPath: /home/clowder/custom
-              #BROKEN NEED MOUNT HERE
+{{- if not (or .Values.storage.s3 .Values.minio.enabled) }}
+            - name: data
+              mountPath: /home/clowder/data
+{{- end }}
+          startupProbe:
+            httpGet:
+              path: /healthz
+              port: liveness-port
+            timeoutSeconds: 5
+            failureThreshold: 30
+            periodSeconds: 10
           livenessProbe:
             tcpSocket:
               port: clowder
-            initialDelaySeconds: 60
+            timeoutSeconds: 5
           readinessProbe:
             httpGet:
               path: {{ .Values.ingress.path }}api/status
               port: clowder
+            timeoutSeconds: 5
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       volumes:
@@ -71,6 +158,15 @@ spec:
                 path: custom.conf
               - key: play.plugins
                 path: play.plugins
+{{- if not (or .Values.storage.s3 .Values.minio.enabled) }}
+        - name: data
+          persistentVolumeClaim:
+{{- if $.Values.persistence.existingClaim }}
+            claimName: {{ $.Values.persistence.existingClaim }}
+{{- else }}
+            claimName: {{ include "clowder.fullname" . }}-data
+{{- end }}
+{{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

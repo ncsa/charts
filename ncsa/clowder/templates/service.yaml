@@ -8,6 +8,9 @@ spec:
   type: {{ .Values.service.type }}
   ports:
     - port: {{ .Values.service.port }}
+      {{- if and (.Values.service.nodePort) (eq .Values.service.type "NodePort") }}
+      nodePort: {{ .Values.service.nodePort }}
+      {{- end }}
       targetPort: clowder
       protocol: TCP
       name: clowder

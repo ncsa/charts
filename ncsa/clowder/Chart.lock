@@ -1,0 +1,15 @@
+dependencies:
+- name: mongodb
+  repository: https://charts.bitnami.com/bitnami
+  version: 7.2.11
+- name: minio
+  repository: https://charts.bitnami.com/bitnami
+  version: 3.4.12
+- name: rabbitmq
+  repository: https://charts.bitnami.com/bitnami
+  version: 7.1.1
+- name: elasticsearch2
+  repository: https://opensource.ncsa.illinois.edu/charts/
+  version: ~0.2
+digest: sha256:2ea583eb732f41a5cc4da0a576d53959c9e874b9620250d0270965457c831d01
+generated: "2020-06-22T23:05:00.403328-05:00"

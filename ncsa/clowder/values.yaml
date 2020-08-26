@@ -7,7 +7,7 @@ replicaCount: 1
 image:
   repository: clowder
   name: clowder
-  tag: 1.8.0
+  tag: 1.10.0
   pullPolicy: IfNotPresent
 
 imagePullSecrets: []
@@ -62,7 +62,7 @@ fixRabbitmqClowderUrl: false
 ## Where should clowder store the files. The default is to use disk storage that is
 ## mounted into the clowder pod.
 storage:
-  disk: {}
+  disk:
 
   ## S3 storage, this uses S3 storage, following are parameters needed
   ## bucket: the bucket data is written
@@ -70,6 +70,7 @@ storage:
   ## endpoint: URL to access the data
   ## access_key: needed to access the data
   ## secret_key: needed to access the data
+  ## If minio is enabled, the values for minio are used
   # s3:
   #   bucket: clowder
   #   region: us-east-1
@@ -77,6 +78,16 @@ storage:
   #   access_key: access_key
   #   secret_key: secret_key
 
+minio:
+  enabled: false
+
+  accessKey:
+    password: clowder
+  secretKey:
+    password: catsarecute
+    
+  persistence:
+    size: 20Gi
 
 
 ## list of extractors to be installed. Each extractor should have the 
@@ -88,30 +99,30 @@ storage:
 extractors:
   file-digest:
     enabled: true
-    image: clowder/extractors-digest:latest
+    image: clowder/extractors-digest:2.1.0
     replicaCount: 1
     # env:
     #   - name: foo
     #     value: "bar"
   image-preview:
     enabled: true
-    image: clowder/extractors-image-preview:latest
+    image: clowder/extractors-image-preview:2.0.0
     replicaCount: 1
   image-metadata:
     enabled: true
-    image: clowder/extractors-image-metadata:latest
+    image: clowder/extractors-image-metadata:2.0.0
     replicaCount: 1
   audio-preview:
     enabled: true
-    image: clowder/extractors-audio-preview:latest
+    image: clowder/extractors-audio-preview:2.0.0
     replicaCount: 1
   pdf-preview:
     enabled: true
-    image: clowder/extractors-pdf-preview:latest
+    image: clowder/extractors-pdf-preview:2.0.0
     replicaCount: 1
   video-preview:
     enabled: true
-    image: clowder/extractors-video-preview:latest
+    image: clowder/extractors-video-preview:2.0.0
     replicaCount: 1
 
 
@@ -135,8 +146,7 @@ persistence:
   ##
   # existingClaim:
 
-  ## The path the volume will be mounted at, useful when using different
-  ## PostgreSQL images.
+  ## The path the volume will be mounted at
   ##
   mountPath: /home/clowder/data
 
@@ -229,7 +239,7 @@ rabbitmq:
   enabled: true
   #uri: amqp://username:password@server/database
 
-  rabbitmq:
+  auth:
     username: guest
     password: guest
     # extraConfiguration: |-

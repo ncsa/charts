@@ -1,8 +1,9 @@
+{{- if not (or .Values.storage.s3 .Values.minio.enabled) }}
 {{- if and .Values.persistence.enabled (not .Values.persistence.existingClaim) }}
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: {{ template "clowder.fullname" . }}
+  name: {{ template "clowder.fullname" . }}-data
   labels:
 {{ include "clowder.labels" . | indent 4 }}
 spec:
@@ -14,4 +15,5 @@ spec:
   {{- if .Values.persistence.storageClass -}}
   storageClassName: {{ .Values.persistence.storageClass }}
   {{- end -}}
+{{- end }}
 {{- end }}

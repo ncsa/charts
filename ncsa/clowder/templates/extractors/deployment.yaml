@@ -29,18 +29,25 @@ spec:
     {{- end }}
       initContainers:
         - name: check-rabbitmq
-          image: clowder/clowder-check:latest
+          image: "clowder/check:{{ $.Values.image.tag }}"
+          imagePullPolicy: {{ $.Values.image.pullPolicy }}
           command: ['./check_rabbitmq']
           env:
             - name: RABBITMQ_URI
-              value: {{ $rabbitmqURI | quote }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $.Release.Name }}
+                  key: rabbitmq-uri
       containers:
         - name: {{ $.Chart.Name }}
           image: {{ .image | quote }}
           imagePullPolicy: {{ $.Values.image.pullPolicy }}
           env:
             - name: RABBITMQ_URI
-              value: {{ $rabbitmqURI | quote }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $.Release.Name }}
+                  key: rabbitmq-uri
 {{- if .env }}
             {{- toYaml .env | nindent 12 }}
 {{- end }}

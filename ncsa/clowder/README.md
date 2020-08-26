@@ -10,7 +10,7 @@ $ helm install ncsa/clowder
 
 ## Introduction
 
-Need to be written
+Need to be written, this document is still a work in progress.
 
 <!--This chart bootstraps a [Clowder](https://github.com/bitnami/bitnami-docker-rabbitmq) deployment on a [Kubernetes](http://kubernetes.io) cluster using the [Helm](https://helm.sh) package manager.
 
@@ -19,7 +19,8 @@ Bitnami charts can be used with [Kubeapps](https://kubeapps.com/) for deployment
 
 ## Prerequisites
 
-- Kubernetes 1.8+
+- Kubernetes 1.16+
+- helm 3
 - PV provisioner support in the underlying infrastructure
 
 ## Installing the Chart
@@ -51,104 +52,8 @@ Needs to be written
 The following table lists the configurable parameters of the Clowder chart and their default values.
 
 | Parameter                            | Description                                      | Default                                                 |
-| ------------------------------------ | ------------------------------------------------ | ------------------------------------------------------- <!--|
-| `global.imageRegistry`               | Global Docker image registry                     | `nil`                                                   |
-| `global.imagePullSecrets`            | Global Docker registry secret names as an array  | `[]` (does not add image pull secrets to deployed pods) |
-| `global.storageClass`                     | Global storage class for dynamic provisioning                                               | `nil`                                                        |
-| `image.registry`                     | Rabbitmq Image registry                          | `docker.io`                                             |
-| `image.repository`                   | Rabbitmq Image name                              | `bitnami/rabbitmq`                                      |
-| `image.tag`                          | Rabbitmq Image tag                               | `{TAG_NAME}`                                            |
-| `image.pullPolicy`                   | Image pull policy                                | `IfNotPresent`                                          |
-| `image.pullSecrets`                  | Specify docker-registry secret names as an array | `nil`                                                   |
-| `image.debug`                        | Specify if debug values should be set            | `false`                                                 |
-| `nameOverride`                       | String to partially override rabbitmq.fullname template with a string (will prepend the release name) | `nil` |
-| `fullnameOverride`                   | String to fully override rabbitmq.fullname template with a string                                     | `nil` |
-| `rbacEnabled`                        | Specify if rbac is enabled in your cluster       | `true`                                                  |
-| `podManagementPolicy`                | Pod management policy                            | `OrderedReady`                                          |
-| `rabbitmq.username`                  | RabbitMQ application username                    | `user`                                                  |
-| `rabbitmq.password`                  | RabbitMQ application password                    | _random 10 character long alphanumeric string_          |
-| `rabbitmq.existingPasswordSecret`    | Existing secret with RabbitMQ credentials        | `nil`                                                   |
-| `rabbitmq.erlangCookie`              | Erlang cookie                                    | _random 32 character long alphanumeric string_          |
-| `rabbitmq.existingErlangSecret`      | Existing secret with RabbitMQ Erlang cookie      | `nil`                                                   |
-| `rabbitmq.plugins`                   | List of plugins to enable                        | `rabbitmq_management rabbitmq_peer_discovery_k8s`       |
-| `rabbitmq.extraPlugins`              | Extra plugings to enable                         | `nil`                                                   |
-| `rabbitmq.clustering.address_type`   | Switch clustering mode                           | `ip` or `hostname`                                      |
-| `rabbitmq.clustering.k8s_domain`     | Customize internal k8s cluster domain            | `cluster.local`                                         |
-| `rabbitmq.logs`                      | Value for the RABBITMQ_LOGS environment variable | `-`                                                     |
-| `rabbitmq.setUlimitNofiles`          | Specify if max file descriptor limit should be set | `true`                                                |
-| `rabbitmq.ulimitNofiles`             | Max File Descriptor limit                        | `65536`                                                 |
-| `rabbitmq.maxAvailableSchedulers`    | RabbitMQ maximum available scheduler threads     | `2`                                                     |
-| `rabbitmq.onlineSchedulers`          | RabbitMQ online scheduler threads                | `1`                                                     |
-| `rabbitmq.env`                       | RabbitMQ [environment variables](https://www.rabbitmq.com/configure.html#customise-environment) | `{}`     |
-| `rabbitmq.configuration`             | Required cluster configuration                   | See values.yaml                                         |
-| `rabbitmq.extraConfiguration`        | Extra configuration to add to rabbitmq.conf      | See values.yaml                                         |
-| `rabbitmq.advancedConfiguration`     | Extra configuration (in classic format) to add to advanced.config    | See values.yaml                                         |
-| `service.type`                       | Kubernetes Service type                          | `ClusterIP`                                             |
-| `service.port`                       | Amqp port                                        | `5672`                                                  |
-| `service.distPort`                   | Erlang distribution server port                  | `25672`                                                 |
-| `service.nodePort`                   | Node port override, if serviceType NodePort      | _random available between 30000-32767_                  |
-| `service.managerPort`                | RabbitMQ Manager port                            | `15672`                                                 |
-| `persistence.enabled`                | Use a PVC to persist data                        | `true`                                                  |
-| `service.annotations`                | service annotations as an array                  | []                                                      |
-| `schedulerName`                      | Name of the k8s service (other than default)     | `nil`                                                   |
-| `persistence.storageClass`           | Storage class of backing PVC                     | `nil` (uses alpha storage class annotation)             |
-| `persistence.existingClaim`          | RabbitMQ data Persistent Volume existing claim name, evaluated as a template |  ""          |
-| `persistence.accessMode`             | Use volume as ReadOnly or ReadWrite              | `ReadWriteOnce`                                         |
-| `persistence.size`                   | Size of data volume                              | `8Gi`                                                   |
-| `persistence.path`                   | Mount path of the data volume                    | `/opt/bitnami/rabbitmq/var/lib/rabbitmq`                |
-| `securityContext.enabled`            | Enable security context                          | `true`                                                  |
-| `securityContext.fsGroup`            | Group ID for the container                       | `1001`                                                  |
-| `securityContext.runAsUser`          | User ID for the container                        | `1001`                                                  |
-| `resources`                          | resource needs and limits to apply to the pod    | {}                                                      |
-| `replicas`                           | Replica count                                    | `1`                                                     |
-| `priorityClassName`                  | Pod priority class name                          | ``                                                      |
-| `nodeSelector`                       | Node labels for pod assignment                   | {}                                                      |
-| `affinity`                           | Affinity settings for pod assignment             | {}                                                      |
-| `tolerations`                        | Toleration labels for pod assignment             | []                                                      |
-| `updateStrategy`                     | Statefulset update strategy policy               | `RollingUpdate`                                         |
-| `ingress.enabled`                    | Enable ingress resource for Management console   | `false`                                                 |
-| `ingress.hostName`                   | Hostname to your RabbitMQ installation           | `nil`                                                   |
-| `ingress.path`                       | Path within the url structure                    | `/`                                                     |
-| `ingress.tls`                        | enable ingress with tls                          | `false`                                                 |
-| `ingress.tlsSecret`                  | tls type secret to be used                       | `myTlsSecret`                                           |
-| `ingress.annotations`                | ingress annotations as an array                  | []                                                      |
-| `livenessProbe.enabled`              | would you like a livenessProbed to be enabled    | `true`                                                  |
-| `livenessProbe.initialDelaySeconds`  | number of seconds                                | 120                                                     |
-| `livenessProbe.timeoutSeconds`       | number of seconds                                | 20                                                      |
-| `livenessProbe.periodSeconds`        | number of seconds                                | 30                                                      |
-| `livenessProbe.failureThreshold`     | number of failures                               | 6                                                       |
-| `livenessProbe.successThreshold`     | number of successes                              | 1                                                       |
-| `readinessProbe.enabled`             | would you like a readinessProbe to be enabled    | `true`                                                  |
-| `readinessProbe.initialDelaySeconds` | number of seconds                                | 10                                                      |
-| `readinessProbe.timeoutSeconds`      | number of seconds                                | 20                                                      |
-| `readinessProbe.periodSeconds`       | number of seconds                                | 30                                                      |
-| `readinessProbe.failureThreshold`    | number of failures                               | 3                                                       |
-| `readinessProbe.successThreshold`    | number of successes                              | 1                                                       |
-| `metrics.enabled`                    | Start a side-car prometheus exporter             | `false`                                                 |
-| `metrics.image.registry`             | Exporter image registry                          | `docker.io`                                             |
-| `metrics.image.repository`           | Exporter image name                              | `bitnami/rabbitmq-exporter`                             |
-| `metrics.image.tag`                  | Exporter image tag                               | `{TAG_NAME}`                                            |
-| `metrics.image.pullPolicy`           | Exporter image pull policy                       | `IfNotPresent`                                          |
-| `metrics.serviceMonitor.enabled`     | Create ServiceMonitor Resource for scraping metrics using PrometheusOperator   | `false`                   |
-| `metrics.serviceMonitor.namespace`   | Namespace where servicemonitor resource should be created                      | `nil`                     |
-| `metrics.serviceMonitor.interval`    | Specify the interval at which metrics should be scraped                        | `30s`                     |
-| `metrics.serviceMonitor.scrapeTimeout`| Specify the timeout after which the scrape is ended                           | `nil`                     |
-| `metrics.serviceMonitor.relabellings`| Specify Metric Relabellings to add to the scrape endpoint                      | `nil`                     |
-| `metrics.serviceMonitor.honorLabels` | honorLabels chooses the metric's labels on collisions with target labels.      | `false`                   |
-| `metrics.serviceMonitor.additionalLabels`| Used to pass Labels that are required by the Installed Prometheus Operator | `{}`                      |
-| `metrics.port`                       | Prometheus metrics exporter port                 | `9419`                                                  |
-| `metrics.env`                        | Exporter [configuration environment variables](https://github.com/kbudde/rabbitmq_exporter#configuration) | `{}` |
-| `metrics.resources`                  | Exporter resource requests/limit                 | `nil`                                                   |
-| `metrics.capabilities`               | Exporter: Comma-separated list of extended [scraping capabilities supported by the target RabbitMQ server](https://github.com/kbudde/rabbitmq_exporter#extended-rabbitmq-capabilities) | `bert,no_sort` |
-| `podLabels`                          | Additional labels for the statefulset pod(s).    | {}                                                      |
-| `volumePermissions.enabled`         | Enable init container that changes volume permissions in the data directory (for cases where the default k8s `runAsUser` and `fsUser` values do not work)                                                               | `false`                                          |
-| `volumePermissions.image.registry`         | Init container volume-permissions image registry                                                               | `docker.io`                                          |
-| `volumePermissions.image.repository`       | Init container volume-permissions image name                                                                   | `bitnami/minideb`                                    |
-| `volumePermissions.image.tag`              | Init container volume-permissions image tag                                                                    | `stretch`                                             |
-| `volumePermissions.image.pullPolicy`       | Init container volume-permissions image pull policy                                                            | `Always`                                             |
-| `volumePermissions.resources`                  | Init container resource requests/limit                 | `nil`                                                   |
-| `forceBoot.enabled`         | Executes 'rabbitmqctl force_boot' to force boot cluster shut down unexpectedly in an unknown order. Use it only if you prefer availability over integrity.                                                               | `false`                                          |
--->
+| ------------------------------------ | ------------------------------------------------ | -------------------------------------------------------
+
 The above parameters map to the env variables defined in [bitnami/rabbitmq](http://github.com/bitnami/bitnami-docker-rabbitmq). For more information please refer to the [bitnami/rabbitmq](http://github.com/bitnami/bitnami-docker-rabbitmq) image documentation.
 
 Specify each parameter using the `--set key=value[,key=value]` argument to `helm install`. For example,
@@ -156,7 +61,7 @@ Specify each parameter using the `--set key=value[,key=value]` argument to `helm
 ```bash
 $ helm install --name my-release \
   --set rabbitmq.username=admin,rabbitmq.password=secretpassword,rabbitmq.erlangCookie=secretcookie \
-    stable/rabbitmq
+    ncsa/clowder
 ```
 
 The above command sets the RabbitMQ admin username and password to `admin` and `secretpassword` respectively. Additionally the secure erlang cookie is set to `secretcookie`.
@@ -164,7 +69,7 @@ The above command sets the RabbitMQ admin username and password to `admin` and `
 Alternatively, a YAML file that specifies the values for the parameters can be provided while installing the chart. For example,
 
 ```bash
-$ helm install --name my-release -f values.yaml stable/rabbitmq
+$ helm install --name my-release -f values.yaml ncsa/clowder
 ```
 
 > **Tip**: You can use the default [values.yaml](values.yaml)
@@ -286,18 +191,21 @@ The chart mounts a [Persistent Volume](http://kubernetes.io/docs/user-guide/pers
 $ helm install --set persistence.existingClaim=PVC_NAME rabbitmq
 ```
 
-## TODO
+## ChangeLog
 
-Following is a list of tasks that need to be done
+### 0.5.0
 
-- finish documentation
-- persistence storage for clowder
-  - mounted in multiple clowder instances
-  - mounted in extractors
+- update clowder to 1.9.0
+- now uses helm3 syntax for chart
+- added minio for storage option
+- secrets are now passed as environment variables not in configmap
+- user creation moved to init container for clowder, will prevent helm chart from timing out.
 
+### 0.2.0
 
-## Upgrading
+- update clowder to 1.8.0
+- make sure to use image.tag for containers
 
-### To 0.0.1
+### 0.0.1
 
 This is the first release of the helm chart

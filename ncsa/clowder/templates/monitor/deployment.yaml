@@ -24,10 +24,14 @@ spec:
       initContainers:
         - name: check-rabbitmq
           image: "clowder/check:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           command: ['./check_rabbitmq']
           env:
             - name: RABBITMQ_URI
-              value: {{ include "clowder.rabbitmquri" . | quote }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}
+                  key: rabbitmq-uri
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}/monitor:{{ .Values.image.tag }}"
@@ -38,7 +42,10 @@ spec:
               protocol: TCP
           env:
             - name: RABBITMQ_URI
-              value: {{ include "clowder.rabbitmquri" . | quote }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}
+                  key: rabbitmq-uri
             - name: CLOWDER_SECRET
               valueFrom:
                 secretKeyRef:

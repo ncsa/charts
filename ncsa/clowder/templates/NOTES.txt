@@ -18,7 +18,14 @@ Clowder Admin Key:
 
 To access for outside the cluster, perform the following steps:
 
-{{- if contains "NodePort" .Values.service.type }}
+{{- if .Values.ingress.enabled }}
+
+To Access the Clowder interface:
+    {{- range .Values.ingress.hosts }}
+    http{{- if $.Values.ingress.ssl }}s{{end}}://{{ . }}
+    {{- end }}
+
+{{- else if contains "NodePort" .Values.service.type }}
 
 Obtain the NodePort IP and ports:
 
