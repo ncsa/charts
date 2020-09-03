@@ -1,0 +1,32 @@
+apiVersion: v2
+name: incore
+icon: https://incore.ncsa.illinois.edu/public/resilience-logo.png
+home: https://incore.ncsa.illinois.edu/
+description: Run your scientific analyses that model the impact of natural hazards on a community and the resilience of those communities.
+type: application
+
+# This is the chart version. This version number should be incremented each time you make changes
+# to the chart and its templates, including the app version.
+# Versions are expected to follow Semantic Versioning (https://semver.org/)
+version: 0.1.0
+
+# This is the version number of the application being deployed. This version number should be
+# incremented each time you make changes to the application. Versions are not expected to
+# follow Semantic Versioning. They should reflect the version the application is using.
+appVersion: 1.5.0
+
+maintainers:
+  - name: Rob Kooper
+    email: kooper@illinois.edu
+  - name: Yong Wook Kim
+    email: ywkim@illinois.edu
+dependencies:
+  - name: jupyterhub
+    version: ~0.9
+    repository: https://jupyterhub.github.io/helm-chart/
+  - name: keycloak
+    version: ~9.0
+    repository: https://codecentric.github.io/helm-charts
+  - name: postgresql
+    version: ~9.3
+    repository: https://charts.bitnami.com/bitnami

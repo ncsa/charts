@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "incore.fullname" . }}-doc-api
+  labels:
+    {{- include "incore.labels" . | nindent 4 }}
+spec:
+  selector:
+    app.kubernetes.io/name: {{ include "incore.name" . }}-doc-api
+    app.kubernetes.io/instance: {{ .Release.Name }}
+  type: {{ .Values.doc_api.service.type }}
+  ports:
+    - port: {{ .Values.doc_api.service.port }}
+      name: doc-api
+      targetPort: http
+      protocol: TCP

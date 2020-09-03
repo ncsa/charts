@@ -1,0 +1,31 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: {{ include "incore.fullname" . }}-frontend
+  labels:
+    {{- include "incore.labels" . | nindent 4 }}
+spec:
+  schedule: "*/15 * * * *"
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      template:
+        spec:
+          containers:
+            - name: frontend
+              image: "{{ .Values.image.project }}/{{ .Values.frontend.image.repository }}:{{ .Values.frontend.image.tag | default .Chart.AppVersion }}"
+              imagePullPolicy: {{ .Values.image.pullPolicy }}
+              command:
+                - /bin/sh
+                - "-ec"
+                - /getVersionTags.sh
+              volumeMounts:
+                - name: {{ include "incore.name" . }}-frontend-tags
+                  mountPath: /usr/share/nginx/html/tags
+          volumes:
+            - name: {{ include "incore.name" . }}-frontend-tags
+              persistentVolumeClaim:
+                claimName: {{ include "incore.name" . }}-frontend-tags
+          restartPolicy: Never

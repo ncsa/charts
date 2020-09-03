@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "incore.fullname" . }}-doc-pyincore
+  labels:
+    {{- include "incore.labels" . | nindent 4 }}
+spec:
+  selector:
+    app.kubernetes.io/name: {{ include "incore.name" . }}-doc-pyincore
+    app.kubernetes.io/instance: {{ .Release.Name }}
+  type: {{ .Values.doc_pyincore.service.type }}
+  ports:
+    - port: {{ .Values.doc_pyincore.service.port }}
+      name: doc-pyincore
+      targetPort: http
+      protocol: TCP
