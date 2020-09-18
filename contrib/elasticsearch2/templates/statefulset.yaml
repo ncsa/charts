@@ -65,10 +65,10 @@ spec:
   - metadata:
       name: {{ template "elasticsearch2.fullname" . }}-data
     spec:
-      accessModes: {{ .Values.storage.accessModes }}
-      {{- with .Values.storage.storageClass }}
-      storageClassName: {{ .Values.storage.storageClass }}
+      accessModes: {{ .Values.persistence.accessModes }}
+      {{- with .Values.persistence.storageClass }}
+      storageClassName: {{ . }}
       {{- end }}
       resources:
         requests:
-          storage: {{ .Values.storage.capacity }}
+          storage: {{ .Values.persistence.capacity }}

@@ -4,9 +4,9 @@
 
 replicaCount: 1
 
-storage:
+persistence:
   accessModes: [ "ReadWriteOnce" ]
-  capacity: 1Gi
+  capacity: 2Gi
 
 image:
   repository: elasticsearch
