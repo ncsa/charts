@@ -18,15 +18,14 @@ spec:
         app.kubernetes.io/name: {{ include "clowder.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
-    {{- with .Values.imagePullSecrets }}
+      {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
-    {{- end }}
+      {{- end }}
       initContainers:
         - name: check-mongo
-          image: "{{ $.Values.image.repository }}/check:{{ .Values.image.tag }}"
+          image: "{{ $.Values.image.checks }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command: ['./check_mongodb']
           env:
             - name: MONGO_URI
               valueFrom:
@@ -131,13 +130,6 @@ spec:
             - name: data
               mountPath: /home/clowder/data
 {{- end }}
-          startupProbe:
-            httpGet:
-              path: /healthz
-              port: liveness-port
-            timeoutSeconds: 5
-            failureThreshold: 30
-            periodSeconds: 10
           livenessProbe:
             tcpSocket:
               port: clowder

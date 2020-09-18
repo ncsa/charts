@@ -55,13 +55,17 @@ data:
     # rabbitmq
     clowder.rabbitmq.uri=${?RABBITMQ_URI}
     clowder.rabbitmq.exchange=clowder
-{{- if .Values.fixRabbitmqClowderUrl }}
-    clowder.rabbitmq.clowderurl="http://{{ include "clowder.clowderuri" . }}"
-{{- end }}
+    {{- if not .Values.ingress.enabled }}
+    clowder.rabbitmq.clowderurl="{{- printf "http://%s:%.f%s" (include "clowder.fullname" . ) .Values.service.port .Values.ingress.path }}"
+    {{- end }}
 {{- end }}
 {{- if .Values.elasticsearch.enabled }}
     # elasticsearch
+  {{- if .Values.elasticsearch.elasticsearch }}
     elasticsearchSettings.clusterName={{ (index .Values.elasticsearch.elasticsearch.config "cluster.name") | default "clowder" | quote }}
+  {{- else }}
+    elasticsearchSettings.clusterName="clowder"
+  {{- end }}
     elasticsearchSettings.serverAddress={{ include "clowder.fullname" . }}-elasticsearch-discovery
     elasticsearchSettings.serverPort=9300
 {{- end }}

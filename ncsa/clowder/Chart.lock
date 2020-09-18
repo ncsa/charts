@@ -4,12 +4,12 @@ dependencies:
   version: 7.2.11
 - name: minio
   repository: https://charts.bitnami.com/bitnami
-  version: 3.4.12
+  version: 3.4.21
 - name: rabbitmq
   repository: https://charts.bitnami.com/bitnami
-  version: 7.1.1
+  version: 7.1.2
 - name: elasticsearch2
   repository: https://opensource.ncsa.illinois.edu/charts/
   version: ~0.2
-digest: sha256:2ea583eb732f41a5cc4da0a576d53959c9e874b9620250d0270965457c831d01
-generated: "2020-06-22T23:05:00.403328-05:00"
+digest: sha256:d3754bfd1cac0d88fb3a6f477e6a0ec276ebe594029858687c1b46fb034a408d
+generated: "2020-08-26T15:56:33.137459-05:00"

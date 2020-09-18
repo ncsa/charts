@@ -59,11 +59,6 @@ To Access the Clowder interface:
 
 {{- end }}
 
-
-
-
-
-
 1. Get the application URL by running these commands:
 {{- if .Values.ingress.enabled }}
 {{- range $host := .Values.ingress.hosts }}
@@ -79,26 +74,6 @@ To Access the Clowder interface:
   export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ include "clowder.fullname" . }} -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
   echo http://$SERVICE_IP:{{ .Values.service.port }}
 {{- else if contains "ClusterIP" .Values.service.type }}
-  export POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/name={{ include "clowder.name" . }},app.kubernetes.io/instance={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
-  echo "Visit http://127.0.0.1:9000 to use your application"
-  kubectl port-forward $POD_NAME 9000:9000
+  echo "Visit http://localhost:{{ .Values.service.port }} to use your application"
+  kubectl port-forward --namespace {{ .Release.Namespace }} service/{{ include "clowder.fullname" . }} {{ .Values.service.port }}:{{ .Values.service.port }}
 {{- end }}
-
-    rm secrets-clowder.yaml
-    echo "clowder-key: $(kubectl get secret --namespace {{ .Release.Namespace }} {{ .Release.Name }} -o jsonpath="{.data.clowder-key}" | base64 --decode)" >> secrets-clowder.yaml
-    echo "clowder-secret: $(kubectl get secret --namespace {{ .Release.Namespace }} {{ .Release.Name }} -o jsonpath="{.data.clowder-secret}" | base64 --decode)" >> secrets-clowder.yaml
-{{- if .Values.users }}
-    echo "users:" >> secrets-clowder.yaml
-  {{- range $index, $element := .Values.users }}
-    echo "  - email: {{ .email }}" >> secrets-clowder.yaml
-    echo "    password: $(kubectl get secret --namespace {{ $.Release.Namespace }} {{  $fullname }} -o jsonpath="{.data.password-{{ $index }}}" | base64 --decode)" >> secrets-clowder.yaml
-  {{- end }}
-{{- end }}
-    echo "rabbitmq:" >> secrets-clowder.yaml
-    echo "  rabbitmq:" >> secrets-clowder.yaml
-    echo "    erlangCookie: $(kubectl get secret --namespace {{ .Release.Namespace }} {{ .Release.Name }}-rabbitmq -o jsonpath="{.data.rabbitmq-erlang-cookie}" | base64 --decode)" >> secrets-clowder.yaml
-    echo "    password: $(kubectl get secret --namespace {{ .Release.Namespace }} {{ .Release.Name }}-rabbitmq -o jsonpath="{.data.rabbitmq-password}" | base64 --decode)" >> secrets-clowder.yaml
-
-  Followed by the actual upgrade
-
-    helm install --upgrade {{ .Release.Name }}  ncsa/{{ .Chart.Name }} --values secrets-clowder.yaml --values values-clowder.yaml

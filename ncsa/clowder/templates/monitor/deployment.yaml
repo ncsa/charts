@@ -23,9 +23,8 @@ spec:
     {{- end }}
       initContainers:
         - name: check-rabbitmq
-          image: "clowder/check:{{ .Values.image.tag }}"
+          image: "{{ $.Values.image.checks }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command: ['./check_rabbitmq']
           env:
             - name: RABBITMQ_URI
               valueFrom:

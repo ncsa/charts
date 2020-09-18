@@ -10,6 +10,7 @@ kind: Deployment
 metadata:
   name: {{ $fullname }}-extractors-{{ $key }}
   labels:
+    clowder/extractor: {{ $key | quote }}
 {{ $labels | indent 4 }}
 spec:
   replicas: {{ .replicaCount }}
@@ -29,9 +30,8 @@ spec:
     {{- end }}
       initContainers:
         - name: check-rabbitmq
-          image: "clowder/check:{{ $.Values.image.tag }}"
+          image: "{{ $.Values.image.checks }}"
           imagePullPolicy: {{ $.Values.image.pullPolicy }}
-          command: ['./check_rabbitmq']
           env:
             - name: RABBITMQ_URI
               valueFrom:
@@ -39,7 +39,7 @@ spec:
                   name: {{ $.Release.Name }}
                   key: rabbitmq-uri
       containers:
-        - name: {{ $.Chart.Name }}
+        - name: extractor
           image: {{ .image | quote }}
           imagePullPolicy: {{ $.Values.image.pullPolicy }}
           env:
