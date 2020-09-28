@@ -193,6 +193,16 @@ $ helm install --set persistence.existingClaim=PVC_NAME rabbitmq
 
 ## ChangeLog
 
+### 0.6.0
+
+- update clowder to 1.11.0
+- update RabbitMQ to 7.6.7
+- updated most core extractors to newer version
+- added virus checker extractor
+- added `extraConfig` and `extraPlugins` to allow finer control of clowder
+  - this can be used to add additional login options to clowder
+- monitor is now deployed at https://\<server\>/\<path\>/monitor/index.html
+
 ### 0.5.0
 
 - update clowder to 1.9.0

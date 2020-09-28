@@ -41,7 +41,7 @@ spec:
       containers:
         - name: extractor
           image: {{ .image | quote }}
-          imagePullPolicy: {{ $.Values.image.pullPolicy }}
+          imagePullPolicy: {{ default $.Values.image.pullPolicy .pullPolicy }}
           env:
             - name: RABBITMQ_URI
               valueFrom:

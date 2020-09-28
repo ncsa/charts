@@ -22,7 +22,6 @@ spec:
   {{- end }}
 {{- end }}
   rules:
-  rules:
 {{- if .Values.ingress.hosts }}
   {{- range .Values.ingress.hosts }}
     - host: {{ . }}

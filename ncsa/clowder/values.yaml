@@ -15,6 +15,17 @@ imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 
+extraPlugins:
+#  10002:securesocial.core.providers.GoogleProvider
+#  10005:securesocial.core.providers.GitHubProvider
+#  10010:services.ORCIDProvider
+
+extraConfig: |
+#  permissions = "private"
+#  enablePublic = true
+#  verifySpaces = false
+
+
 # ----------------------------------------------------------------------
 # Configure the ingress object to hook into existing infastructure
 # ref : http://kubernetes.io/docs/user-guide/ingress/
@@ -32,7 +43,7 @@ ingress:
   #      - chart-example.local
 
   # should clowder assume SSL connections
-  ssl: false
+  ssl: true
 
 service:
   ## ServiceType
@@ -95,34 +106,35 @@ users:
 extractors:
   file-digest:
     enabled: true
-    image: clowder/extractors-digest:2.1.0
+    image: clowder/extractors-digest:2.1.1
     replicaCount: 1
+    #pullPolicy: Always
     # env:
     #   - name: foo
     #     value: "bar"
   image-preview:
     enabled: true
-    image: clowder/extractors-image-preview:2.1.0
+    image: clowder/extractors-image-preview:2.1.1
     replicaCount: 1
   image-metadata:
     enabled: true
-    image: clowder/extractors-image-metadata:2.1.0
+    image: clowder/extractors-image-metadata:2.1.1
     replicaCount: 1
   audio-preview:
     enabled: true
-    image: clowder/extractors-audio-preview:2.1.0
+    image: clowder/extractors-audio-preview:2.1.1
     replicaCount: 1
   pdf-preview:
     enabled: true
-    image: clowder/extractors-pdf-preview:2.1.0
+    image: clowder/extractors-pdf-preview:2.1.1
     replicaCount: 1
   video-preview:
     enabled: true
-    image: clowder/extractors-video-preview:2.1.0
+    image: clowder/extractors-video-preview:2.1.1
     replicaCount: 1
   clamav:
     enabled: true
-    image: clowder/extractors-clamav:1.0.0
+    image: clowder/extractors-clamav:1.0.1
     replicaCount: 1
 
 # ----------------------------------------------------------------------
@@ -196,7 +208,6 @@ persistence:
 # ----------------------------------------------------------------------
 monitor:
   enabled: true
-
   service:
     ## ServiceType
     ## ref: https://kubernetes.io/docs/user-guide/services/#publishing-services---service-types
@@ -204,17 +215,6 @@ monitor:
     ## Optional static port assignment for service type NodePort.
     # nodePort: 30000
     port: 9999
-
-  ingress:
-    enabled: true
-    annotations: {}
-    #hosts:
-    #  - clowder.localhost
-    path: /monitor/
-    tls:
-    #  - secretName: chart-example-tls
-    #    hosts:
-    #      - chart-example.local
 
 # ----------------------------------------------------------------------
 
@@ -251,6 +251,7 @@ rabbitmq:
   auth:
     username: guest
     password: guest
+    erlangCookie: kittencookie
     # extraConfiguration: |-
     #   management.path_prefix = /rabbitmq/
 

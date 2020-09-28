@@ -7,9 +7,9 @@ dependencies:
   version: 3.4.21
 - name: rabbitmq
   repository: https://charts.bitnami.com/bitnami
-  version: 7.1.2
+  version: 7.6.7
 - name: elasticsearch2
   repository: https://opensource.ncsa.illinois.edu/charts/
-  version: ~0.2
-digest: sha256:d3754bfd1cac0d88fb3a6f477e6a0ec276ebe594029858687c1b46fb034a408d
-generated: "2020-08-26T15:56:33.137459-05:00"
+  version: 0.2.1
+digest: sha256:8158081d760fa7dcd8a9bf6e6754676456be7be8e6aa48722c7689cb42953979
+generated: "2020-09-24T17:30:08.590491-05:00"

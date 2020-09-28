@@ -55,19 +55,19 @@ spec:
               port: monitor
           readinessProbe:
             httpGet:
-              path: {{ .Values.monitor.ingress.path }}
+              path: {{ $.Values.ingress.path }}monitor/
               port: monitor
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-      {{- with .Values.nodeSelector }}
+      {{- with .Values.monitor.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-    {{- with .Values.affinity }}
+    {{- with .Values.monitor.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
     {{- end }}
-    {{- with .Values.tolerations }}
+    {{- with .Values.monitor.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
     {{- end }}

@@ -12,6 +12,9 @@ data:
 {{- if .Values.elasticsearch.enabled }}
     10002:services.ElasticsearchPlugin
 {{- end }}
+{{- with .Values.extraPlugins }}
+    {{ . | indent 4 }}
+{{- end }}
   custom.conf: |-
     application.context="{{ .Values.ingress.path }}"
     securesocial.onLoginGoTo="{{ .Values.ingress.path }}"
@@ -68,4 +71,7 @@ data:
   {{- end }}
     elasticsearchSettings.serverAddress={{ include "clowder.fullname" . }}-elasticsearch-discovery
     elasticsearchSettings.serverPort=9300
+{{- end }}
+{{- with .Values.extraConfig }}
+    {{ . | indent 4 }}
 {{- end }}
