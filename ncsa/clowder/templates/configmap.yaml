@@ -20,12 +20,14 @@ data:
     securesocial.onLoginGoTo="{{ .Values.ingress.path }}"
     securesocial.onLogoutGoTo="{{ .Values.ingress.path }}"
     securesocial.ssl={{ .Values.ingress.ssl }}
+    securesocial.cookie.idleTimeoutInMinutes={{ .Values.idleTimeoutInMinutes }}
     # security options
     application.secret=${?CLOWDER_SECRET}
     commKey=${?CLOWDER_KEY}
     # default admin and should admin approve everybody
     registerThroughAdmins={{ .Values.registerThroughAdmins }}
     initialAdmins={{ join "," .Values.initialAdmins | quote }}
+    ehcacheplugin=enabled
     # email options
 {{- if .Values.smtp.mock }}
     smtp.mock=true

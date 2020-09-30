@@ -53,18 +53,23 @@ The following table lists the configurable parameters of the Clowder chart and t
 
 | Parameter                            | Description                                      | Default                                                 |
 | ------------------------------------ | ------------------------------------------------ | -------------------------------------------------------
-
-The above parameters map to the env variables defined in [bitnami/rabbitmq](http://github.com/bitnami/bitnami-docker-rabbitmq). For more information please refer to the [bitnami/rabbitmq](http://github.com/bitnami/bitnami-docker-rabbitmq) image documentation.
+| commKey | Administrator key. This key will give administrator level access to Clowder and is not associated with any user. | ""
+| secretKey | Secret key used for cookies. This should be set the same for all clowder instances in a replicated setup. Best is for kubernetes to generate a random key. | ""
+| initialAdmins | List of initial admins in clowder, this is a list of email addresses and these will always be admins. | ""
+| registerThroughAdmins | Should the admin be required to approve all new users. Setting this to false will result in all new users immediately be given access to Clowder. | true
+| idleTimeoutInMinutes | Number of minutes you stay logged into clowder without any interactions. | 30
+| extraPlugins | list of additional plugins should be enabled. This will allow you to add additional login mechanisms | []
+| extraConfig | list of additional configuration options to set for clowder. | []
 
 Specify each parameter using the `--set key=value[,key=value]` argument to `helm install`. For example,
 
 ```bash
 $ helm install --name my-release \
-  --set rabbitmq.username=admin,rabbitmq.password=secretpassword,rabbitmq.erlangCookie=secretcookie \
+  --set clowderkey=ncsa \
     ncsa/clowder
 ```
 
-The above command sets the RabbitMQ admin username and password to `admin` and `secretpassword` respectively. Additionally the secure erlang cookie is set to `secretcookie`.
+The above command sets the clowder admin key `ncsa`.
 
 Alternatively, a YAML file that specifies the values for the parameters can be provided while installing the chart. For example,
 
@@ -74,112 +79,24 @@ $ helm install --name my-release -f values.yaml ncsa/clowder
 
 > **Tip**: You can use the default [values.yaml](values.yaml)
 
-### Production configuration and horizontal scaling
+## Users
 
-This chart includes a `values-production.yaml` file where you can find some parameters oriented to production configuration in comparison to the regular `values.yaml`.
+You can add a list of initial users to clowder. For example the following snippet will add an administrator with
+email address `admin@example.com` and password `secret`. 
 
-```console
-$ helm install --name my-release -f ./values-production.yaml stable/rabbitmq
 ```
-
-- Resource needs and limits to apply to the pod:
-```diff
-- resources: {}
-+ resources:
-+   requests:
-+     memory: 256Mi
-+     cpu: 100m
+users:
+  - email: admin@example.com
+    password: secret
+    firstname: Admin
+    lastname: User
+    admin: true
 ```
-
-- Replica count:
-```diff
-- replicas: 1
-+ replicas: 3
-```
-
-- Node labels for pod assignment:
-```diff
-- nodeSelector: {}
-+ nodeSelector:
-+   beta.kubernetes.io/arch: amd64
-```
-
-- Enable ingress with TLS:
-```diff
-- ingress.tls: false
-+ ingress.tls: true
-```
-
-- Start a side-car prometheus exporter:
-```diff
-- metrics.enabled: false
-+ metrics.enabled: true
-```
-
-- Enable init container that changes volume permissions in the data directory:
-```diff
-- volumePermissions.enabled: false
-+ volumePermissions.enabled: true
-```
-
-To horizontally scale this chart once it has been deployed you have two options:
-
-- Use `kubectl scale` command:
-
-```console
-$ kubectl scale statefulset my-release-rabbitmq --replicas=3
-```
-
-- Use `helm upgrade` command:
-
-```console
-RABBITMQ_PASSWORD="$(kubectl get secret my-release-rabbitmq -o jsonpath='{.data.rabbitmq-password}' | base64 --decode)"
-RABBITMQ_ERLANG_COOKIE="$(kubectl get secret my-release-rabbitmq -o jsonpath='{.data.rabbitmq-erlang-cookie}' | base64 --decode)"
-$ helm upgrade my-release stable/rabbitmq \
-  --set replicas=3 \
-  --set rabbitmq.password="$RABBITMQ_PASSWORD" \
-  --set rabbitmq.erlangCookie="$RABBITMQ_ERLANG_COOKIE"
-```
-
-> Note: please note it's mandatory to indicate the password and erlangCookie that was set the first time the chart was installed to upgrade the chart. Otherwise, new pods won't be able to join the cluster.
-
-### [Rolling VS Immutable tags](https://docs.bitnami.com/containers/how-to/understand-rolling-tags-containers/)
-
-It is strongly recommended to use immutable tags in a production environment. This ensures your deployment does not change automatically if the same tag is updated with a different image.
-
-Bitnami will release a new chart updating its containers if a new version of the main container, significant changes, or critical vulnerabilities exist.
-
-### Load Definitions
-It is possible to [load a RabbitMQ definitions file to configure RabbitMQ](http://www.rabbitmq.com/management.html#load-definitions). Because definitions may contain RabbitMQ credentials, [store the JSON as a Kubernetes secret](https://kubernetes.io/docs/concepts/configuration/secret/#using-secrets-as-files-from-a-pod). Within the secret's data, choose a key name that corresponds with the desired load definitions filename (i.e. `load_definition.json`) and use the JSON object as the value. For example:
-
-```yaml
-apiVersion: v1
-kind: Secret
-metadata:
-  name: rabbitmq-load-definition
-type: Opaque
-stringData:
-  load_definition.json: |-
-    {
-      "vhosts": [
-        {
-          "name": "/"
-        }
-      ]
-    }
-```
-
-Then, specify the `management.load_definitions` property as an `extraConfiguration` pointing to the load definition file path within the container (i.e. `/app/load_definition.json`) and set `loadDefinition.enable` to `true`.
-
-Any load definitions specified will be available within in the container at `/app`.
-
-> Loading a definition will take precedence over any configuration done through [Helm values](#configuration).
 
 ## Persistence
 
-The [Bitnami RabbitMQ](https://github.com/bitnami/bitnami-docker-rabbitmq) image stores the RabbitMQ data and configurations at the `/opt/bitnami/rabbitmq/var/lib/rabbitmq/` path of the container.
-
-The chart mounts a [Persistent Volume](http://kubernetes.io/docs/user-guide/persistent-volumes/) at this location. By default, the volume is created using dynamic volume provisioning. An existing PersistentVolumeClaim can also be defined.
+Clowder can use a disk storage (default) or S3. In case of S3 it can either use an existing bucket, or use minio to
+provide the bucket.
 
 ### Existing PersistentVolumeClaims
 
@@ -192,6 +109,12 @@ $ helm install --set persistence.existingClaim=PVC_NAME rabbitmq
 ```
 
 ## ChangeLog
+
+### 0.6.1
+
+- update clowder to 1.11.1
+- ability to set idle timeout (default is 30 min)
+- use new healthz endpoint in clowder for ready checks.
 
 ### 0.6.0
 

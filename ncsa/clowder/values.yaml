@@ -7,7 +7,7 @@ replicaCount: 1
 image:
   repository: clowder
   name: clowder
-  tag: 1.11.0
+  tag: 1.11.1
   checks: "ncsa/checks:1.0.0"
   pullPolicy: IfNotPresent
 
@@ -15,11 +15,49 @@ imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 
+## List of admins for Clowder. These people will at every restart of clowder be given admin
+## priveleges. Can also be used to recover system by giving existing user admin rights.
+initialAdmins:
+#  - admin@example.com
+
+## Should the admin be required to approve all new users. Setting this to false will result
+## in all new users immediately be given access to Clowder.
+registerThroughAdmins: true
+
+## Administrator key. This key will give administrator level access to Clowder and is not
+## associated with any user. This is deprecated and should not be used.
+#commKey:
+
+## Secret key used for cookies. This should be set the same for all clowder instances in
+## a replicated setup. Best is for kubernetes to generate a random key.
+#secretKey:
+
+## List of initial users. These users will be added after clowder is installed. The
+## users will still need to accept the data policy.
+## email     : Email address, also used to login
+## password  : Initial password, if not set a random password is generated
+## firstname : First name of the user
+## lastname  : Last name of the user
+## admin     : should user be given admin privileges
+users:
+  - email: admin@example.com
+    #password: secret
+    firstname: Admin
+    lastname: User
+    admin: true
+
+## idleTimeoutInMinutes the time in minutes that your session is valid for until clowder
+## logs you out.
+idleTimeoutInMinutes: 30
+
+## extraPlugins list of additional plugins should be enabled. This will allow you to add
+## additional login mechanisms
 extraPlugins:
 #  10002:securesocial.core.providers.GoogleProvider
 #  10005:securesocial.core.providers.GitHubProvider
 #  10010:services.ORCIDProvider
 
+## extraConfig list of additional configuration options to set for clowder.
 extraConfig: |
 #  permissions = "private"
 #  enablePublic = true
@@ -61,37 +99,6 @@ smtp:
   ## host to use when sending emails
   ## TODO add user/password
   host: smtp
-
-## List of admins for Clowder. These people will at every restart of clowder be given admin
-## priveleges. Can also be used to recover system by giving existing user admin rights.
-initialAdmins:
-  - admin@example.com
-
-## Should the admin be required to approve all new users. Setting this to false will result
-## in all new users immediatly be given access to Clowder.
-registerThroughAdmins: false
-
-## Administrator key. This key will give administrator level access to Clowder and is not
-## associated with any user. This is deprecated and should not be used.
-#commKey:
-
-## Secret key used for cookies. This should be set the same for all clowder instances in
-## a replicated setup. Best is for kubernetes to generate a random key.
-#secretKey:
-
-## List of initial users. These users will be added after clowder is installed. The
-## users will still need to accept the data policy.
-## email     : Email address, also used to login
-## password  : Initial password, if not set a random password is generated
-## firstname : First name of the user
-## lastname  : Last name of the user
-## admin     : should user be given admin privileges
-users:
-  - email: admin@example.com
-    #password: secret
-    firstname: Admin
-    lastname: User
-    admin: true
 
 # ----------------------------------------------------------------------
 # EXTRACTORS

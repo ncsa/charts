@@ -136,7 +136,7 @@ spec:
             timeoutSeconds: 5
           readinessProbe:
             httpGet:
-              path: {{ .Values.ingress.path }}api/status
+              path: {{ .Values.ingress.path }}healthz
               port: clowder
             timeoutSeconds: 5
           resources:
