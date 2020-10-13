@@ -110,6 +110,10 @@ $ helm install --set persistence.existingClaim=PVC_NAME rabbitmq
 
 ## ChangeLog
 
+### 0.6.2
+
+- update clowder to 1.11.2
+
 ### 0.6.1
 
 - update clowder to 1.11.1

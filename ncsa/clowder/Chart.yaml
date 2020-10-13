@@ -1,5 +1,5 @@
 apiVersion: v2
-version: 0.6.1
+version: 0.6.2
 name: clowder
 appVersion: "1.11.1"
 icon: https://isda.ncsa.illinois.edu/~kooper/charts/images/clowder.png
