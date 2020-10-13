@@ -60,6 +60,8 @@ The following table lists the configurable parameters of the Clowder chart and t
 | idleTimeoutInMinutes | Number of minutes you stay logged into clowder without any interactions. | 30
 | extraPlugins | list of additional plugins should be enabled. This will allow you to add additional login mechanisms | []
 | extraConfig | list of additional configuration options to set for clowder. | []
+| replicaCount | number of instances to run of clowder | 1
+| monitor.replicaCount | number of instances to run of monitor | 1
 
 Specify each parameter using the `--set key=value[,key=value]` argument to `helm install`. For example,
 
@@ -113,6 +115,15 @@ $ helm install --set persistence.existingClaim=PVC_NAME rabbitmq
 ### 0.6.2
 
 - update clowder to 1.11.2
+- can set replicas for monitor independent from clowder
+- update extractors:
+  - extractors-digest to 2.1.4
+  - extractors-image-preview to 2.1.4
+  - extractors-image-metadata to 2.1.4
+  - extractors-audio-preview to 2.1.4
+  - extractors-pdf-preview to 2.1.4
+  - extractors-video-preview to 2.1.4
+  - extractors-clamav to 1.0.4
 
 ### 0.6.1
 

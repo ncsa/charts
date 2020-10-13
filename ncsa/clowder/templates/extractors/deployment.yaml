@@ -3,7 +3,7 @@
 {{- $labels := include "clowder.labels" . }}
 {{- $rabbitmqURI := include "clowder.rabbitmquri" . }}
 {{- range $key, $val := .Values.extractors }}
-{{- if .enabled }}
+{{- if (default true .enabled) }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -13,7 +13,7 @@ metadata:
     clowder/extractor: {{ $key | quote }}
 {{ $labels | indent 4 }}
 spec:
-  replicas: {{ .replicaCount }}
+  replicas: {{ default 1 .replicaCount }}
   selector:
     matchLabels:
       app.kubernetes.io/name: {{ $fullname }}-extractors-{{ $key }}

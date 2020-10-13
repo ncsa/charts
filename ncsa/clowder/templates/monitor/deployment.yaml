@@ -6,7 +6,7 @@ metadata:
   labels:
 {{ include "clowder.labels" . | indent 4 }}
 spec:
-  replicas: {{ .Values.replicaCount }}
+  replicas: {{ .Values.monitor.replicaCount }}
   selector:
     matchLabels:
       app.kubernetes.io/name: {{ include "clowder.name" . }}-monitor

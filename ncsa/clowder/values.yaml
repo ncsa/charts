@@ -2,8 +2,6 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-replicaCount: 1
-
 image:
   repository: clowder
   name: clowder
@@ -14,6 +12,9 @@ image:
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
+
+## replicaCount the number of instances of the clowder application to run in parallel.
+replicaCount: 1
 
 ## List of admins for Clowder. These people will at every restart of clowder be given admin
 ## priveleges. Can also be used to recover system by giving existing user admin rights.
@@ -112,37 +113,25 @@ smtp:
 ## env          : additional environment variables to pass to extractor.
 extractors:
   file-digest:
-    enabled: true
-    image: clowder/extractors-digest:2.1.1
-    replicaCount: 1
+    image: clowder/extractors-digest:2.1.4
+    #enabled: true
+    #replicaCount: 1
     #pullPolicy: Always
     # env:
     #   - name: foo
     #     value: "bar"
   image-preview:
-    enabled: true
-    image: clowder/extractors-image-preview:2.1.1
-    replicaCount: 1
+    image: clowder/extractors-image-preview:2.1.4
   image-metadata:
-    enabled: true
-    image: clowder/extractors-image-metadata:2.1.1
-    replicaCount: 1
+    image: clowder/extractors-image-metadata:2.1.4
   audio-preview:
-    enabled: true
-    image: clowder/extractors-audio-preview:2.1.1
-    replicaCount: 1
+    image: clowder/extractors-audio-preview:2.1.4
   pdf-preview:
-    enabled: true
-    image: clowder/extractors-pdf-preview:2.1.1
-    replicaCount: 1
+    image: clowder/extractors-pdf-preview:2.1.4
   video-preview:
-    enabled: true
-    image: clowder/extractors-video-preview:2.1.1
-    replicaCount: 1
+    image: clowder/extractors-video-preview:2.1.4
   clamav:
-    enabled: true
-    image: clowder/extractors-clamav:1.0.1
-    replicaCount: 1
+    image: clowder/extractors-clamav:1.0.3
 
 # ----------------------------------------------------------------------
 # DATA STORAGE
@@ -215,6 +204,7 @@ persistence:
 # ----------------------------------------------------------------------
 monitor:
   enabled: true
+  replicaCount: 1
   service:
     ## ServiceType
     ## ref: https://kubernetes.io/docs/user-guide/services/#publishing-services---service-types
