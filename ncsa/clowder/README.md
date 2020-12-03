@@ -53,15 +53,17 @@ The following table lists the configurable parameters of the Clowder chart and t
 
 | Parameter                            | Description                                      | Default                                                 |
 | ------------------------------------ | ------------------------------------------------ | -------------------------------------------------------
+| replicaCount | Number of instances to run of clowder. | 1
+| memory | Memory for the clowder application in MB. | 4096
 | commKey | Administrator key. This key will give administrator level access to Clowder and is not associated with any user. | ""
 | secretKey | Secret key used for cookies. This should be set the same for all clowder instances in a replicated setup. Best is for kubernetes to generate a random key. | ""
 | initialAdmins | List of initial admins in clowder, this is a list of email addresses and these will always be admins. | ""
 | registerThroughAdmins | Should the admin be required to approve all new users. Setting this to false will result in all new users immediately be given access to Clowder. | true
 | idleTimeoutInMinutes | Number of minutes you stay logged into clowder without any interactions. | 30
-| extraPlugins | list of additional plugins should be enabled. This will allow you to add additional login mechanisms | []
-| extraConfig | list of additional configuration options to set for clowder. | []
-| replicaCount | number of instances to run of clowder | 1
-| monitor.replicaCount | number of instances to run of monitor | 1
+| extraOptions | List of additional options to be passed to the clowder process. | []
+| extraPlugins | List of additional plugins should be enabled. This will allow you to add additional login mechanisms. | []
+| extraConfig | List of additional configuration options to set for clowder. | []
+| monitor.replicaCount | number of instances to run of monitor. | 1
 
 Specify each parameter using the `--set key=value[,key=value]` argument to `helm install`. For example,
 
@@ -112,6 +114,18 @@ $ helm install --set persistence.existingClaim=PVC_NAME rabbitmq
 
 ## ChangeLog
 
+### 0.7.0
+
+- update clowder to 1.12.2
+- can set extra options for clowder `extraOptions`
+- update extractors:
+  - extractors-digest to 2.1.5
+  - extractors-image-preview to 2.1.5
+  - extractors-image-metadata to 2.1.5
+  - extractors-audio-preview to 2.1.5
+  - extractors-pdf-preview to 2.1.5
+  - extractors-video-preview to 2.1.5
+
 ### 0.6.2
 
 - update clowder to 1.11.2
@@ -123,7 +137,7 @@ $ helm install --set persistence.existingClaim=PVC_NAME rabbitmq
   - extractors-audio-preview to 2.1.4
   - extractors-pdf-preview to 2.1.4
   - extractors-video-preview to 2.1.4
-  - extractors-clamav to 1.0.4
+  - extractors-clamav to 1.0.3
 
 ### 0.6.1
 

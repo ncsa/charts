@@ -1,7 +1,7 @@
 apiVersion: v2
-version: 0.6.2
+version: 0.7.0
 name: clowder
-appVersion: "1.11.2"
+appVersion: "1.12.2"
 icon: https://isda.ncsa.illinois.edu/~kooper/charts/images/clowder.png
 description: Open Source Data Management for Long Tail Data.
 home: https://clowderframework.org/

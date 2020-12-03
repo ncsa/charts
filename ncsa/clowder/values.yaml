@@ -5,7 +5,7 @@
 image:
   repository: clowder
   name: clowder
-  tag: 1.11.2
+  tag: 1.12.2
   checks: "ncsa/checks:1.0.0"
   pullPolicy: IfNotPresent
 
@@ -15,6 +15,9 @@ fullnameOverride: ""
 
 ## replicaCount the number of instances of the clowder application to run in parallel.
 replicaCount: 1
+
+## memory to be allocated to the clowder process.
+memory: 2048
 
 ## List of admins for Clowder. These people will at every restart of clowder be given admin
 ## priveleges. Can also be used to recover system by giving existing user admin rights.
@@ -51,18 +54,23 @@ users:
 ## logs you out.
 idleTimeoutInMinutes: 30
 
+## extraOptions for the clowder process. Memory is set using the memory value.
+extraOptions:
+#  - --test
+#  - --debug
+
 ## extraPlugins list of additional plugins should be enabled. This will allow you to add
 ## additional login mechanisms
 extraPlugins:
-#  10002:securesocial.core.providers.GoogleProvider
-#  10005:securesocial.core.providers.GitHubProvider
-#  10010:services.ORCIDProvider
+#  - 10002:securesocial.core.providers.GoogleProvider
+#  - 10005:securesocial.core.providers.GitHubProvider
+#  - 10010:services.ORCIDProvider
 
 ## extraConfig list of additional configuration options to set for clowder.
-extraConfig: |
-#  permissions = "private"
-#  enablePublic = true
-#  verifySpaces = false
+extraConfig:
+#  - permissions = "private"
+#  - enablePublic = true
+#  - verifySpaces = false
 
 
 # ----------------------------------------------------------------------
@@ -121,15 +129,15 @@ extractors:
     #   - name: foo
     #     value: "bar"
   image-preview:
-    image: clowder/extractors-image-preview:2.1.4
+    image: clowder/extractors-image-preview:2.1.5
   image-metadata:
-    image: clowder/extractors-image-metadata:2.1.4
+    image: clowder/extractors-image-metadata:2.1.5
   audio-preview:
-    image: clowder/extractors-audio-preview:2.1.4
+    image: clowder/extractors-audio-preview:2.1.5
   pdf-preview:
-    image: clowder/extractors-pdf-preview:2.1.4
+    image: clowder/extractors-pdf-preview:2.1.5
   video-preview:
-    image: clowder/extractors-video-preview:2.1.4
+    image: clowder/extractors-video-preview:2.1.5
   clamav:
     image: clowder/extractors-clamav:1.0.3
 

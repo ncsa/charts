@@ -75,6 +75,12 @@ spec:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}/{{ .Values.image.name }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - /home/clowder/clowder.sh
+            - -mem {{ .Values.memory }}
+{{- range .Values.extraOptions }}
+            - {{ . }}
+{{- end }}
           ports:
             - name: clowder
               containerPort: 9000
