@@ -1,5 +1,38 @@
 apiVersion: v1
 entries:
+  clowder:
+  - apiVersion: v2
+    appVersion: 1.12.2
+    created: "2020-12-03T20:32:23.283798569Z"
+    dependencies:
+    - condition: mongodb.enabled
+      name: mongodb
+      repository: https://charts.bitnami.com/bitnami
+      version: ~7.2
+    - condition: minio.enabled
+      name: minio
+      repository: https://charts.bitnami.com/bitnami
+      version: ~3.4
+    - condition: rabbitmq.enabled
+      name: rabbitmq
+      repository: https://charts.bitnami.com/bitnami
+      version: ~7.6
+    - alias: elasticsearch
+      condition: elasticsearch.enabled
+      name: elasticsearch2
+      repository: https://opensource.ncsa.illinois.edu/charts/
+      version: 0.2.1
+    description: Open Source Data Management for Long Tail Data.
+    digest: 1ed0f5436cbedefe6b8d05bc803b64d59a51560a8498822703f13041bfbe3179
+    home: https://clowderframework.org/
+    icon: https://isda.ncsa.illinois.edu/~kooper/charts/images/clowder.png
+    maintainers:
+    - email: kooper@illinois.edu
+      name: Rob Kooper
+    name: clowder
+    urls:
+    - https://github.com/ncsa/charts/releases/download/clowder-0.7.0/clowder-0.7.0.tgz
+    version: 0.7.0
   elasticsearch2:
   - apiVersion: v1
     appVersion: 2.4.6
