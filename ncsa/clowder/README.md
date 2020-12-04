@@ -114,10 +114,17 @@ $ helm install --set persistence.existingClaim=PVC_NAME rabbitmq
 
 ## ChangeLog
 
+### 0.8.0
+
+- update clowder to 1.13.0
+- update extractors:
+  - extractors-digest to 2.1.6
+
 ### 0.7.0
 
 - update clowder to 1.12.2
 - can set extra options for clowder `extraOptions`
+- can set the memory used by clowder using `memory` (default is 2GB)
 - update extractors:
   - extractors-digest to 2.1.5
   - extractors-image-preview to 2.1.5
