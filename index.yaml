@@ -68,6 +68,15 @@ entries:
   elasticsearch2:
   - apiVersion: v1
     appVersion: 2.4.6
+    created: "2021-02-10T02:38:58.905693992Z"
+    description: An Elasticsearch2 Helm chart for Kubernetes
+    digest: 442c1d3a4c86067523732555f3a81b05f5631d28d422ff3ba87b18f166acbe47
+    name: elasticsearch2
+    urls:
+    - https://github.com/ncsa/charts/releases/download/elasticsearch2-0.2.2/elasticsearch2-0.2.2.tgz
+    version: 0.2.2
+  - apiVersion: v1
+    appVersion: 2.4.6
     created: "2020-10-21T02:30:19.793894805Z"
     description: An Elasticsearch2 Helm chart for Kubernetes
     digest: 449ac893ed2ee09fcd4a1515ad1dbd794db1232ff7537008a232686d804aa470
