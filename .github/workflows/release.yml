@@ -3,7 +3,7 @@ name: Release Charts
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   release:
@@ -19,16 +19,12 @@ jobs:
           git config user.name "$GITHUB_ACTOR"
           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
 
-      - name: contrib charts
-        uses: helm/chart-releaser-action@v1.0.0
+      - name: Install Helm
+        uses: azure/setup-helm@v1
         with:
-          charts_dir: contrib
-        env:
-          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+          version: v3.7.1
 
-      - name: NCSA charts
-        uses: helm/chart-releaser-action@v1.0.0
-        with:
-          charts_dir: ncsa
+      - name: publish charts
+        uses: helm/chart-releaser-action@v1.3.0
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
