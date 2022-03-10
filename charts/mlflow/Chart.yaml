@@ -1,0 +1,46 @@
+apiVersion: v2
+name: mlflow
+icon: https://mlflow.org/images/MLflow-logo-final-white-TM.png
+home: https://mlflow.org/
+description: An open source platform for the machine learning lifecycle
+type: application
+
+# This is the chart version. This version number should be incremented each time you make changes
+# to the chart and its templates, including the app version.
+# Versions are expected to follow Semantic Versioning (https://semver.org/)
+version: 1.0.0
+
+# This is the version number of the application being deployed. This version number should be
+# incremented each time you make changes to the application. Versions are not expected to
+# follow Semantic Versioning. They should reflect the version the application is using.
+appVersion: 1.24.0
+
+# List of people that maintain this helm chart.
+maintainers:
+  - name: Rob Kooper
+    email: kooper@illinois.edu
+  - name: Ben Galewsky
+    email: bengal1@illinois.edu
+
+# location of source code
+sources:
+  - https://github.com/mlflow/mlflow
+
+# dependencies for the helm chart, use helm dep install to the install them.
+dependencies:
+  - name: postgresql
+    version: ~11
+    repository: https://charts.bitnami.com/bitnami
+    condition: postgres.enabled
+  - name: minio
+    version: ~11
+    repository: https://charts.bitnami.com/bitnami
+    condition: minio.enabled
+
+# annotations for artifact.io
+annotations:
+  artifacthub.io/links: |
+    - name: Helm Chart
+      url: https://github.com/ncsa/charts
+  artifacthub.io/changes: |
+    - Initial release
