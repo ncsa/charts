@@ -33,18 +33,31 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["mlflow"]
+          args: ["server",
+                 "--backend-store-uri", "{{- template "services.postgres.uri" .}}",
+                 "--default-artifact-root", "{{- template "services.minio.uri" . }}"]
+          env:
+              - name: MLFLOW_S3_ENDPOINT_URL
+                value: "http://{{ .Release.Name }}-minio:{{ .Values.minio.service.ports.api }}"
+              - name: AWS_ACCESS_KEY_ID
+                value: "{{ .Values.minio.auth.rootUser }}"
+              - name: AWS_SECRET_ACCESS_KEY
+                value: "{{ .Values.minio.auth.rootPassword }}"
           ports:
             - name: mlflow
               containerPort: 5000
               protocol: TCP
-          livenessProbe:
-            httpGet:
-              path: /
-              port: mlflow
-          readinessProbe:
-            httpGet:
-              path: /
-              port: mlflow
+#          livenessProbe:
+#            initialDelaySeconds: 45
+#            httpGet:
+#              path: /
+#              port: mlflow
+#          readinessProbe:
+#            initialDelaySeconds: 45
+#            httpGet:
+#              path: /
+#              port: mlflow
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}

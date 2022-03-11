@@ -14,6 +14,25 @@ imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 
+services:
+  postgres:
+    enabled: true
+    externalURI:
+  minio:
+    enabled: true
+    externalURI:
+
+postgresql:
+  auth:
+    postgresPassword: leftfoot1
+    username: mlflow
+    password: leftfoot1
+    database: mlflow
+
+minio:
+  auth:
+    rootPassword: leftfoot1
+
 serviceAccount:
   # Specifies whether a service account should be created
   create: true

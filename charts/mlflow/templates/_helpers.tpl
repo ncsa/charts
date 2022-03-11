@@ -1,4 +1,17 @@
 {{/*
+Construct a Postgres URI
+*/}}
+{{- define "services.postgres.uri"}}postgresql://{{  .Values.postgresql.auth.username }}:{{ .Values.postgresql.auth.password }}@{{ .Release.Name }}-postgresql:5432/{{ .Values.postgresql.database }}
+{{- end }}
+
+
+{{/*
+Construct a Minio URI
+*/}}
+{{- define "services.minio.uri"}}s3://{{ .Release.Name }}-artifacts
+{{- end }}
+
+{{/*
 Expand the name of the chart.
 */}}
 {{- define "mlflow.name" -}}

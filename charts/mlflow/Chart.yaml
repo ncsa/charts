@@ -31,11 +31,11 @@ dependencies:
   - name: postgresql
     version: ~11
     repository: https://charts.bitnami.com/bitnami
-    condition: postgres.enabled
+    condition: services.postgres.enabled
   - name: minio
     version: ~11
     repository: https://charts.bitnami.com/bitnami
-    condition: minio.enabled
+    condition: services.minio.enabled
 
 # annotations for artifact.io
 annotations:
