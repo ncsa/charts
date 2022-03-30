@@ -24,6 +24,11 @@ jobs:
         with:
           version: v3.7.1
 
+      - name: Install Helm Repo
+        run: |
+          helm repo add bitnami https://charts.bitnami.com/bitnami
+          helm repo update
+
       - name: publish charts
         uses: helm/chart-releaser-action@v1.3.0
         env:
