@@ -1,12 +1,4 @@
-# clone repository of offical helm charts
-bitnami/
-
-# generated helm charts folder
-charts/
+*~
 
 # dependencies (helm dep up)
-ncsa/*/charts/
-
-# custom values
-/secrets-*.yaml
-/values-*.yaml
+charts/*/charts/
