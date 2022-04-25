@@ -1,7 +1,11 @@
 {{/*
 Construct a Postgres URI
 */}}
-{{- define "services.postgres.uri"}}postgresql://{{  .Values.postgresql.auth.username }}:{{ .Values.postgresql.auth.password }}@{{ .Release.Name }}-postgresql:5432/{{ .Values.postgresql.database }}
+
+{{- define "services.postgres.uri"}}
+{{- if .Values.postgresql.auth.existingSecret }}postgresql://{{  .Values.postgresql.auth.username }}:$(POSTGRES_PASSWORD)@{{ .Release.Name }}-postgresql:5432/{{ .Values.postgresql.database }}
+{{- else }}postgresql://{{  .Values.postgresql.auth.username }}:{{ .Values.postgresql.auth.password }}@{{ .Release.Name }}-postgresql:5432/{{ .Values.postgresql.database }}
+{{- end }}
 {{- end }}
 
 

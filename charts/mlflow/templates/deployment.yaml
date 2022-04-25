@@ -34,16 +34,36 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command: ["mlflow"]
-          args: ["server",
-                 "--backend-store-uri", "{{- template "services.postgres.uri" .}}",
-                 "--default-artifact-root", "{{- template "services.minio.uri" . }}"]
           env:
+              {{- if .Values.postgresql.auth.existingSecret }}
+              - name: POSTGRES_PASSWORD
+                valueFrom:
+                  secretKeyRef:
+                    name: {{ .Values.postgresql.auth.existingSecret }}
+                    key: password
+              {{- end }}
               - name: MLFLOW_S3_ENDPOINT_URL
                 value: "http://{{ .Release.Name }}-minio:{{ .Values.minio.service.ports.api }}"
+            {{- if .Values.minio.auth.existingSecret }}
+              - name: AWS_ACCESS_KEY_ID
+                valueFrom:
+                  secretKeyRef:
+                    name: {{ .Values.minio.auth.existingSecret }}
+                    key: root-password
+              - name: AWS_SECRET_ACCESS_KEY
+                valueFrom:
+                  secretKeyRef:
+                    name: {{ .Values.minio.auth.existingSecret }}
+                    key: root-user
+            {{- else }}
               - name: AWS_ACCESS_KEY_ID
                 value: "{{ .Values.minio.auth.rootUser }}"
               - name: AWS_SECRET_ACCESS_KEY
                 value: "{{ .Values.minio.auth.rootPassword }}"
+            {{- end }}
+          args: ["server",
+                 "--backend-store-uri", "{{- template "services.postgres.uri" .}}",
+                 "--default-artifact-root", "{{- template "services.minio.uri" . }}"]
           ports:
             - name: mlflow
               containerPort: 5000
