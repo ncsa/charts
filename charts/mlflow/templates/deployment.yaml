@@ -63,7 +63,8 @@ spec:
             {{- end }}
           args: ["server",
                  "--backend-store-uri", "{{- template "services.postgres.uri" .}}",
-                 "--default-artifact-root", "{{- template "services.minio.uri" . }}"]
+                 "--default-artifact-root", "{{- template "services.minio.uri" . }}",
+                 "--host", "0.0.0.0"]
           ports:
             - name: mlflow
               containerPort: 5000
