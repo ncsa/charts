@@ -49,12 +49,12 @@ spec:
                 valueFrom:
                   secretKeyRef:
                     name: {{ .Values.minio.auth.existingSecret }}
-                    key: root-password
+                    key: root-user
               - name: AWS_SECRET_ACCESS_KEY
                 valueFrom:
                   secretKeyRef:
                     name: {{ .Values.minio.auth.existingSecret }}
-                    key: root-user
+                    key: root-password
             {{- else }}
               - name: AWS_ACCESS_KEY_ID
                 value: "{{ .Values.minio.auth.rootUser }}"
