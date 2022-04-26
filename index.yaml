@@ -13,6 +13,40 @@ entries:
   mlflow:
   - annotations:
       artifacthub.io/changes: |
+        - Use existing secrets for mlflow pod
+      artifacthub.io/links: |
+        - name: Helm Chart
+          url: https://github.com/ncsa/charts
+    apiVersion: v2
+    appVersion: 1.24.0
+    created: "2022-04-26T14:37:53.141749219Z"
+    dependencies:
+    - condition: services.postgres.enabled
+      name: postgresql
+      repository: https://charts.bitnami.com/bitnami
+      version: ~11
+    - condition: services.minio.enabled
+      name: minio
+      repository: https://charts.bitnami.com/bitnami
+      version: ~11
+    description: An open source platform for the machine learning lifecycle
+    digest: b404a0950f53c3ad7b6e2f2c02238a5e2c5b6e6d78238e74bb291e005c5ec159
+    home: https://mlflow.org/
+    icon: https://mlflow.org/images/MLflow-logo-final-white-TM.png
+    maintainers:
+    - email: kooper@illinois.edu
+      name: Rob Kooper
+    - email: bengal1@illinois.edu
+      name: Ben Galewsky
+    name: mlflow
+    sources:
+    - https://github.com/mlflow/mlflow
+    type: application
+    urls:
+    - https://github.com/ncsa/charts/releases/download/mlflow-1.0.1/mlflow-1.0.1.tgz
+    version: 1.0.1
+  - annotations:
+      artifacthub.io/changes: |
         - Initial release
       artifacthub.io/links: |
         - name: Helm Chart
@@ -45,4 +79,4 @@ entries:
     urls:
     - https://github.com/ncsa/charts/releases/download/mlflow-1.0.0/mlflow-1.0.0.tgz
     version: 1.0.0
-generated: "2022-03-30T19:23:25.194872284Z"
+generated: "2022-04-26T14:37:53.141765219Z"
