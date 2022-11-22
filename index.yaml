@@ -147,4 +147,30 @@ entries:
     urls:
     - https://github.com/ncsa/charts/releases/download/mlflow-1.0.0/mlflow-1.0.0.tgz
     version: 1.0.0
-generated: "2022-04-26T21:26:26.318509652Z"
+  swagger:
+  - annotations:
+      artifacthub.io/changes: |
+        - initial release
+      artifacthub.io/links: |
+        - name: SWagger UI
+          url: https://github.com/swagger-api/swagger-ui
+        - name: Helm Chart
+          url: https://github.com/ncsa/charts
+    apiVersion: v2
+    appVersion: v4.15.5
+    created: "2022-11-22T21:32:09.483481277Z"
+    description: Swagger UI
+    digest: aad235699a6a0097836da1c81d2127676e0ff075513e9e0c021faae3b50b5e9d
+    home: https://swagger.io/
+    icon: https://github.com/swagger-api/swagger-ui/raw/master/src/img/logo_small.png
+    maintainers:
+    - email: kooper@illinois.edu
+      name: Rob Kooper
+    name: swagger
+    sources:
+    - https://github.com/mlflow/mlflow
+    type: application
+    urls:
+    - https://github.com/ncsa/charts/releases/download/swagger-1.0.0/swagger-1.0.0.tgz
+    version: 1.0.0
+generated: "2022-11-22T21:32:09.483502177Z"
