@@ -38,6 +38,9 @@ spec:
             - name: URL
               value: {{ .Values.swagger.url }}
             {{- end }}
+            {{- if .Values.extraEnv }}
+            {{ toYaml .Values.extraEnv | nindent 12 }}
+            {{- end }}
           ports:
             - name: http
               containerPort: 8080

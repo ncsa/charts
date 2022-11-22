@@ -17,6 +17,10 @@ fullnameOverride: ""
 swagger:
   url: https://clowder.ncsa.illinois.edu/clowder/swagger
 
+# extraEnv:
+#   - name: QUERY_CONFIG_ENABLED	
+#     value: "true"
+
 serviceAccount:
   # Specifies whether a service account should be created
   create: true
