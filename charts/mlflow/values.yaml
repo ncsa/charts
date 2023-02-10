@@ -33,6 +33,41 @@ minio:
   auth:
     rootPassword: leftfoot1
 
+
+oauth2Proxy:
+  enabled: true
+  repository: "bitnami/oauth2-proxy"
+  tag: "7.4.0"
+
+  ## Name of Kubernetes secret holding
+  ##   cookie_secret
+  ##   client_secret
+  secret:
+
+  ## This should match the client ID for your provider
+  clientID:
+  provider: "keycloak-oidc"
+
+  emailDomains: "*"
+  cookieRefresh: "5m"
+  keycloak:
+    # restrict logins to users with this role (may be given multiple times). Only works with the keycloak-oidc provider.
+    allowed_roles:
+
+  oidc:
+    # the OpenID Connect issuer URL, e.g. "https://accounts.google.com"
+    oidc_issuer_url:
+
+    # OIDC JWKS URI for token verification; required if OIDC discovery is disabled
+    oidc_jwks_url:
+
+    # which OIDC claim contains the user's email?
+    oidc_email_claim:
+
+    # which OIDC claim contains the user groups?
+    oidc_groups_claim:
+
+
 serviceAccount:
   # Specifies whether a service account should be created
   create: true

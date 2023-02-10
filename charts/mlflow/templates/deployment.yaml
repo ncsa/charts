@@ -62,9 +62,11 @@ spec:
                 value: "{{ .Values.minio.auth.rootPassword }}"
             {{- end }}
           args: ["server",
-                 "--backend-store-uri", "{{- template "services.postgres.uri" .}}",
-                 "--default-artifact-root", "{{- template "services.minio.uri" . }}",
-                 "--host", "0.0.0.0"]
+                 "--backend-store-uri", "{{- template "services.postgres.uri" . }}",
+                 "--artifacts-destination", "s3://{{ .Values.oauth2Proxy.clientID }}",
+                 "--serve-artifacts",
+                 "--host", "0.0.0.0",
+                 "--port", "5000"]
           ports:
             - name: mlflow
               containerPort: 5000
@@ -79,8 +81,37 @@ spec:
 #            httpGet:
 #              path: /
 #              port: mlflow
-          resources:
-            {{- toYaml .Values.resources | nindent 12 }}
+{{- if .Values.oauth2Proxy.enabled }}
+        - name: sidecar
+          image: "{{- .Values.oauth2Proxy.repository}}:{{- .Values.oauth2Proxy.tag}}"
+
+          volumeMounts:
+            - name: oauth2-config
+              mountPath: "/etc/oauth2-proxy"
+              readOnly: true
+
+          ports:
+            - name: https
+              containerPort: 8443
+              protocol: TCP
+
+          env:
+            - name: OAUTH2_PROXY_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.oauth2Proxy.secret }}
+                  key: client_secret
+            - name: OAUTH2_PROXY_COOKIE_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.oauth2Proxy.secret }}
+                  key: cookie_secret
+
+          args: ["--http-address", "0.0.0.0:8443",
+                 "--upstream", "http://localhost:5000",
+                 "--config", "/etc/oauth2-proxy/config.cfg"
+          ]
+
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -93,3 +124,8 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      volumes:
+        - name: oauth2-config
+          configMap:
+            name: {{ include "mlflow.fullname" . }}-oauth2-config
+{{- end }}

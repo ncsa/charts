@@ -8,7 +8,11 @@ spec:
   type: {{ .Values.service.type }}
   ports:
     - port: {{ .Values.service.port }}
+      {{- if .Values.oauth2Proxy.enabled }}
+      targetPort: https
+      {{- else }}
       targetPort: mlflow
+      {{- end }}
       protocol: TCP
       name: mlflow
   selector:
