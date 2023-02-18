@@ -93,7 +93,7 @@ spec:
               readOnly: true
 
           ports:
-            - name: https
+            - name: oauth
               containerPort: 8443
               protocol: TCP
           env:

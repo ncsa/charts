@@ -9,7 +9,7 @@ spec:
   ports:
     - port: {{ .Values.service.port }}
       {{- if .Values.oauth2Proxy.enabled }}
-      targetPort: https
+      targetPort: oauth
       {{- else }}
       targetPort: mlflow
       {{- end }}
