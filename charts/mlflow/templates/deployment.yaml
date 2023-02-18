@@ -71,16 +71,18 @@ spec:
             - name: mlflow
               containerPort: 5000
               protocol: TCP
-#          livenessProbe:
-#            initialDelaySeconds: 45
-#            httpGet:
-#              path: /
-#              port: mlflow
-#          readinessProbe:
-#            initialDelaySeconds: 45
-#            httpGet:
-#              path: /
-#              port: mlflow
+          livenessProbe:
+            initialDelaySeconds: 45
+            periodSeconds: 60
+            httpGet:
+              path: /
+              port: mlflow
+          readinessProbe:
+            initialDelaySeconds: 2
+            periodSeconds: 5
+            httpGet:
+              path: /
+              port: mlflow
 {{- if .Values.oauth2Proxy.enabled }}
         - name: sidecar
           image: "{{- .Values.oauth2Proxy.repository}}:{{- .Values.oauth2Proxy.tag}}"
