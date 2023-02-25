@@ -1,0 +1,31 @@
+{{- if .Values.oauth2Proxy.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "mlflow.fullname" . }}-oauth2-config
+  labels:
+    {{- include "mlflow.labels" . | nindent 4 }}
+data:
+  config.cfg: |
+    client_id = "{{ .Values.oauth2Proxy.clientID }}"
+    set_authorization_header = true	
+    skip_jwt_bearer_tokens = true
+    request_logging=true
+    auth_logging=true
+    standard_logging=true
+    provider = "{{- .Values.oauth2Proxy.provider }}"
+    cookie_secure = "false"
+    cookie_refresh = "{{- .Values.oauth2Proxy.cookieRefresh }}"
+    email_domains = "{{- .Values.oauth2Proxy.emailDomains }}"
+    {{- with (first .Values.ingress.hosts) }}
+    redirect_url = "https://{{- .host }}"
+    {{- end }}
+            
+    allowed_roles = 	"{{- .Values.oauth2Proxy.keycloak.allowed_roles }}" 
+    
+    oidc_issuer_url = "{{- .Values.oauth2Proxy.oidc.oidc_issuer_url }}" 
+    oidc_jwks_url = "{{- .Values.oauth2Proxy.oidc.oidc_jwks_url }}"
+    oidc_email_claim = "{{- .Values.oauth2Proxy.oidc.oidc_email_claim }}" 
+    oidc_groups_claim = "{{- .Values.oauth2Proxy.oidc.oidc_groups_claim }}" 
+
+  {{- end }}

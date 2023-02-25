@@ -62,25 +62,64 @@ spec:
                 value: "{{ .Values.minio.auth.rootPassword }}"
             {{- end }}
           args: ["server",
-                 "--backend-store-uri", "{{- template "services.postgres.uri" .}}",
-                 "--default-artifact-root", "{{- template "services.minio.uri" . }}",
-                 "--host", "0.0.0.0"]
+                 "--backend-store-uri", "{{- template "services.postgres.uri" . }}",
+                 "--artifacts-destination", "s3://{{ .Values.MLFlow.artifacts.bucketName }}",
+                 "--serve-artifacts",
+                 "--host", "0.0.0.0",
+                 "--port", "5000"]
           ports:
             - name: mlflow
               containerPort: 5000
               protocol: TCP
-#          livenessProbe:
-#            initialDelaySeconds: 45
-#            httpGet:
-#              path: /
-#              port: mlflow
-#          readinessProbe:
-#            initialDelaySeconds: 45
-#            httpGet:
-#              path: /
-#              port: mlflow
-          resources:
-            {{- toYaml .Values.resources | nindent 12 }}
+          livenessProbe:
+            initialDelaySeconds: 45
+            periodSeconds: 60
+            httpGet:
+              path: /
+              port: mlflow
+          readinessProbe:
+            initialDelaySeconds: 2
+            periodSeconds: 5
+            httpGet:
+              path: /
+              port: mlflow
+{{- if .Values.oauth2Proxy.enabled }}
+        - name: sidecar
+          image: "{{- .Values.oauth2Proxy.repository}}:{{- .Values.oauth2Proxy.tag}}"
+
+          volumeMounts:
+            - name: oauth2-config
+              mountPath: "/etc/oauth2-proxy"
+              readOnly: true
+
+          ports:
+            - name: oauth
+              containerPort: 8443
+              protocol: TCP
+          env:
+            {{- if .Values.oauth2Proxy.secret }}
+            - name: OAUTH2_PROXY_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.oauth2Proxy.secret }}
+                  key: client_secret
+            - name: OAUTH2_PROXY_COOKIE_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.oauth2Proxy.secret }}
+                  key: cookie_secret
+            {{- else }}
+            - name: OAUTH2_PROXY_CLIENT_SECRET
+              value: "placeholder to keep OAuth2Proxy happy"
+            - name: OAUTH2_PROXY_COOKIE_SECRET
+              value: "placeholder12345"
+            {{- end }}
+
+          args: ["--http-address", "0.0.0.0:8443",
+                 "--upstream", "http://localhost:5000",
+                 "--config", "/etc/oauth2-proxy/config.cfg"
+          ]
+
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -93,3 +132,8 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      volumes:
+        - name: oauth2-config
+          configMap:
+            name: {{ include "mlflow.fullname" . }}-oauth2-config
+{{- end }}

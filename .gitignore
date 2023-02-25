@@ -2,3 +2,6 @@
 
 # dependencies (helm dep up)
 charts/*/charts/
+charts/mlflow/deployed-values
+.idea/
+
