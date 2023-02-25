@@ -18,6 +18,40 @@ entries:
         - name: Helm Chart
           url: https://github.com/ncsa/charts
     apiVersion: v2
+    appVersion: 2.1.1
+    created: "2023-02-25T22:13:09.031578287Z"
+    dependencies:
+    - condition: services.postgres.enabled
+      name: postgresql
+      repository: https://charts.bitnami.com/bitnami
+      version: ~11
+    - condition: services.minio.enabled
+      name: minio
+      repository: https://charts.bitnami.com/bitnami
+      version: ~11
+    description: An open source platform for the machine learning lifecycle
+    digest: 88d18a7e3a19538f3a7f0f4c5cd646b334bedea8d14311e44323d0f250790b8b
+    home: https://mlflow.org/
+    icon: https://mlflow.org/images/MLflow-logo-final-white-TM.png
+    maintainers:
+    - email: kooper@illinois.edu
+      name: Rob Kooper
+    - email: bengal1@illinois.edu
+      name: Ben Galewsky
+    name: mlflow
+    sources:
+    - https://github.com/mlflow/mlflow
+    type: application
+    urls:
+    - https://github.com/ncsa/charts/releases/download/mlflow-1.1.0/mlflow-1.1.0.tgz
+    version: 1.1.0
+  - annotations:
+      artifacthub.io/changes: |
+        - Fix deployment to listen on 0.0.0.0 interface
+      artifacthub.io/links: |
+        - name: Helm Chart
+          url: https://github.com/ncsa/charts
+    apiVersion: v2
     appVersion: 1.24.0
     created: "2022-04-26T21:26:26.317490132Z"
     dependencies:
@@ -198,4 +232,4 @@ entries:
     urls:
     - https://github.com/ncsa/charts/releases/download/swagger-1.0.0/swagger-1.0.0.tgz
     version: 1.0.0
-generated: "2022-11-22T23:03:48.716622535Z"
+generated: "2023-02-25T22:13:09.031606487Z"
