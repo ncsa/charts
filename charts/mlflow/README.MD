@@ -36,14 +36,15 @@ variables.
 Here are some of the useful settings in `values.yaml` - there are many other
 settings which are typical of most helm charts.
 
-| Value                       | Description                                                        | Default Value |
-|-----------------------------|--------------------------------------------------------------------|---------------|
-| MLFlow.artifacts.bucketName | The bucket where the artifacts will be stored                      |               |
-| services.postgres.enabled   | Deploy a postgres subchart with this chart?                        | true          |
-| services.minio.enabled      | Deploy a minio subchart with this chart?                           | true          |
-| oauth2Proxy.enabled         | Protect the tracking server with an OAuth2 Proxy?                  | true          |
-| oauth2Proxy.secret          | Kubernetes secret holding values to configure the proxy            |               |
-| oauth2Proxy.clientID        | Client ID string for the value in your OAuth2 client.              |               |
-| oauth2Proxy.provider        | A valid  setting for OAuth2-Proxy                                  | keycloak-oidc |
-| oauth2Proxy.emailDomains    | List of domain names for users that will be automatically accepted | *             |
+| Value                       | Description                                                                        | Default Value |
+|-----------------------------|------------------------------------------------------------------------------------|---------------|
+| MLFlow.artifacts.bucketName | The bucket where the artifacts will be stored                                      |               |
+| services.postgres.enabled   | Deploy a postgres subchart with this chart?                                        | true          |
+| services.minio.enabled      | Deploy a minio subchart with this chart?                                           | true          |
+| oauth2Proxy.enabled         | Protect the tracking server with an OAuth2 Proxy?                                  | true          |
+| oauth2Proxy.secret          | Kubernetes secret holding values to configure the proxy                            |               |
+| oauth2Proxy.clientID        | Client ID string for the value in your OAuth2 client.                              |               |
+| oauth2Proxy.provider        | A valid  setting for OAuth2-Proxy                                                  | keycloak-oidc |
+| oauth2Proxy.emailDomains    | List of domain names for users that will be automatically accepted                 | *             |
+| oauth2Proxy.allowedGroups   | YAML List of groups that will be accepted (best to set oidc_groups_claim with this |               |
 
