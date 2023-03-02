@@ -53,6 +53,10 @@ oauth2Proxy:
   provider: "keycloak-oidc"
 
   emailDomains: "*"
+
+  # List of groups
+  allowedGroups:
+  
   cookieRefresh: "5m"
   keycloak:
     # restrict logins to users with this role (may be given multiple times). Only works with the keycloak-oidc provider.

@@ -20,7 +20,12 @@ data:
     {{- with (first .Values.ingress.hosts) }}
     redirect_url = "https://{{- .host }}"
     {{- end }}
-            
+    
+    {{- if .Values.oauth2Proxy.allowedGroups }}
+    allowed_groups = [ "{{ join "\",\"" .Values.oauth2Proxy.allowedGroups }}" ]
+    {{- end }}
+
+    
     allowed_roles = 	"{{- .Values.oauth2Proxy.keycloak.allowed_roles }}" 
     
     oidc_issuer_url = "{{- .Values.oauth2Proxy.oidc.oidc_issuer_url }}" 
