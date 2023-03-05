@@ -1,0 +1,47 @@
+# {{ (ds "Template").name }} mlflow application
+{{ template "application.values.name" . }}:
+  version: {{ (ds "Template").chartVersion }}
+  values:
+    MLFlow:
+      artifacts:
+        bucketName: {{ (ds "Template").MLFlow.artifacts.bucketName }}
+
+    oauth2Proxy:
+      secret: {{ (ds "Template").OAuth2.secret }}
+      enabled: {{ (ds "Template").OAuth2.enabled }}
+      allowedGroups:
+{{ (ds "Template").OAuth2.allowedGroups | toYAML | strings.Indent 8}}
+
+      oidc:
+        oidc_email_claim: "email"
+        oidc_issuer_url: "{{ (ds "Template").OAuth2.keycloak_realm_url }}"
+        oidc_groups_claim: "groups"
+
+      provider: keycloak-oidc
+      clientID: {{ (ds "Template").name }}
+
+    postgresql:
+      auth:
+        existingSecret: {{ (ds "Template").name }}-postgresql-auth
+      persistence:
+        storageClass: {{ (ds "Template").postgresql.persistence.storageClass }}
+    minio:
+      ingress:
+        enabled: false
+      apiIngress:
+        enabled: false
+      auth:
+        existingSecret: {{ (ds "Template").name }}-minio-auth
+      persistence:
+        storageClass: {{ (ds "Template").minio.persistence.storageClass }}
+    ingress:
+      enabled: {{ (ds "Template").ingress.enabled }}
+      annotations: {}
+        # kubernetes.io/ingress.class: nginx
+        # kubernetes.io/tls-acme: "true"
+      hosts:
+        - host: {{ (ds "Template").ingress.host }}
+          paths:
+            - path: /
+              pathType: ImplementationSpecific
+              ingress:
