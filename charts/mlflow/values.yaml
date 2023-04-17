@@ -25,6 +25,12 @@ services:
   minio:
     enabled: true
     externalURI:
+s3:
+  url:
+  # Secret with values for 'user' and 'key'
+  secret:
+  user:
+  key:
 
 postgresql:
   auth:

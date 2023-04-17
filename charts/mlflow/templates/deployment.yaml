@@ -42,6 +42,7 @@ spec:
                     name: {{ .Values.postgresql.auth.existingSecret }}
                     key: password
               {{- end }}
+              {{- if .Values.services.minio.enabled}}
               - name: MLFLOW_S3_ENDPOINT_URL
                 value: "http://{{ .Release.Name }}-minio:{{ .Values.minio.service.ports.api }}"
             {{- if .Values.minio.auth.existingSecret }}
@@ -61,6 +62,27 @@ spec:
               - name: AWS_SECRET_ACCESS_KEY
                 value: "{{ .Values.minio.auth.rootPassword }}"
             {{- end }}
+            {{- else }}
+              - name: MLFLOW_S3_ENDPOINT_URL
+                value: "{{ .Values.s3.url }}"
+            {{- if .Values.s3.secret }}
+              - name: AWS_ACCESS_KEY_ID
+                valueFrom:
+                  secretKeyRef:
+                    name: {{ .Values.s3.secret }}
+                    key: user
+              - name: AWS_SECRET_ACCESS_KEY
+                valueFrom:
+                  secretKeyRef:
+                    name: {{ .Values.s3.secret }}
+                    key: key
+            {{- else }}
+              - name: AWS_ACCESS_KEY_ID
+                value: "{{ .Values.s3.user }}"
+              - name: AWS_SECRET_ACCESS_KEY
+                value: "{{ .Values.s3.key }}"
+            {{- end }}
+          {{- end }}
           args: ["server",
                  "--backend-store-uri", "{{- template "services.postgres.uri" . }}",
                  "--artifacts-destination", "s3://{{ .Values.MLFlow.artifacts.bucketName }}",
