@@ -1,5 +1,5 @@
 # geoserver
-A simple Helm chart for GeoServre
+A simple Helm chart for GeoServer
 
 
 ## TL;DR;
@@ -47,7 +47,7 @@ Below are the supported configuration options that can be overridden or customiz
 | `persistence.storageClass` | The storage class to use to provision the elasticsearch data PVC | (empty - use cluster default) |
 | `persistence.capacity` | The size of the PVC to provision for elasticsearch data | `10Gi` |
 | `persistence.existingClaim` | An existing claim to use | None |
-| `image.repository` | The Docker image repo/name to run | `kartoza/geoserver` |
+| `image.repository` | The Docker image repo/name to run | `docker.osgeo.org/geoserver` |
 | `image.tag` | The Docker image tag to run, leave blank to use app version | `""` |
 | `image.pullPolicy` | The Docker image pullPolicy to use when running | `IfNotPresent` |
 | `ingress.enabled` | Whether an ingress rule should be deployed for geoserver | `true` |
@@ -77,8 +77,7 @@ $ helm install --name my-release -f values.yaml ncsa/clowder
 
 ## Persistence
 
-Clowder can use a disk storage (default) or S3. In case of S3 it can either use an existing bucket, or use minio to
-provide the bucket.
+Geoserver can use a disk storage.
 
 ### Existing PersistentVolumeClaims
 
@@ -87,7 +86,7 @@ provide the bucket.
 1. Install the chart
 
 ```bash
-$ helm install --set persistence.existingClaim=PVC_NAME rabbitmq
+$ helm install --set persistence.existingClaim=PVC_NAME geoserver
 ```
 
 ## ChangeLog
