@@ -41,27 +41,27 @@ The command removes all the Kubernetes components associated with the chart and 
 
 Below are the supported configuration options that can be overridden or customized in `values.yaml`:
 
-| Key | Description | Default Value |
-| --- | --- | --- |
-| `persistence.accessModes` | The access mode with which to mount elasticsearch data | `ReadWriteOnce` |
+| Key | Description | Default Value                 |
+| --- | --- |-------------------------------|
+| `persistence.accessModes` | The access mode with which to mount elasticsearch data | `ReadWriteOnce`               |
 | `persistence.storageClass` | The storage class to use to provision the elasticsearch data PVC | (empty - use cluster default) |
-| `persistence.capacity` | The size of the PVC to provision for elasticsearch data | `10Gi` |
-| `persistence.existingClaim` | An existing claim to use | None |
-| `image.repository` | The Docker image repo/name to run | `docker.osgeo.org/geoserver` |
-| `image.tag` | The Docker image tag to run, leave blank to use app version | `""` |
-| `image.pullPolicy` | The Docker image pullPolicy to use when running | `IfNotPresent` |
-| `ingress.enabled` | Whether an ingress rule should be deployed for geoserver | `true` |
-| `ingress.host` | The hostname to use for the ingress rule | `geoserver.local` |
-| `resources` | [Resource limits](https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/) that should be applied to elasticsearch instances | None |
-| `nodeSelector` | [Node selector](https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector) that should be applied to elasticsearch instances | None |
-| `tolerations` | [Tolerations](https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/) that should be applied to elasticsearch instances | None |
-| `affinity` | [Affinity](https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity) that should be applied to elasticsearch instances | None |
+| `persistence.capacity` | The size of the PVC to provision for elasticsearch data | `10Gi`                        |
+| `persistence.existingClaim` | An existing claim to use | None                          |
+| `image.repository` | The Docker image repo/name to run | `docker.osgeo.org/geoserver`  |
+| `image.tag` | The Docker image tag to run, leave blank to use app version | `""`                          |
+| `image.pullPolicy` | The Docker image pullPolicy to use when running | `IfNotPresent`                |
+| `ingress.enabled` | Whether an ingress rule should be deployed for geoserver | `false`                       |
+| `ingress.host` | The hostname to use for the ingress rule | `geoserver.local`             |
+| `resources` | [Resource limits](https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/) that should be applied to elasticsearch instances | None                          |
+| `nodeSelector` | [Node selector](https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector) that should be applied to elasticsearch instances | None                          |
+| `tolerations` | [Tolerations](https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/) that should be applied to elasticsearch instances | None                          |
+| `affinity` | [Affinity](https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity) that should be applied to elasticsearch instances | None                          |
 
 Specify each parameter using the `--set key=value[,key=value]` argument to `helm install`. For example,
 
 ```bash
 $ helm install --name my-release \
-  --set clowderkey=ncsa \
+  --set image.tag=2.23.1 \
     ncsa/clowder
 ```
 
@@ -70,7 +70,7 @@ The above command sets the clowder admin key `ncsa`.
 Alternatively, a YAML file that specifies the values for the parameters can be provided while installing the chart. For example,
 
 ```bash
-$ helm install --name my-release -f values.yaml ncsa/clowder
+$ helm install --name my-release -f values.yaml ncsa/geoserver
 ```
 
 > **Tip**: You can use the default [values.yaml](values.yaml)

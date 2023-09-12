@@ -8,8 +8,16 @@ image:
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
 
-username: admin
-password: geoserver
+auth:
+  username: admin
+  password: geoserver
+  # use an existing secret if specified
+  # existingSecret: geoserver-password
+  # passwordKey: geoserver-password
+
+extension:
+  install: false
+  stableExtension: wps, ysld
 
 startup:
   failureThreshold: 10
