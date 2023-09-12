@@ -62,10 +62,10 @@ Specify each parameter using the `--set key=value[,key=value]` argument to `helm
 ```bash
 $ helm install --name my-release \
   --set image.tag=2.23.1 \
-    ncsa/clowder
+    ncsa/geoserver
 ```
 
-The above command sets the clowder admin key `ncsa`.
+The above command sets the geoserver image's tag to `2.23.1`.
 
 Alternatively, a YAML file that specifies the values for the parameters can be provided while installing the chart. For example,
 
