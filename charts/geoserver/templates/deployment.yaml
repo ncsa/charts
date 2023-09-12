@@ -37,7 +37,9 @@ spec:
             - name: INSTALL_EXTENSIONS
               value: {{ .Values.extension.install }}
             - name: STABLE_EXTENSIONS
-              value: {{ .Values.extension.stableExtension | quote }}
+              value: {{ .Values.extension.stableExtension }}
+            - name: CORS_ENABLED
+              value: {{ .Values.cors.enabled }}
           ports:
             - name: http
               containerPort: 8080

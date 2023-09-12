@@ -15,9 +15,12 @@ auth:
   # existingSecret: geoserver-password
   # passwordKey: geoserver-password
 
+cors:
+  enabled: true
+
 extension:
   install: false
-  stableExtension: wps, ysld
+  stableExtension: ""
 
 startup:
   failureThreshold: 10
