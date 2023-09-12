@@ -35,11 +35,11 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
             - name: INSTALL_EXTENSIONS
-              value: {{ .Values.extension.install }}
+              value: {{ .Values.extension.install | quote }}
             - name: STABLE_EXTENSIONS
-              value: {{ .Values.extension.stableExtension }}
+              value: {{ .Values.extension.stableExtension | quote }}
             - name: CORS_ENABLED
-              value: {{ .Values.cors.enabled }}
+              value: {{ .Values.cors.enabled | quote }}
           ports:
             - name: http
               containerPort: 8080
