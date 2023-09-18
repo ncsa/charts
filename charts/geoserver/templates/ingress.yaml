@@ -32,8 +32,11 @@ spec:
       http:
         paths:
           - path: /geoserver/
+            pathType: ImplementationSpecific
             backend:
-              serviceName: {{ $fullName }}
-              servicePort: {{ $svcPort }}
+              service:
+                name: {{ $fullName }}
+                port:
+                  number: {{ $svcPort }}
     {{- end }}
   {{- end }}

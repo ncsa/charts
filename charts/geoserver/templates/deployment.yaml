@@ -40,6 +40,8 @@ spec:
               value: {{ .Values.extension.stableExtension | quote }}
             - name: CORS_ENABLED
               value: {{ .Values.cors.enabled | quote }}
+            - name: SKIP_DEMO_DATA
+              values: {{ .Values.demoData.skip | quote }}
           ports:
             - name: http
               containerPort: 8080
