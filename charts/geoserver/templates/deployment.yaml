@@ -44,6 +44,17 @@ spec:
               values: {{ .Values.demoData.skip | quote }}
             - name: GEOSERVER_CSRF_WHITELIST
               values: {{ .Values.geoserver.whitelist | quote }}
+            - name: GEOSERVER_ADMIN_USER
+              value: admin
+            - name: GEOSERVER_ADMIN_PASSWORD
+              {{- if .Values.auth.existingSecret }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.auth.existingSecret }}
+                  key: {{ .Values.auth.passwordKey }}
+              {{- else }}
+              value: {{ .Values.auth.password }}
+              {{- end }}
           ports:
             - name: http
               containerPort: 8080
