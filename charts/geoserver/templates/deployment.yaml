@@ -1,0 +1,101 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "geoserver.fullname" . }}
+  labels:
+    {{- include "geoserver.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "geoserver.selectorLabels" . | nindent 6 }}
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "geoserver.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "geoserver.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: INSTALL_EXTENSIONS
+              value: {{ .Values.extension.install | quote }}
+            - name: STABLE_EXTENSIONS
+              value: {{ .Values.extension.stableExtension | quote }}
+            - name: CORS_ENABLED
+              value: {{ .Values.cors.enabled | quote }}
+            - name: SKIP_DEMO_DATA
+              values: {{ .Values.demoData.skip | quote }}
+            - name: GEOSERVER_CSRF_WHITELIST
+              values: {{ .Values.geoserver.whitelist | quote }}
+            - name: GEOSERVER_ADMIN_USER
+              value: admin
+            - name: GEOSERVER_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  {{- if .Values.auth.existingSecret }}
+                  name: {{ .Values.auth.existingSecret }}
+                  key: {{ .Values.auth.passwordKey | default "geoserver_admin_password" }}
+                  {{- else }}
+                  name: {{ include "geoserver.fullname" . }}
+                  key: geoserver_admin_password
+                  {{- end }}
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          volumeMounts:
+            - name: {{ include "geoserver.fullname" . }}
+              mountPath: /opt/geoserver_data
+          startupProbe:
+            httpGet:
+              path: /geoserver/web
+              port: http
+            failureThreshold: {{ .Values.startup.failureThreshold }}
+            periodSeconds: {{ .Values.startup.periodSeconds }}
+          livenessProbe:
+            httpGet:
+              path: /geoserver/web
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /geoserver/web
+              port: http
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+        - name: {{ include "geoserver.fullname" . }}
+          persistentVolumeClaim:
+            {{- if .Values.persistence.existingClaim }}
+            claimName: {{ .Values.persistence.existingClaim }}
+            {{- else }}
+            claimName: {{ include "geoserver.fullname" . }}
+            {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

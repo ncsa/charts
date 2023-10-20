@@ -18,8 +18,12 @@ helm package -d charts ncsa/pecan
 #cp charts/rabbitmq-6.4.5.tgz ncsa/pecan/charts
 helm package -d charts ncsa/clowder
 
+# create geoserver chart
+helm package charts/geoserver -d ncsa/geoserver
+
 # create index of charts
 helm repo index charts
 
 # copy charts to opensource
 echo rsync -av --delete charts/ opensource:/var/www/charts/
+

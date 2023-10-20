@@ -1,0 +1,38 @@
+apiVersion: v2
+type: application
+
+# Information about geoserver.
+name: geoserver
+icon: https://raw.githubusercontent.com/geoserver/geoserver/master/doc/en/themes/geoserver/static/geoserver.ico
+home: http://geoserver.org/
+description: An open source server for sharing geospatial data.
+
+# This is the chart version. This version number should be incremented each time you make changes
+# to the chart and its templates, including the app version.
+# Versions are expected to follow Semantic Versioning (https://semver.org/)
+version: 0.1.0
+
+# This is the version number of the application being deployed. This version number should be
+# incremented each time you make changes to the application. Versions are not expected to
+# follow Semantic Versioning. They should reflect the version the application is using.
+appVersion: 2.23.1
+
+# List of people that maintain this helm chart.
+maintainers:
+  - name: Rob Kooper
+    email: kooper@illinois.edu
+  - name: Yong Wook Kim
+    email: ywkim@illinois.edu
+
+# location of source code
+sources:
+  - https://github.com/geoserver/geoserver
+
+annotations:
+  artifacthub.io/links: |
+    - name: Docker Image
+      url: https://docker.osgeo.org/geoserver
+    - name: Helm Chart
+      url: https://github.com/ncsa/charts
+  artifacthub.io/changes: |
+    - Initial release of helm chart
