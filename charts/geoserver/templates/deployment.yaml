@@ -49,8 +49,13 @@ spec:
             - name: GEOSERVER_ADMIN_PASSWORD
               valueFrom:
                 secretKeyRef:
+                  {{- if .Values.auth.existingSecret }}
                   name: {{ .Values.auth.existingSecret }}
-                  key: {{ .Values.auth.passwordKey }}
+                  key: {{ .Values.auth.passwordKey | default "geoserver_admin_password" }}
+                  {{- else }}
+                  name: {{ include "geoserver.fullname" . }}
+                  key: geoserver_admin_password
+                  {{- end }}
           ports:
             - name: http
               containerPort: 8080

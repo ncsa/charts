@@ -12,8 +12,8 @@ auth:
   username: admin
   password: geoserver
   # use an existing secret if specified
-  existingSecret: geoserver-admin-password
-  passwordKey: GEOSERVER_ADMIN_PASSWORD
+  #existingSecret: geoserver-admin-password
+  #passwordKey: geoserver-admin-password
 
 cors:
   enabled: true
