@@ -10,6 +10,34 @@ entries:
     urls:
     - https://github.com/ncsa/charts/releases/download/elasticsearch2-0.2.2/elasticsearch2-0.2.2.tgz
     version: 0.2.2
+  geoserver:
+  - annotations:
+      artifacthub.io/changes: |
+        - Initial release of helm chart
+      artifacthub.io/links: |
+        - name: Docker Image
+          url: https://docker.osgeo.org/geoserver
+        - name: Helm Chart
+          url: https://github.com/ncsa/charts
+    apiVersion: v2
+    appVersion: 2.23.1
+    created: "2023-10-20T21:35:50.096270733Z"
+    description: An open source server for sharing geospatial data.
+    digest: 650443b2eeaf9439f098f6c6c0aadd12b07f8a5f31c14f042c1bde499757b61a
+    home: http://geoserver.org/
+    icon: https://raw.githubusercontent.com/geoserver/geoserver/master/doc/en/themes/geoserver/static/geoserver.ico
+    maintainers:
+    - email: kooper@illinois.edu
+      name: Rob Kooper
+    - email: ywkim@illinois.edu
+      name: Yong Wook Kim
+    name: geoserver
+    sources:
+    - https://github.com/geoserver/geoserver
+    type: application
+    urls:
+    - https://github.com/ncsa/charts/releases/download/geoserver-0.1.0/geoserver-0.1.0.tgz
+    version: 0.1.0
   mlflow:
   - annotations:
       artifacthub.io/changes: |
@@ -300,4 +328,4 @@ entries:
     urls:
     - https://github.com/ncsa/charts/releases/download/swagger-1.0.0/swagger-1.0.0.tgz
     version: 1.0.0
-generated: "2023-04-17T20:33:26.420400249Z"
+generated: "2023-10-20T21:35:50.096293234Z"
