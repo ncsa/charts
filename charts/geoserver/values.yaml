@@ -4,7 +4,6 @@
 
 image:
   repository: docker.osgeo.org/geoserver
-  repository: ywkim312/geoserver
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
@@ -13,8 +12,8 @@ auth:
   username: admin
   password: geoserver
   # use an existing secret if specified
-  # existingSecret: geoserver-password
-  # passwordKey: geoserver-password
+  existingSecret: geoserver-admin-password
+  passwordKey: GEOSERVER_ADMIN_PASSWORD
 
 cors:
   enabled: true
