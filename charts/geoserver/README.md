@@ -91,6 +91,14 @@ $ helm install --set persistence.existingClaim=PVC_NAME geoserver
 
 ## ChangeLog
 
-### 0.1.0
+### 1.0.0
 
 - Initial release of helm chart
+
+### 0.2.0
+
+- Test version of helm chart
+
+### 0.1.0 
+
+- IGNORE, this is a typo, should be 1.0.0
