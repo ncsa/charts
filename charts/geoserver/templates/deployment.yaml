@@ -40,10 +40,12 @@ spec:
               value: {{ .Values.extension.stableExtension | quote }}
             - name: CORS_ENABLED
               value: {{ .Values.cors.enabled | quote }}
-            - name: SKIP_DEMO_DATA
-              values: {{ .Values.demoData.skip | quote }}
             - name: GEOSERVER_CSRF_WHITELIST
-              values: {{ .Values.geoserver.whitelist | quote }}
+              value: {{ .Values.whitelist | quote }}
+            - name: SKIP_DEMO_DATA
+              value: {{ .Values.demoData.skip | quote }}
+            - name: EXTRA_JAVA_OPTS
+              value: {{ .Values.envs.extraJavaOpts | quote }}
             - name: GEOSERVER_ADMIN_USER
               value: admin
             - name: GEOSERVER_ADMIN_PASSWORD

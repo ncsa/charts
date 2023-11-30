@@ -44,6 +44,10 @@ persistence:
 # the values should be only url without http:// or https://, like "geoserver.example.com"
 whitelist: ""
 
+# the following is for the geoserver java memory heap size control
+envs:
+  extraJavaOpts: "-Xms512m -Xmx2g"
+
 serviceAccount:
   # Specifies whether a service account should be created
   create: true

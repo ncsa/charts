@@ -91,6 +91,11 @@ $ helm install --set persistence.existingClaim=PVC_NAME geoserver
 
 ## ChangeLog
 
+### 1.1.0
+
+- Added extra configuration options
+- Fixed bugs in the chart
+
 ### 1.0.0
 
 - Initial release of helm chart
