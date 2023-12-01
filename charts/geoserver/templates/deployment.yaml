@@ -59,7 +59,7 @@ spec:
                   key: geoserver_admin_password
                   {{- end }}
           ports:
-            - name: http
+            - name: geoserver
               containerPort: 8080
               protocol: TCP
           volumeMounts:
@@ -68,17 +68,17 @@ spec:
           startupProbe:
             httpGet:
               path: /geoserver/web
-              port: http
+              port: geoserver
             failureThreshold: {{ .Values.startup.failureThreshold }}
             periodSeconds: {{ .Values.startup.periodSeconds }}
           livenessProbe:
             httpGet:
               path: /geoserver/web
-              port: http
+              port: geoserver
           readinessProbe:
             httpGet:
               path: /geoserver/web
-              port: http
+              port: geoserver
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       volumes:

@@ -8,8 +8,8 @@ spec:
   type: {{ .Values.service.type }}
   ports:
     - port: {{ .Values.service.port }}
-      targetPort: http
+      targetPort: geoserver
       protocol: TCP
-      name: http
+      name: geoserver
   selector:
     {{- include "geoserver.selectorLabels" . | nindent 4 }}
