@@ -91,6 +91,12 @@ $ helm install --set persistence.existingClaim=PVC_NAME geoserver
 
 ## ChangeLog
 
+### 1.1.0
+
+- Added extra configuration option for setting Java memory heap size.
+- Fixed bugs in the chart
+- Port name changed to 'geoserver' from 'http'
+
 ### 1.0.0
 
 - Initial release of helm chart
