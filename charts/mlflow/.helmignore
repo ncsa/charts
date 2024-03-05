@@ -21,3 +21,5 @@
 .idea/
 *.tmproj
 .vscode/
+# Makefile and templates for creating a deployment
+make-deploy/
