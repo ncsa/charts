@@ -98,6 +98,12 @@ resources: {}
   #   cpu: 100m
   #   memory: 128Mi
 
+plugins:
+  keycloak:
+    enabled: true
+    downloadUrl: "https://build.geoserver.org/geoserver/2.23.x/community-latest/geoserver-2.23-SNAPSHOT-sec-keycloak-plugin.zip"
+    destinationPath: "/opt/apache-tomcat-9.0.74/webapps/geoserver/WEB-INF/lib"
+
 nodeSelector: {}
 
 tolerations: []

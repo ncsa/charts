@@ -27,6 +27,24 @@ spec:
       serviceAccountName: {{ include "geoserver.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      initContainers:
+        {{- if .Values.plugins.keycloak.enabled }}
+        - name: install-keycloak-plugin
+          image: busybox
+          command:
+            - sh
+            - -c
+            - |
+              echo "Downloading and installing Keycloak plugin"
+              wget -O /tmp/keycloak-plugin.zip {{ .Values.plugins.keycloak.downloadUrl }}
+              unzip /tmp/keycloak-plugin.zip -d /tmp/keycloak-plugin
+              find /tmp/keycloak-plugin -name '*.jar' -exec cp -n {} {{ .Values.plugins.keycloak.destinationPath }} \;
+          volumeMounts:
+            - name: geoserver-lib
+              mountPath: /tmp/keycloak-plugin
+            - name: geoserver-lib
+              mountPath: {{ .Values.plugins.keycloak.destinationPath }}
+        {{- end }}
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
@@ -58,6 +76,18 @@ spec:
                   name: {{ include "geoserver.fullname" . }}
                   key: geoserver_admin_password
                   {{- end }}
+            {{- if .Values.plugins.keycloak.enabled }}
+            - name: KEYCLOAK_AUTH_SERVER_URL
+              value: "https://myserver.com/auth/realms/your-realm"
+            - name: KEYCLOAK_REALM
+              value: "your-realm"
+            - name: KEYCLOAK_RESOURCE
+              value: "geoserver"
+            - name: KEYCLOAK_CREDENTIALS_SECRET
+              value: "your-client-secret"
+            - name: KEYCLOAK_DISABLE_TRUST_MANAGER
+              value: "true"
+            {{- end }}
           ports:
             - name: geoserver
               containerPort: 8080
@@ -65,12 +95,14 @@ spec:
           volumeMounts:
             - name: {{ include "geoserver.fullname" . }}
               mountPath: /opt/geoserver_data
+            - name: geoserver-lib
+              mountPath: {{ .Values.plugins.keycloak.destinationPath }}
           startupProbe:
             httpGet:
               path: /geoserver/web
               port: geoserver
-            failureThreshold: {{ .Values.startup.failureThreshold }}
-            periodSeconds: {{ .Values.startup.periodSeconds }}
+            failureThreshold: 30
+            periodSeconds: 10
           livenessProbe:
             httpGet:
               path: /geoserver/web
@@ -89,6 +121,8 @@ spec:
             {{- else }}
             claimName: {{ include "geoserver.fullname" . }}
             {{- end }}
+        - name: geoserver-lib
+          emptyDir: {}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
