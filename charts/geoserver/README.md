@@ -92,7 +92,7 @@ $ helm install --set persistence.existingClaim=PVC_NAME geoserver
 ## ChangeLog
 
 ### 1.1.1
-- Updated probs check for the deployment due to the geoserver version update
+- Updated probe checks for the deployment due to the geoserver version update
 
 ### 1.1.0
 
