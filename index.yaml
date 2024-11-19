@@ -13,6 +13,33 @@ entries:
   geoserver:
   - annotations:
       artifacthub.io/changes: |
+        - Updated probe checks for the deployment due to the geoserver version update
+      artifacthub.io/links: |
+        - name: Docker Image
+          url: https://docker.osgeo.org/geoserver
+        - name: Helm Chart
+          url: https://github.com/ncsa/charts
+    apiVersion: v2
+    appVersion: 2.25.2
+    created: "2024-11-19T21:13:35.455907417Z"
+    description: An open source server for sharing geospatial data.
+    digest: 331dd9106723ee80fa7a98efb1c32ca09d915c47376b80177beb2c8a4f8d2596
+    home: http://geoserver.org/
+    icon: https://raw.githubusercontent.com/geoserver/geoserver/master/doc/en/themes/geoserver/static/geoserver.ico
+    maintainers:
+    - email: kooper@illinois.edu
+      name: Rob Kooper
+    - email: ywkim@illinois.edu
+      name: Yong Wook Kim
+    name: geoserver
+    sources:
+    - https://github.com/geoserver/geoserver
+    type: application
+    urls:
+    - https://github.com/ncsa/charts/releases/download/geoserver-1.1.1/geoserver-1.1.1.tgz
+    version: 1.1.1
+  - annotations:
+      artifacthub.io/changes: |
         - Added extra configuration option for setting Java memory heap size.
         - Fixed bugs in the chart
         - Port name changed to 'geoserver' from 'http'
@@ -384,4 +411,4 @@ entries:
     urls:
     - https://github.com/ncsa/charts/releases/download/swagger-1.0.0/swagger-1.0.0.tgz
     version: 1.0.0
-generated: "2023-12-06T21:49:08.051863509Z"
+generated: "2024-11-19T21:13:35.455949696Z"
