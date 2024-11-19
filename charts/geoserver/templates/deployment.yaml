@@ -67,18 +67,22 @@ spec:
               mountPath: /opt/geoserver_data
           startupProbe:
             httpGet:
-              path: /geoserver/web
+              path: /geoserver/
               port: geoserver
             failureThreshold: {{ .Values.startup.failureThreshold }}
             periodSeconds: {{ .Values.startup.periodSeconds }}
           livenessProbe:
             httpGet:
-              path: /geoserver/web
+              path: /geoserver/
               port: geoserver
+            failureThreshold: {{ .Values.startup.failureThreshold }}
+            periodSeconds: {{ .Values.startup.periodSeconds }}
           readinessProbe:
             httpGet:
-              path: /geoserver/web
+              path: /geoserver/
               port: geoserver
+            failureThreshold: {{ .Values.startup.failureThreshold }}
+            periodSeconds: {{ .Values.startup.periodSeconds }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       volumes:

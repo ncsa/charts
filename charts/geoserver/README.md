@@ -91,6 +91,9 @@ $ helm install --set persistence.existingClaim=PVC_NAME geoserver
 
 ## ChangeLog
 
+### 1.1.1
+- Updated probe checks for the deployment due to the geoserver version update
+
 ### 1.1.0
 
 - Added extra configuration option for setting Java memory heap size.
