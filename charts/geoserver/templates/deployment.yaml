@@ -37,7 +37,13 @@ spec:
             - name: INSTALL_EXTENSIONS
               value: {{ .Values.extension.install | quote }}
             - name: STABLE_EXTENSIONS
-              value: {{ .Values.extension.stableExtension | quote }}
+              value: {{ .Values.extension.stableExtensions | join `,` | quote }}
+            - name: STABLE_PLUGIN_URL
+              value: {{ .Values.extension.stablePluginUrl | quote }}
+            - name: ADDITIONAL_LIBS_DIR
+              value: {{ .Values.extension.additionalLibsDir | quote }}
+            - name: GEOSERVER_LIB_DIR
+              value: {{ .Values.extension.geoserverLibDir | quote }}
             - name: CORS_ENABLED
               value: {{ .Values.cors.enabled | quote }}
             - name: GEOSERVER_CSRF_WHITELIST

@@ -90,6 +90,8 @@ $ helm install --set persistence.existingClaim=PVC_NAME geoserver
 ```
 
 ## ChangeLog
+### 1.1.2
+- Added an ability of installation of the extensions
 
 ### 1.1.1
 - Updated probe checks for the deployment due to the geoserver version update

@@ -20,7 +20,10 @@ cors:
 
 extension:
   install: false
-  stableExtension: ""
+  stableExtensions: []
+  stablePluginUrl: ""
+  additionalLibsDir: ""
+  geoserverLibDir: ""
 
 demoData:
   skip: true
