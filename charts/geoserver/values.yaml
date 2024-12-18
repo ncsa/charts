@@ -16,11 +16,16 @@ auth:
   #passwordKey: geoserver-admin-password
 
 cors:
-  enabled: true
+  enabled: false
+  allowedOrigins: []
+  allowCredentials: false
 
 extension:
   install: false
-  stableExtension: ""
+  stableExtensions: []
+  stablePluginUrl: ""
+  additionalLibsDir: ""
+  geoserverLibDir: ""
 
 demoData:
   skip: true
