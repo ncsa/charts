@@ -16,7 +16,9 @@ auth:
   #passwordKey: geoserver-admin-password
 
 cors:
-  enabled: true
+  enabled: false
+  allowedOrigins: []
+  allowCredentials: false
 
 extension:
   install: false
