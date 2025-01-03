@@ -18,6 +18,23 @@ auth:
 cors:
   enabled: false
   allowedOrigins: []
+  allowedMethods:
+    - GET
+    - POST
+    - PUT
+    - DELETE
+    - PATCH
+    - HEAD
+    - OPTIONS
+  allowedHeaders:
+    - Origin
+    - Accept
+    - X-Requested-With
+    - Content-Type
+    - Access-Control-Request-Method
+    - Access-Control-Request-Headers
+    - Access-Control-Allow-Origin
+    - Authorization
   allowCredentials: false
 
 extension:

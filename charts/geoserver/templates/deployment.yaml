@@ -49,6 +49,10 @@ spec:
             {{- if .Values.cors.enabled }}
             - name: CORS_ALLOWED_ORIGINS
               value: {{ .Values.cors.allowedOrigins | join `,` | quote }}
+            - name: CORS_ALLOWED_METHODS
+              value: {{ .Values.cors.allowedMethods | join `,` | quote }}
+            - name: CORS_ALLOWED_HEADERS
+              value: {{ .Values.cors.allowedHeaders | join `,` | quote }}
             - name: CORS_ALLOW_CREDENTIALS
               value: {{ .Values.cors.allowCredentials | quote }}
             {{- end }}
