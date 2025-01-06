@@ -17,7 +17,8 @@ auth:
 
 cors:
   enabled: false
-  allowedOrigins: []
+  allowedOrigins:
+    - "*"
   allowedMethods:
     - GET
     - POST
