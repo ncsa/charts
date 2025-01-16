@@ -90,12 +90,7 @@ $ helm install --set persistence.existingClaim=PVC_NAME geoserver
 ```
 
 ## ChangeLog
-<<<<<<< HEAD
 ### 1.2.0
-=======
-
-### 1.1.2
->>>>>>> bae7dc121e2d48c82256aeec35fcdf21038fd36d
 - Added an ability of installation of the extensions
 - Added variables for CORS configuration
 
