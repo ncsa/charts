@@ -37,9 +37,25 @@ spec:
             - name: INSTALL_EXTENSIONS
               value: {{ .Values.extension.install | quote }}
             - name: STABLE_EXTENSIONS
-              value: {{ .Values.extension.stableExtension | quote }}
+              value: {{ .Values.extension.stableExtensions | join `,` | quote }}
+            - name: STABLE_PLUGIN_URL
+              value: {{ .Values.extension.stablePluginUrl | quote }}
+            - name: ADDITIONAL_LIBS_DIR
+              value: {{ .Values.extension.additionalLibsDir | quote }}
+            - name: GEOSERVER_LIB_DIR
+              value: {{ .Values.extension.geoserverLibDir | quote }}
             - name: CORS_ENABLED
               value: {{ .Values.cors.enabled | quote }}
+            {{- if .Values.cors.enabled }}
+            - name: CORS_ALLOWED_ORIGINS
+              value: {{ .Values.cors.allowedOrigins | join `,` | quote }}
+            - name: CORS_ALLOWED_METHODS
+              value: {{ .Values.cors.allowedMethods | join `,` | quote }}
+            - name: CORS_ALLOWED_HEADERS
+              value: {{ .Values.cors.allowedHeaders | join `,` | quote }}
+            - name: CORS_ALLOW_CREDENTIALS
+              value: {{ .Values.cors.allowCredentials | quote }}
+            {{- end }}
             - name: GEOSERVER_CSRF_WHITELIST
               value: {{ .Values.whitelist | quote }}
             - name: SKIP_DEMO_DATA

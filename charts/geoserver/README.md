@@ -90,24 +90,23 @@ $ helm install --set persistence.existingClaim=PVC_NAME geoserver
 ```
 
 ## ChangeLog
+### 1.2.0
+- Added an ability of installation of the extensions
+- Added variables for CORS configuration
 
 ### 1.1.1
 - Updated probe checks for the deployment due to the geoserver version update
 
 ### 1.1.0
-
 - Added extra configuration option for setting Java memory heap size.
 - Fixed bugs in the chart
 - Port name changed to 'geoserver' from 'http'
 
 ### 1.0.0
-
 - Initial release of helm chart
 
 ### 0.2.0
-
 - Test version of helm chart
 
 ### 0.1.0 
-
 - IGNORE, this is a typo, should be 1.0.0
