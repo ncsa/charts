@@ -64,6 +64,8 @@ spec:
               value: {{ .Values.envs.extraJavaOpts | quote }}
             - name: GEOSERVER_ADMIN_USER
               value: admin
+            - name: PROXY_BASE_URL
+              value: {{ .Values.proxyBaseUrl | quote }}
             - name: GEOSERVER_ADMIN_PASSWORD
               valueFrom:
                 secretKeyRef:

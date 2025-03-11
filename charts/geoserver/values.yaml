@@ -67,6 +67,9 @@ persistence:
 # the values should be only url without http:// or https://, like "geoserver.example.com"
 whitelist: ""
 
+# the base URL of the GeoServer web app if GeoServer is behind a proxy. Example: https://example.com/geoserver.
+proxyBaseUrl: ""
+
 # the following is for the geoserver java memory heap size control
 envs:
   extraJavaOpts: "-Xms512m -Xmx2g"

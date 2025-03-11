@@ -90,6 +90,9 @@ $ helm install --set persistence.existingClaim=PVC_NAME geoserver
 ```
 
 ## ChangeLog
+### 1.3.0
+- Added variable for PROXY configuration
+
 ### 1.2.0
 - Added an ability of installation of the extensions
 - Added variables for CORS configuration
