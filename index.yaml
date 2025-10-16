@@ -10,6 +10,34 @@ entries:
     urls:
     - https://github.com/ncsa/charts/releases/download/elasticsearch2-0.2.2/elasticsearch2-0.2.2.tgz
     version: 0.2.2
+  fah:
+  - annotations:
+      artifacthub.io/changes: |
+        - kind: added
+          description: "Initial release of Folding@Home Helm chart"
+        - kind: added
+          description: "Support for CPU and GPU DaemonSets"
+        - kind: added
+          description: "Read-only root filesystem support"
+        - kind: added
+          description: "Configurable resource limits and storage"
+    apiVersion: v2
+    appVersion: 8.4.9
+    created: "2025-10-16T03:43:16.794769499Z"
+    description: Folding@Home - Distributed computing for disease research
+    digest: 369c752c0cfc44a35aff1cc1492b231449b5932d42d7af8b0ee66a7e6f89f5e5
+    home: https://foldingathome.org/
+    icon: https://foldingathome.org/wp-content/uploads/2016/08/cropped-folding-at-home-logo.png
+    maintainers:
+    - email: kooper@illinois.edu
+      name: Rob Kooper
+    - email: cheller@illinois.edu
+      name: Christopher Heller
+    name: fah
+    type: application
+    urls:
+    - https://github.com/ncsa/charts/releases/download/fah-1.0.0/fah-1.0.0.tgz
+    version: 1.0.0
   geoserver:
   - annotations:
       artifacthub.io/changes: |
@@ -466,4 +494,4 @@ entries:
     urls:
     - https://github.com/ncsa/charts/releases/download/swagger-1.0.0/swagger-1.0.0.tgz
     version: 1.0.0
-generated: "2025-03-11T16:57:27.506053397Z"
+generated: "2025-10-16T03:43:16.79481298Z"
