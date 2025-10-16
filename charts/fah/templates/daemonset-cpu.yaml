@@ -1,0 +1,105 @@
+{{- if .Values.cpu.enabled }}
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: {{ include "fah.fullname" . }}-cpu
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "fah.cpu.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "fah.cpu.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "fah.cpu.selectorLabels" . | nindent 8 }}
+    spec:
+      priorityClassName: {{ include "fah.priorityClassName" . }}
+      hostNetwork: false
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  {{- if .Values.affinity.excludeControlPlane }}
+                  - key: node-role.kubernetes.io/control-plane
+                    operator: DoesNotExist
+                  {{- end }}
+                  - key: {{ .Values.gpu.nodeSelectorKey }}
+                    operator: DoesNotExist
+      containers:
+        - name: fah-client
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: CLI_ARGS
+              value: "--user={{ .Values.fah.username }} --team={{ .Values.fah.team }}"
+            - name: PUID
+              value: {{ .Values.fah.puid | quote }}
+            - name: PGID
+              value: {{ .Values.fah.pgid | quote }}
+            - name: TZ
+              value: {{ .Values.fah.timezone | quote }}
+            - name: ACCOUNT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "fah.secretName" . }}
+                  key: ACCOUNT_TOKEN
+            - name: MACHINE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+          resources:
+            requests:
+              cpu: {{ .Values.cpu.resources.requests.cpu | quote }}
+              memory: {{ .Values.cpu.resources.requests.memory | quote }}
+            limits:
+              {{- if .Values.cpu.resources.limits.cpu }}
+              cpu: {{ .Values.cpu.resources.limits.cpu | quote }}
+              {{- end }}
+              memory: {{ .Values.cpu.resources.limits.memory | quote }}
+          ports:
+            - containerPort: {{ .Values.webPort }}
+              name: web
+              protocol: TCP
+          volumeMounts:
+            - name: fah-data
+              mountPath: /config
+            - name: tmp
+              mountPath: /tmp
+            {{- if .Values.security.readOnlyRootFilesystem }}
+            - name: run
+              mountPath: /run
+            {{- end }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            {{- if .Values.security.readOnlyRootFilesystem }}
+            readOnlyRootFilesystem: true
+            {{- end }}
+            capabilities:
+              drop:
+                - ALL
+              add:
+                - SETUID
+                - SETGID
+                - CHOWN
+      volumes:
+        - name: fah-data
+          hostPath:
+            path: {{ .Values.storage.hostPath }}
+            type: DirectoryOrCreate
+        - name: tmp
+          emptyDir: {}
+        {{- if .Values.security.readOnlyRootFilesystem }}
+        - name: run
+          emptyDir:
+            medium: Memory
+        {{- end }}
+      tolerations:
+        {{- toYaml .Values.tolerations | nindent 8 }}
+      restartPolicy: Always
+{{- end }}

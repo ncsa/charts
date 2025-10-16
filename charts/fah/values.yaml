@@ -1,0 +1,120 @@
+# Override chart name
+nameOverride: ""
+fullnameOverride: ""
+
+# Namespace for Folding@Home
+namespace: fah
+
+# Image configuration
+image:
+  repository: linuxserver/foldingathome
+  tag: 8.4.9
+  pullPolicy: IfNotPresent
+
+# Folding@Home configuration
+fah:
+  # Username for Folding@Home
+  username: ""
+
+  # Team number
+  team: ""
+
+  # Timezone (e.g., "America/Chicago")
+  timezone: "UTC"
+
+  # User and group IDs
+  puid: 1000
+  pgid: 1000
+
+# Secret configuration
+# If you have an existing secret with ACCOUNT_TOKEN, specify it here
+secret:
+  # Name of the secret to create (if existingSecret is not set)
+  name: "" # Defaults to <release-name>-secrets
+
+  # Use an existing secret (if set, this takes precedence)
+  existingSecret: ""
+
+  # Account token (only used if existingSecret is not set)
+  accountToken: ""
+
+# CPU DaemonSet configuration
+cpu:
+  # Enable CPU-only folding
+  enabled: true
+
+  # Resource limits and requests
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "256Mi"
+    limits:
+      cpu: ""
+      memory: "10Gi"
+
+# GPU DaemonSet configuration
+gpu:
+  # Enable GPU folding
+  enabled: true
+
+  # RuntimeClass for GPU support (e.g., "nvidia")
+  runtimeClassName: nvidia
+
+  # Node selector key for GPU nodes
+  nodeSelectorKey: nvidia.com/gpu.present
+
+  # Resource limits and requests
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "256Mi"
+    limits:
+      cpu: ""
+      memory: "16Gi"
+      # Number of GPUs to allocate (nvidia.com/gpu)
+      gpu: 1
+
+# Storage configuration
+storage:
+  # Host path for Folding@Home data
+  hostPath: /var/lib/fah
+
+# Security configuration
+security:
+  # Enable read-only root filesystem for enhanced security
+  readOnlyRootFilesystem: true
+
+# PriorityClass configuration
+priorityClass:
+  # Name of the PriorityClass (defaults to release name)
+  name: ""
+
+  # Priority value (negative means lower priority)
+  value: -100
+
+  # Global default
+  globalDefault: false
+
+  # Preemption policy
+  preemptionPolicy: PreemptLowerPriority
+
+  # Description
+  description: "fah workloads using idle cycles"
+
+# Network policy configuration
+networkPolicy:
+  enabled: true
+
+# Web interface port
+webPort: 7396
+
+# Tolerations for scheduling
+tolerations:
+  - effect: NoSchedule
+    operator: Exists
+  - effect: NoExecute
+    operator: Exists
+
+# Node affinity for excluding control plane nodes
+affinity:
+  excludeControlPlane: true

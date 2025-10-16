@@ -1,0 +1,96 @@
+Thank you for installing {{ .Chart.Name }}!
+
+Your Folding@Home deployment has been configured with the following settings:
+
+Namespace: {{ .Values.namespace }}
+{{- if .Values.fah.username }}
+Username: {{ .Values.fah.username }}
+{{- end }}
+{{- if .Values.fah.team }}
+Team: {{ .Values.fah.team }}
+{{- end }}
+
+Deployment Status:
+{{- if .Values.cpu.enabled }}
+  ✓ CPU DaemonSet enabled
+{{- else }}
+  ✗ CPU DaemonSet disabled
+{{- end }}
+{{- if .Values.gpu.enabled }}
+  ✓ GPU DaemonSet enabled
+{{- else }}
+  ✗ GPU DaemonSet disabled
+{{- end }}
+
+Security:
+{{- if .Values.security.readOnlyRootFilesystem }}
+  ✓ Read-only root filesystem enabled (enhanced security)
+{{- else }}
+  ✗ Read-only root filesystem disabled
+{{- end }}
+
+Storage:
+  Host path: {{ .Values.storage.hostPath }}
+
+To check the status of your Folding@Home pods:
+
+  kubectl get pods -n {{ .Values.namespace }}
+
+To view logs from a specific pod:
+
+  kubectl logs -n {{ .Values.namespace }} <pod-name>
+
+To access the web interface on a specific pod (port {{ .Values.webPort }}):
+
+  kubectl port-forward -n {{ .Values.namespace }} <pod-name> {{ .Values.webPort }}:{{ .Values.webPort }}
+
+Then open http://localhost:{{ .Values.webPort }} in your browser.
+
+IMPORTANT - Initial Setup Required:
+{{- if or .Values.secret.accountToken .Values.secret.existingSecret }}
+
+  With an account token configured, you have two options to start folding:
+
+  Option 1 - Online Account Management (Recommended):
+    1. Visit https://apps.foldingathome.org/accounts
+    2. Log in with your account
+    3. All new servers will appear automatically
+    4. Start folding and enable GPU from the web dashboard
+    5. Changes apply to all your machines at once
+
+  Option 2 - Individual Pod Configuration:
+    1. Access the web UI for each pod (use port-forward above)
+    2. Start folding by clicking the "Fold" button
+{{- if .Values.gpu.enabled }}
+    3. For GPU pods: Enable GPU folding in the settings
+{{- end }}
+{{- else }}
+
+  After deployment, you MUST configure each pod via the web interface:
+
+  1. Access the web UI for each pod (use port-forward above)
+  2. Start folding by clicking the "Fold" button
+{{- if .Values.gpu.enabled }}
+  3. For GPU pods: Enable GPU folding in the settings
+     - Navigate to the configuration/settings page
+     - Ensure GPU compute is enabled
+{{- end }}
+
+  Note: Each pod maintains its own configuration in {{ .Values.storage.hostPath }}
+        so this setup is required once per node.
+{{- end }}
+
+{{- if not .Values.fah.username }}
+
+WARNING: No username configured! Set fah.username in values.yaml
+{{- end }}
+{{- if not .Values.fah.team }}
+
+WARNING: No team number configured! Set fah.team in values.yaml
+{{- end }}
+{{- if and (not .Values.secret.existingSecret) (not .Values.secret.accountToken) }}
+
+WARNING: No account token configured! Set secret.accountToken or secret.existingSecret in values.yaml
+{{- end }}
+
+For more information about Folding@Home, visit https://foldingathome.org/
