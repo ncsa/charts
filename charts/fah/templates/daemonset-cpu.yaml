@@ -54,7 +54,14 @@ spec:
                 fieldRef:
                   fieldPath: spec.nodeName
           resources:
-            {{- toYaml .Values.cpu.resources | nindent 12 }}
+            requests:
+              cpu: {{ .Values.cpu.resources.requests.cpu | quote }}
+              memory: {{ .Values.cpu.resources.requests.memory | quote }}
+            limits:
+              {{- if .Values.cpu.resources.limits.cpu }}
+              cpu: {{ .Values.cpu.resources.limits.cpu | quote }}
+              {{- end }}
+              memory: {{ .Values.cpu.resources.limits.memory | quote }}
           ports:
             - containerPort: {{ .Values.webPort }}
               name: web

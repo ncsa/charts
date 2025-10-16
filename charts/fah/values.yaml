@@ -55,7 +55,7 @@ cpu:
 # GPU DaemonSet configuration
 gpu:
   # Enable GPU folding
-  enabled: false
+  enabled: true
 
   # RuntimeClass for GPU support (e.g., "nvidia")
   runtimeClassName: nvidia
