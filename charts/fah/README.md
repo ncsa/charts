@@ -83,7 +83,7 @@ helm install fah charts/fah/ -f values.yaml
 |-----------|-------------|---------|
 | `namespace` | Namespace for deployment | `fah` |
 | `image.repository` | Container image repository | `linuxserver/foldingathome` |
-| `image.tag` | Container image tag | `8.4.9` |
+| `image.tag` | Container image tag (leave blank to use appVersion) | `""` |
 | `image.pullPolicy` | Image pull policy | `IfNotPresent` |
 
 ### Folding@Home Settings

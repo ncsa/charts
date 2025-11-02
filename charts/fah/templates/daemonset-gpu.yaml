@@ -35,7 +35,7 @@ spec:
                     values: ["true"]
       containers:
         - name: fah-client
-          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
             - name: CLI_ARGS

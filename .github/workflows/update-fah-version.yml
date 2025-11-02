@@ -3,7 +3,7 @@ name: Update FAH Version
 on:
   schedule:
     # Run every Sunday at 2 AM UTC
-    - cron: '0 2 * * 0'
+    - cron: "0 2 * * 0"
   workflow_dispatch:
 
 jobs:
@@ -12,7 +12,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -22,7 +22,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: "3.11"
 
       - name: Install dependencies
         run: pip install requests pyyaml packaging
@@ -36,28 +36,28 @@ jobs:
           import os
           import re
           from packaging import version as pkg_version
-          
+
           with open('charts/fah/Chart.yaml', 'r') as f:
               chart = yaml.safe_load(f)
               current_version = chart['appVersion']
-          
+
           print(f"Current version: {current_version}")
-          
+
           response = requests.get('https://hub.docker.com/v2/repositories/linuxserver/foldingathome/tags?page_size=100')
           data = response.json()
-          
+
           version_pattern = re.compile(r'^\d+\.\d+\.\d+$')
           versions = [tag['name'] for tag in data['results'] if version_pattern.match(tag['name'])]
           versions.sort(key=lambda v: pkg_version.parse(v), reverse=True)
-          
+
           latest_version = versions[0] if versions else current_version
           print(f"Latest version: {latest_version}")
-          
+
           with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
               f.write(f"current_version={current_version}\n")
               f.write(f"latest_version={latest_version}\n")
               f.write(f"update_needed={'true' if latest_version != current_version else 'false'}\n")
-          
+
           print(f"Update needed: {latest_version != current_version}")
           PYEOF
 
@@ -71,46 +71,37 @@ jobs:
           import re
           import os
           from datetime import datetime
-          
+
           new_version = os.environ['NEW_VERSION']
-          
+
           # Update Chart.yaml
           with open('charts/fah/Chart.yaml', 'r') as f:
               chart = yaml.safe_load(f)
-          
+
           # Update appVersion
           chart['appVersion'] = new_version
-          
+
           # Bump chart version (patch - third number)
           chart_version_parts = chart['version'].split('.')
           chart_version_parts[-1] = str(int(chart_version_parts[-1]) + 1)
           new_chart_version = '.'.join(chart_version_parts)
           chart['version'] = new_chart_version
-          
+
           with open('charts/fah/Chart.yaml', 'w') as f:
               yaml.dump(chart, f, default_flow_style=False, sort_keys=False)
-          
+
           print(f"Updated Chart.yaml: chart version {new_chart_version}, appVersion {new_version}")
-          
-          # Update values.yaml
-          with open('charts/fah/values.yaml', 'r') as f:
-              values_content = f.read()
-          
-          values_content = re.sub(r'(  tag: )\S+', f'\\1{new_version}', values_content)
-          
-          with open('charts/fah/values.yaml', 'w') as f:
-              f.write(values_content)
-          
-          print(f"Updated values.yaml image tag to {new_version}")
-          
+
+          # Note: values.yaml tag is intentionally left empty to use appVersion from Chart.yaml
+
           # Update README.md
           with open('charts/fah/README.md', 'r') as f:
               readme_content = f.read()
-          
+
           current_date = datetime.utcnow().strftime('%Y-%m-%d')
-          
+
           version_section = f"## Version Information\n\n- **Current Version**: `{new_version}` ([linuxserver/foldingathome:{new_version}](https://hub.docker.com/r/linuxserver/foldingathome/tags))\n- **Last Updated**: {current_date}\n\n---\n"
-          
+
           if '## Version Information' in readme_content:
               readme_content = re.sub(
                   r'## Version Information\n\n.*?\n\n---\n',
@@ -124,16 +115,12 @@ jobs:
                   f'\\1\n{version_section}',
                   readme_content
               )
-          
-          readme_content = re.sub(
-              r'(\| `image\.tag` \| Container image tag \| )`[^`]+`',
-              f'\\1`{new_version}`',
-              readme_content
-          )
-          
+
+          # Note: image.tag in configuration table should remain empty to use appVersion
+
           with open('charts/fah/README.md', 'w') as f:
               f.write(readme_content)
-          
+
           print("Updated README.md with version information")
           PYEOF
 
@@ -144,33 +131,33 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: |
             Update FAH to version ${{ steps.check_version.outputs.latest_version }}
-            
+
             - Updated Docker image from ${{ steps.check_version.outputs.current_version }} to ${{ steps.check_version.outputs.latest_version }}
             - Updated Chart.yaml appVersion and bumped chart version (patch)
             - Updated README.md with current version
           branch: update-fah-${{ steps.check_version.outputs.latest_version }}
           delete-branch: true
-          title: 'chore: Update Folding@Home to version ${{ steps.check_version.outputs.latest_version }}'
+          title: "chore: Update Folding@Home to version ${{ steps.check_version.outputs.latest_version }}"
           body: |
             ## Automated FAH Version Update
-            
+
             This PR updates the Folding@Home chart to use the latest available Docker image.
-            
+
             ### Changes
             - **Previous version**: `${{ steps.check_version.outputs.current_version }}`
             - **New version**: `${{ steps.check_version.outputs.latest_version }}`
             - **Docker image**: `linuxserver/foldingathome:${{ steps.check_version.outputs.latest_version }}`
-            
+
             ### Files Updated
             - `charts/fah/Chart.yaml` - Updated appVersion and bumped chart version (patch)
             - `charts/fah/values.yaml` - Updated image tag
             - `charts/fah/README.md` - Updated version information section
-            
+
             ### Notes
             - This PR was automatically created by the Update FAH Version workflow
             - Please review the changes and test before merging
             - Check [LinuxServer.io FAH tags](https://hub.docker.com/r/linuxserver/foldingathome/tags) for details
-            
+
             ---
             *Generated by GitHub Actions*
           labels: |

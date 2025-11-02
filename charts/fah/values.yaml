@@ -8,7 +8,8 @@ namespace: fah
 # Image configuration
 image:
   repository: linuxserver/foldingathome
-  tag: 8.4.9
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ""
   pullPolicy: IfNotPresent
 
 # Folding@Home configuration
