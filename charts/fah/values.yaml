@@ -64,10 +64,14 @@ gpu:
   nodeSelectorKey: nvidia.com/gpu.present
 
   # Resource limits and requests
+  # With time-slicing replicas=2, requesting 1 GPU = 50% time allocation
+  # Lower priority ensures this pod yields to higher priority workloads
   resources:
     requests:
       cpu: "100m"
       memory: "256Mi"
+      # GPU must be in requests for proper preemption
+      gpu: 1
     limits:
       cpu: ""
       memory: "16Gi"
