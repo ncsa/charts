@@ -1,0 +1,280 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Folding@Home Helm Chart Values",
+  "description": "JSON Schema for validating Folding@Home Helm chart values",
+  "properties": {
+    "nameOverride": {
+      "type": "string",
+      "description": "String to partially override chart name"
+    },
+    "fullnameOverride": {
+      "type": "string",
+      "description": "String to fully override chart name"
+    },
+    "namespace": {
+      "type": "string",
+      "description": "Namespace for Folding@Home",
+      "default": "fah"
+    },
+    "image": {
+      "type": "object",
+      "properties": {
+        "repository": {
+          "type": "string",
+          "description": "Image repository",
+          "default": "linuxserver/foldingathome"
+        },
+        "tag": {
+          "type": "string",
+          "description": "Image tag (defaults to chart appVersion)"
+        },
+        "pullPolicy": {
+          "type": "string",
+          "enum": ["Always", "Never", "IfNotPresent"],
+          "description": "Image pull policy",
+          "default": "IfNotPresent"
+        }
+      }
+    },
+    "fah": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string",
+          "description": "Username for Folding@Home"
+        },
+        "team": {
+          "type": "string",
+          "description": "Team number"
+        },
+        "timezone": {
+          "type": "string",
+          "description": "Timezone (e.g., America/Chicago)",
+          "default": "UTC"
+        },
+        "puid": {
+          "type": "integer",
+          "description": "Process user ID",
+          "default": 1000
+        },
+        "pgid": {
+          "type": "integer",
+          "description": "Process group ID",
+          "default": 1000
+        }
+      }
+    },
+    "secret": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name of the secret to create"
+        },
+        "existingSecret": {
+          "type": "string",
+          "description": "Name of existing secret with ACCOUNT_TOKEN"
+        },
+        "accountToken": {
+          "type": "string",
+          "description": "Account token for Folding@Home"
+        }
+      }
+    },
+    "cpu": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable CPU-only folding",
+          "default": true
+        },
+        "resources": {
+          "type": "object",
+          "properties": {
+            "requests": {
+              "type": "object",
+              "properties": {
+                "cpu": {
+                  "type": "string",
+                  "pattern": "^[0-9]+(m)?$",
+                  "description": "CPU request",
+                  "default": "100m"
+                },
+                "memory": {
+                  "type": "string",
+                  "pattern": "^[0-9]+(Mi|Gi|M|G)?$",
+                  "description": "Memory request",
+                  "default": "256Mi"
+                }
+              }
+            },
+            "limits": {
+              "type": "object",
+              "properties": {
+                "cpu": {
+                  "type": "string",
+                  "pattern": "^[0-9]*(m)?$",
+                  "description": "CPU limit"
+                },
+                "memory": {
+                  "type": "string",
+                  "pattern": "^[0-9]+(Mi|Gi|M|G)?$",
+                  "description": "Memory limit",
+                  "default": "10Gi"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "gpu": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable GPU folding",
+          "default": true
+        },
+        "runtimeClassName": {
+          "type": "string",
+          "description": "RuntimeClass for GPU support",
+          "default": "nvidia"
+        },
+        "nodeSelectorKey": {
+          "type": "string",
+          "description": "Node selector key for GPU nodes",
+          "default": "nvidia.com/gpu.present"
+        },
+        "resources": {
+          "type": "object",
+          "properties": {
+            "requests": {
+              "type": "object",
+              "properties": {
+                "cpu": {
+                  "type": "string",
+                  "pattern": "^[0-9]+(m)?$",
+                  "description": "CPU request",
+                  "default": "100m"
+                },
+                "memory": {
+                  "type": "string",
+                  "pattern": "^[0-9]+(Mi|Gi|M|G)?$",
+                  "description": "Memory request",
+                  "default": "256Mi"
+                },
+                "gpu": {
+                  "type": "integer",
+                  "description": "GPU request",
+                  "default": 1
+                }
+              }
+            },
+            "limits": {
+              "type": "object",
+              "properties": {
+                "cpu": {
+                  "type": "string",
+                  "pattern": "^[0-9]*(m)?$",
+                  "description": "CPU limit"
+                },
+                "memory": {
+                  "type": "string",
+                  "pattern": "^[0-9]+(Mi|Gi|M|G)?$",
+                  "description": "Memory limit",
+                  "default": "16Gi"
+                },
+                "gpu": {
+                  "type": "integer",
+                  "description": "GPU limit",
+                  "default": 1
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "storage": {
+      "type": "object",
+      "properties": {
+        "hostPath": {
+          "type": "string",
+          "description": "Host path for Folding@Home data",
+          "default": "/var/lib/fah"
+        }
+      }
+    },
+    "security": {
+      "type": "object",
+      "properties": {
+        "readOnlyRootFilesystem": {
+          "type": "boolean",
+          "description": "Enable read-only root filesystem",
+          "default": true
+        }
+      }
+    },
+    "priorityClass": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name of the PriorityClass"
+        },
+        "value": {
+          "type": "integer",
+          "description": "Priority value (negative means lower priority)",
+          "default": -100
+        },
+        "globalDefault": {
+          "type": "boolean",
+          "description": "Global default priority",
+          "default": false
+        },
+        "preemptionPolicy": {
+          "type": "string",
+          "enum": ["PreemptLowerPriority", "Never"],
+          "description": "Preemption policy",
+          "default": "PreemptLowerPriority"
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the priority class"
+        }
+      }
+    },
+    "networkPolicy": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable network policy",
+          "default": true
+        }
+      }
+    },
+    "webPort": {
+      "type": "integer",
+      "description": "Web interface port",
+      "default": 7396
+    },
+    "tolerations": {
+      "type": "array",
+      "description": "Tolerations for pod scheduling"
+    },
+    "affinity": {
+      "type": "object",
+      "properties": {
+        "excludeControlPlane": {
+          "type": "boolean",
+          "description": "Exclude control plane nodes",
+          "default": true
+        }
+      }
+    }
+  }
+}

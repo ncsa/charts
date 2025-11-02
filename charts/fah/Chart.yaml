@@ -2,7 +2,7 @@ apiVersion: v2
 name: fah
 description: Folding@Home - Distributed computing for disease research
 type: application
-version: 1.0.2
+version: 1.0.3
 appVersion: 8.4.9
 home: https://foldingathome.org/
 icon: https://foldingathome.org/wp-content/uploads/2016/08/cropped-folding-at-home-logo.png

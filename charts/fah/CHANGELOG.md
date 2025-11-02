@@ -5,6 +5,27 @@ All notable changes to this Helm chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.3] - 2025-11-02
+
+### Added
+- JSON Schema validation for Helm values (values.schema.json)
+
+## [1.0.2] - 2025-11-02
+
+### Added
+- GitHub Actions workflow to automate appVersion updates
+
+### Changed
+- Ensured imagetag matches appVersion for consistency
+
+## [1.0.1] - 2025-11-02
+
+### Fixed
+- Fixed GPU DaemonSet to correctly use GPU resources
+
+### Changed
+- Auto-updated chart README documentation
+
 ## [1.0.0] - 2025-10-15
 
 ### Added
