@@ -12,7 +12,8 @@ This repository contains Kubernetes Helm charts organized in the following struc
 │   └── workflows/          # GitHub Actions workflows for automation
 │       ├── release.yml     # Chart release workflow
 │       ├── update-fah-version.yml
-│       └── update-geoserver-version.yml
+│       ├── update-geoserver-version.yml
+│       └── update-uptime-kuma-version.yml
 ├── charts/                 # All Helm charts
 │   ├── elasticsearch2/
 │   ├── fah/
@@ -37,10 +38,12 @@ charts/<chart-name>/
 ├── CHANGELOG.md           # Version history and changes
 ├── README.md              # Chart documentation
 ├── values.yaml            # Default configuration values
+├── values.schema.json     # JSON Schema for values validation (Helm 3+)
 └── templates/             # Kubernetes manifest templates
-    ├── deployment.yaml
+    ├── deployment.yaml (or statefulset.yaml)
     ├── service.yaml
     ├── ingress.yaml
+    ├── pvc.yaml (if applicable)
     └── ...
 ```
 
@@ -123,12 +126,33 @@ Update the changelog:
 - Human review and approval required before merging
 - Branch protection recommended on `main`
 
-### 5. Charts Not in Git
+### 5. Required Chart Files
+
+**Every chart MUST include the following files:**
+
+- **Chart.yaml** - Chart metadata (name, version, appVersion, maintainers, etc.)
+- **CHANGELOG.md** - Version history following the format in section 3
+- **README.md** - Comprehensive documentation including:
+  - Chart description and features
+  - Prerequisites
+  - Installation instructions
+  - Configuration table with all parameters
+  - Storage requirements and warnings (if applicable)
+  - Scaling information
+  - Ingress examples
+  - Links to upstream project
+- **values.yaml** - Default configuration values with extensive comments
+- **values.schema.json** - JSON Schema for Helm 3+ validation (recommended)
+- **templates/** directory with Kubernetes manifests
+  - Must include: deployment/statefulset, service
+  - Should include: ingress, serviceaccount, NOTES.txt
+  - May include: pvc, configmap, secret, hpa, etc.
+
+### 6. Charts Not in Git
 
 The following charts are currently not tracked in git and should be ignored:
 - `charts/hedgedoc/`
 - `charts/swagger/`
-- `charts/uptime-kuma/`
 
 These may be works in progress or local development charts.
 
@@ -139,6 +163,7 @@ Currently managed charts (in git):
 - **fah** - Folding@Home distributed computing
 - **geoserver** - GeoServer geospatial data server
 - **mlflow** - MLflow machine learning platform
+- **uptime-kuma** - Uptime Kuma monitoring tool (fancy self-hosted monitoring)
 
 ### Adding a New Chart
 
@@ -173,3 +198,75 @@ When adding a new chart to the repository:
 - Document all configuration options in README
 - Maintain backwards compatibility when possible
 - Use `helm lint` and `helm test` in CI/CD
+- Always create `values.schema.json` for input validation
+- Keep resource requests/limits commented in values.yaml but provide recommendations in README
+- Add resource usage observations from real deployments to documentation
+
+## Important Patterns and Conventions
+
+### Single-Instance Applications (e.g., SQLite-based apps)
+
+For applications that don't support horizontal scaling:
+
+1. **Use Deployment, not StatefulSet** - If only running 1 replica, Deployment is simpler
+2. **Set `strategy.type: Recreate`** - Ensures old pod terminates before new one starts
+3. **Hardcode `replicas: 1`** - Don't use a configurable replicaCount value
+4. **Remove autoscaling** - Don't include HPA templates or autoscaling values
+5. **Document why** - Explain in README and values.yaml comments why scaling is disabled
+
+### Storage Warnings
+
+When storage has specific requirements (e.g., no NFS):
+
+1. **Add prominent warnings** in multiple locations:
+   - values.yaml (in comments above persistence section)
+   - README.md (dedicated warning section with emoji/formatting)
+   - NOTES.txt (shown on every helm install/upgrade)
+   - CHANGELOG.md (in Notes section for initial release)
+2. **Explain consequences** - State what happens if requirements aren't met (e.g., database corruption)
+3. **Provide alternatives** - List acceptable storage types
+
+### values.schema.json
+
+Always include a JSON Schema for Helm 3+ validation:
+
+- Validates types (string, boolean, integer, object, array)
+- Enforces enums for constrained values (e.g., service.type)
+- Pattern matching for formatted strings (e.g., resource sizes, storage sizes)
+- Provides descriptions that UI tools can display
+- Helps catch configuration errors before deployment
+
+### Resource Recommendations
+
+- Keep resources commented out in values.yaml (Helm best practice)
+- Add a "Resource Recommendations" section to README with:
+  - Observed real-world usage data
+  - Recommended requests and limits for production
+  - Explanation of why those values were chosen
+  - Note that usage may vary based on workload
+
+### Bitnami Dependencies
+
+**Important distinction between Bitnami chart repository and Bitnami Legacy Docker images:**
+
+- **Helm Charts**: Continue using `https://charts.bitnami.com/bitnami` for chart dependencies
+- **Docker Images**: Use `docker.io/bitnamilegacy` registry for legacy Docker images (if needed)
+
+As of August 2025, Bitnami restructured its offerings:
+- **Bitnami Mainline** (`docker.io/bitnami`) - Contains only hardened images for development with latest tags
+- **Bitnami Legacy** (`docker.io/bitnamilegacy`) - Archives older versioned tags no longer maintained
+- **Helm Charts** - Still available at `https://charts.bitnami.com/bitnami` (OCI artifacts)
+
+**When to use bitnami-legacy Docker images:**
+- Only as a temporary workaround for applications depending on specific older versions
+- Not recommended for long-term production use (no updates or security patches)
+- For production, consider subscribing to Bitnami Secure Images or migrating to maintained alternatives
+
+**Example usage in values.yaml:**
+```yaml
+oauth2Proxy:
+  repository: "bitnamilegacy/oauth2-proxy"  # Legacy Docker image
+  tag: "7.4.0"
+```
+
+Reference: https://github.com/bitnami/containers/issues/83267
