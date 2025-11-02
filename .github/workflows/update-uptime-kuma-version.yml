@@ -67,6 +67,7 @@ jobs:
         if: steps.check_version.outputs.update_needed == 'true'
         env:
           NEW_VERSION: ${{ steps.check_version.outputs.latest_version }}
+          OLD_VERSION: ${{ steps.check_version.outputs.current_version }}
         run: |
           python3 - << 'PYEOF'
           import yaml
@@ -96,12 +97,7 @@ jobs:
 
           # Update CHANGELOG.md
           current_date = datetime.utcnow().strftime('%Y-%m-%d')
-          changelog_entry = f"""## [{new_chart_version}] - {current_date}
-
-### Updated
-- Updated Uptime Kuma from {os.environ.get('OLD_VERSION', 'previous version')} to {new_version}
-
-"""
+          changelog_entry = f"## [{new_chart_version}] - {current_date}\n\n### Updated\n- Updated Uptime Kuma from {os.environ.get('OLD_VERSION', 'previous version')} to {new_version}\n\n"
 
           with open('charts/uptime-kuma/CHANGELOG.md', 'r') as f:
               changelog_content = f.read()
@@ -154,20 +150,13 @@ jobs:
 
           print(f"Updated root README.md: uptime-kuma chart version {new_chart_version}, appVersion {new_version}")
           PYEOF
-        env:
-          OLD_VERSION: ${{ steps.check_version.outputs.current_version }}
 
       - name: Create Pull Request
         if: steps.check_version.outputs.update_needed == 'true'
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: |
-            Update Uptime Kuma to version ${{ steps.check_version.outputs.latest_version }}
-
-            - Updated Docker image from ${{ steps.check_version.outputs.current_version }} to ${{ steps.check_version.outputs.latest_version }}
-            - Updated Chart.yaml appVersion and bumped chart version (patch)
-            - Updated CHANGELOG.md with version information
+          commit-message: "Update Uptime Kuma to version ${{ steps.check_version.outputs.latest_version }}\n\n- Updated Docker image from ${{ steps.check_version.outputs.current_version }} to ${{ steps.check_version.outputs.latest_version }}\n- Updated Chart.yaml appVersion and bumped chart version (patch)\n- Updated CHANGELOG.md with version information"
           branch: update-uptime-kuma-${{ steps.check_version.outputs.latest_version }}
           delete-branch: true
           title: "chore: Update Uptime Kuma to version ${{ steps.check_version.outputs.latest_version }}"
