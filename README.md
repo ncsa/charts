@@ -3,89 +3,107 @@
 Use this repository to submit NCSA Charts for Helm. Charts are curated application definitions for Helm. For more information about installing and using Helm, see its
 [README.md](https://github.com/helm/helm/tree/master/README.md). To get a quick introduction to Charts see this [chart document](https://github.com/helm/helm/blob/master/docs/charts.md).
 
-## Where to find us
+## Available Charts
 
-For general Helm Chart discussions join the Helm Charts (#charts) room in the [Kubernetes](http://slack.kubernetes.io/).
+This repository currently maintains the following Helm charts:
 
-For issues and support for Helm and Charts see [Support Channels](CONTRIBUTING.md#support-channels).
+| Chart | Version | App Version | Description |
+|-------|---------|-------------|-------------|
+| [elasticsearch2](charts/elasticsearch2) | 0.2.2 | 2.4.6 | Elasticsearch 2.x deployment for legacy applications |
+| [fah](charts/fah) | 1.0.2 | 8.4.9 | Folding@Home - Distributed computing for disease research |
+| [geoserver](charts/geoserver) | 1.3.0 | 2.26.1 | Open source server for sharing geospatial data |
+| [mlflow](charts/mlflow) | 1.2.1 | 2.2.1 | Open source platform for the machine learning lifecycle |
 
-## How do I enable the NCSA repository?
+### Chart Details
 
-To add the Incubator charts for your local client, run `helm repo add`:
+- **elasticsearch2**: Legacy Elasticsearch 2.x chart for applications requiring older Elasticsearch versions
+- **fah**: Supports both CPU and GPU DaemonSets for distributed computing with configurable resource limits
+- **geoserver**: GeoServer deployment with proxy configuration support and persistent storage options
+- **mlflow**: Includes PostgreSQL and MinIO dependencies for complete ML lifecycle management
 
+For repository management guidelines and automation details, see [AGENTS.md](AGENTS.md).
+
+## Installation
+
+### Adding the NCSA Repository
+
+Add the NCSA chart repository to your Helm client:
+
+```bash
+helm repo add ncsa https://opensource.ncsa.illinois.edu/charts/
+helm repo update
 ```
-$ helm repo add ncsa https://opensource.ncsa.illinois.edu/charts/
-"ncsa" has been added to your repositories
+
+Search available charts:
+
+```bash
+helm search repo ncsa
 ```
 
+### Installing a Chart
 
-You can then run `helm search ncsa` to see the charts.
+Install a chart from the NCSA repository:
 
-## How do I install these charts?
+```bash
+helm install my-release ncsa/<chart-name>
+```
 
-After installing the helm repository (see above), you can use `helm install ncsa/<chart>`.
+For example, to install the Folding@Home chart:
 
-For more information on using Helm, refer to the [Helm's documentation](https://github.com/kubernetes/helm#docs).
+```bash
+helm install fah ncsa/fah
+```
 
-## Chart Format
-
-Take a look at the [alpine example chart](https://github.com/helm/helm/tree/master/docs/examples/alpine) and the [nginx example chart](https://github.com/helm/helm/tree/master/docs/examples/nginx) for reference when you're writing your first few charts.
-
-Before contributing a Chart, become familiar with the format. Note that the project is still under active development and the format may still evolve a bit.
+For more information on using Helm, refer to the [Helm documentation](https://helm.sh/docs/).
 
 ## Repository Structure
 
-This GitHub repository contains the source for the packaged and versioned charts released in the [`https://opensource.ncsa.illinois.edu/charts/`](https://opensource.ncsa.illinois.edu/charts/) (the Chart Repository).
+```
+.
+├── .github/workflows/    # Automated workflows for chart updates
+├── charts/               # Chart source files
+│   ├── elasticsearch2/
+│   ├── fah/
+│   ├── geoserver/
+│   └── mlflow/
+├── AGENTS.md            # Repository guidelines and automation
+└── README.md            # This file
+```
 
-The Charts in the `ncsa/` directory in the master branch of this repository match the latest packaged Chart in the Chart Repository, though there may be previous versions of a Chart available in that Chart Repository.
+Each chart directory contains:
+- `Chart.yaml` - Chart metadata and version information
+- `values.yaml` - Default configuration values
+- `README.md` - Chart-specific documentation
+- `CHANGELOG.md` - Version history
+- `templates/` - Kubernetes manifest templates
 
-The purpose of this repository is to provide a place for maintaining and contributing official Charts, with CI processes in place for managing the releasing of Charts into the Chart Repository.
+## Contributing
 
-## Contributing a Chart
+We welcome contributions to improve existing charts or add new ones!
 
-<!--We'd love for you to contribute a Chart that provides a useful application or service for Kubernetes. Please read our [Contribution Guide](CONTRIBUTING.md) for more information on how you can contribute Charts.
+### Chart Maintenance Guidelines
 
-Note: We use the same [workflow](https://github.com/kubernetes/community/blob/master/contributors/devel/development.md#workflow),
-[License](LICENSE) and [Contributor License Agreement](CONTRIBUTING.md) as the main Kubernetes repository.
--->
-## Owning and Maintaining A Chart
+- See [AGENTS.md](AGENTS.md) for detailed repository management guidelines
+- Each chart has automated version checking via GitHub Actions
+- All changes must go through pull requests (no direct pushes)
+- Charts should maintain a CHANGELOG.md with version history
 
-Individual charts can be maintained by one or more users of GitHub. When someone maintains a chart they have the access to merge changes to that chart. To have merge access to a chart someone needs to:
+### Becoming a Chart Maintainer
 
-1. Be listed on the chart, in the `Chart.yaml` file, as a maintainer. If you need sponsors and have contributed to the chart, please reach out to the existing maintainers, or if you are having trouble connecting with them, please reach out to one of the [OWNERS](OWNERS) of the charts repository.
-1. Be invited (and accept your invite) as a read-only collaborator on [this repo](https://github.com/helm/charts). This is required for @k8s-ci-robot [PR comment interaction](https://github.com/kubernetes/community/blob/master/contributors/guide/pull-requests.md).
-1. An OWNERS file needs to be added to a chart. That OWNERS file should list the maintainers' GitHub login names for both the reviewers and approvers sections. For an example see the [Drupal chart](stable/drupal/OWNERS). The `OWNERS` file should also be appended to the `.helmignore` file.
+To maintain a chart, you need to:
 
-Once these three steps are done a chart approver can merge pull requests following the directions in the [REVIEW_GUIDELINES.md](REVIEW_GUIDELINES.md) file.
+1. Be listed as a maintainer in the chart's `Chart.yaml` file
+2. Be invited as a collaborator on this repository
+3. Add an `OWNERS` file to the chart directory listing reviewers and approvers
 
-<!--## Trusted Collaborator
+## Pull Request Review Process
 
-The `pull-charts-e2e` test run, that installs a chart to test it, is required before a pull request can be merged. These tests run automatically for members of the Helm Org and for chart [repository collaborators](https://help.github.com/articles/adding-outside-collaborators-to-repositories-in-your-organization/). For regular contributors who are trusted, in a manner similar to Kubernetes community members, we have trusted collaborators. These individuals can have their tests run automatically as well as mark other pull requests as ok to test by adding a comment of `/ok-to-test` on pull requests.
+- Pull requests require review and approval before merging
+- Automated workflows handle version updates and create PRs
+- Stale PRs (inactive for 30+ days) will be automatically closed
 
-There are two paths to becoming a trusted collaborator. One only needs follow one of them.
+## Support
 
-1. If you are a Kubernetes GitHub org member and have your Kubernetes org membership public you can become a trusted collaborator for Helm Charts
-2. Get sponsorship from one of the Charts Maintainers listed in the OWNERS file at the root of this repository
-
-The process to get added is:
-
-* File an issue asking to be a trusted collaborator
-* A Helm Chart Maintainer can then add the user as a read only collaborator to the repository
--->
-## Review Process
-
-For information related to the review procedure used by the Chart repository maintainers, see [Merge approval and release process](CONTRIBUTING.md#merge-approval-and-release-process).
-
-### Stale Pull Requests and Issues
-
-Pull Requests and Issues that have no activity for 30 days automatically become stale. After 30 days of being stale, without activity, they become rotten. Pull Requests and Issues can rot for 30 days and then they are automatically closed. This is the standard stale process handling for all repositories on the Kubernetes GitHub organization.
-
-## Supported Kubernetes Versions
-
-This chart repository supports the latest and previous minor versions of Kubernetes. For example, if the latest minor release of Kubernetes is 1.8 then 1.7 and 1.8 are supported. Charts may still work on previous versions of Kubernertes even though they are outside the target supported window.
-
-To provide that support the API versions of objects should be those that work for both the latest minor release and the previous one.
-
-## Status of the Project
-
-This project is still under active development, so you might run into [issues](https://github.com/helm/charts/issues). If you do, please don't be shy about letting us know, or better yet, contribute a fix or feature.
+For issues or questions:
+- Open an [issue](https://github.com/ncsa/charts/issues) in this repository
+- Contact the chart maintainers listed in each chart's `Chart.yaml`

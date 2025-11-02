@@ -126,6 +126,24 @@ jobs:
               f.write(readme_content)
 
           print("Updated README.md with version information")
+
+          # Update root README.md
+          with open('README.md', 'r') as f:
+              root_readme = f.read()
+
+          # Update the table row for geoserver chart
+          # Match pattern: | [geoserver](charts/geoserver) | VERSION | APPVERSION | Description |
+          geoserver_pattern = r'(\| \[geoserver\]\(charts/geoserver\) \| )([0-9]+\.[0-9]+\.[0-9]+)( \| )([0-9]+\.[0-9]+\.[0-9]+)( \| )'
+          root_readme = re.sub(
+              geoserver_pattern,
+              rf'\g<1>{new_chart_version}\g<3>{new_version}\g<5>',
+              root_readme
+          )
+
+          with open('README.md', 'w') as f:
+              f.write(root_readme)
+
+          print(f"Updated root README.md: geoserver chart version {new_chart_version}, appVersion {new_version}")
           PYEOF
 
       - name: Create Pull Request
@@ -156,6 +174,7 @@ jobs:
             - `charts/geoserver/Chart.yaml` - Updated appVersion and bumped chart version (patch)
             - `charts/geoserver/values.yaml` - Updated image tag
             - `charts/geoserver/README.md` - Updated version information section
+            - `README.md` - Updated chart table with new versions
 
             ### Notes
             - This PR was automatically created by the Update GeoServer Version workflow
