@@ -1,0 +1,288 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "GeoServer Helm Chart Values",
+  "description": "JSON Schema for validating GeoServer Helm chart values",
+  "properties": {
+    "image": {
+      "type": "object",
+      "properties": {
+        "repository": {
+          "type": "string",
+          "description": "Image repository",
+          "default": "docker.osgeo.org/geoserver"
+        },
+        "pullPolicy": {
+          "type": "string",
+          "enum": ["Always", "Never", "IfNotPresent"],
+          "description": "Image pull policy",
+          "default": "IfNotPresent"
+        },
+        "tag": {
+          "type": "string",
+          "description": "Image tag (defaults to chart appVersion)"
+        }
+      }
+    },
+    "auth": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string",
+          "description": "Admin username",
+          "default": "admin"
+        },
+        "password": {
+          "type": "string",
+          "description": "Admin password",
+          "default": "geoserver"
+        },
+        "existingSecret": {
+          "type": "string",
+          "description": "Name of existing secret containing admin password"
+        },
+        "passwordKey": {
+          "type": "string",
+          "description": "Key in existing secret containing password",
+          "default": "geoserver-admin-password"
+        }
+      }
+    },
+    "cors": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable CORS",
+          "default": false
+        },
+        "allowedOrigins": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Allowed origins for CORS",
+          "default": ["*"]
+        },
+        "allowedMethods": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS"]
+          },
+          "description": "Allowed HTTP methods for CORS"
+        },
+        "allowedHeaders": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Allowed headers for CORS"
+        },
+        "allowCredentials": {
+          "type": "boolean",
+          "description": "Allow credentials in CORS",
+          "default": false
+        }
+      }
+    },
+    "extension": {
+      "type": "object",
+      "properties": {
+        "install": {
+          "type": "boolean",
+          "description": "Install extensions on startup",
+          "default": false
+        },
+        "stableExtensions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of stable extensions to install"
+        },
+        "stablePluginUrl": {
+          "type": "string",
+          "description": "URL for stable plugin repository"
+        },
+        "additionalLibsDir": {
+          "type": "string",
+          "description": "Directory for additional libraries"
+        },
+        "geoserverLibDir": {
+          "type": "string",
+          "description": "GeoServer library directory"
+        }
+      }
+    },
+    "demoData": {
+      "type": "object",
+      "properties": {
+        "skip": {
+          "type": "boolean",
+          "description": "Skip demo data installation",
+          "default": true
+        }
+      }
+    },
+    "startup": {
+      "type": "object",
+      "properties": {
+        "failureThreshold": {
+          "type": "integer",
+          "description": "Startup probe failure threshold",
+          "default": 10
+        },
+        "periodSeconds": {
+          "type": "integer",
+          "description": "Startup probe check interval in seconds",
+          "default": 30
+        }
+      }
+    },
+    "imagePullSecrets": {
+      "type": "array",
+      "description": "Image pull secrets"
+    },
+    "nameOverride": {
+      "type": "string",
+      "description": "String to partially override chart name"
+    },
+    "fullnameOverride": {
+      "type": "string",
+      "description": "String to fully override chart name"
+    },
+    "persistence": {
+      "type": "object",
+      "properties": {
+        "size": {
+          "type": "string",
+          "pattern": "^[0-9]+(Gi|Mi|G|M)?$",
+          "description": "Persistent volume size",
+          "default": "10Gi"
+        },
+        "accessModes": {
+          "type": "string",
+          "enum": ["ReadWriteOnce", "ReadOnlyMany", "ReadWriteMany"],
+          "description": "Access mode for persistent volume",
+          "default": "ReadWriteOnce"
+        },
+        "existingClaim": {
+          "type": "string",
+          "description": "Use existing persistent volume claim"
+        }
+      }
+    },
+    "whitelist": {
+      "type": "string",
+      "description": "Whitelist URLs for GUI (e.g., geoserver.example.com without http:// or https://)"
+    },
+    "proxyBaseUrl": {
+      "type": "string",
+      "description": "Base URL for GeoServer if behind a proxy (e.g., https://example.com/geoserver)"
+    },
+    "envs": {
+      "type": "object",
+      "properties": {
+        "extraJavaOpts": {
+          "type": "string",
+          "description": "Extra Java options for JVM (e.g., heap size)",
+          "default": "-Xms512m -Xmx2g"
+        }
+      }
+    },
+    "serviceAccount": {
+      "type": "object",
+      "properties": {
+        "create": {
+          "type": "boolean",
+          "description": "Create a service account",
+          "default": true
+        },
+        "annotations": {
+          "type": "object",
+          "description": "Annotations for service account"
+        },
+        "name": {
+          "type": "string",
+          "description": "Service account name"
+        }
+      }
+    },
+    "podAnnotations": {
+      "type": "object",
+      "description": "Pod annotations"
+    },
+    "podSecurityContext": {
+      "type": "object",
+      "description": "Pod security context"
+    },
+    "securityContext": {
+      "type": "object",
+      "description": "Container security context"
+    },
+    "service": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ClusterIP", "NodePort", "LoadBalancer", "ExternalName"],
+          "description": "Service type",
+          "default": "ClusterIP"
+        },
+        "port": {
+          "type": "integer",
+          "description": "Service port",
+          "default": 8080
+        }
+      }
+    },
+    "ingress": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable ingress",
+          "default": false
+        },
+        "annotations": {
+          "type": "object",
+          "description": "Ingress annotations"
+        },
+        "hosts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "host": {
+                "type": "string",
+                "description": "Hostname"
+              }
+            }
+          },
+          "description": "Ingress hosts"
+        },
+        "tls": {
+          "type": "array",
+          "description": "TLS configuration for ingress"
+        }
+      }
+    },
+    "resources": {
+      "type": "object",
+      "description": "Resource limits and requests"
+    },
+    "nodeSelector": {
+      "type": "object",
+      "description": "Node selector for pod scheduling"
+    },
+    "tolerations": {
+      "type": "array",
+      "description": "Tolerations for pod scheduling"
+    },
+    "affinity": {
+      "type": "object",
+      "description": "Affinity rules for pod scheduling"
+    }
+  }
+}
