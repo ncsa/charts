@@ -33,6 +33,13 @@ s3:
   key:
 
 postgresql:
+  # Override image to use bitnami-legacy registry
+  # See: https://github.com/bitnami/containers/issues/83267
+  # Chart version 11.9.13 defaults to tag 14.5.0-debian-11-r35
+  image:
+    registry: docker.io
+    repository: bitnamilegacy/postgresql
+    tag: 14.5.0-debian-11-r35
   auth:
     postgresPassword: leftfoot1
     username: mlflow
@@ -40,13 +47,19 @@ postgresql:
     database: mlflow
 
 minio:
+  # Override image to use bitnami-legacy registry
+  # See: https://github.com/bitnami/containers/issues/83267
+  # Chart version 11.10.26 defaults to tag 2022.12.12-debian-11-r9
+  image:
+    registry: docker.io
+    repository: bitnamilegacy/minio
+    tag: 2022.12.12-debian-11-r9
   auth:
     rootPassword: leftfoot1
 
-
 oauth2Proxy:
   enabled: true
-  repository: "bitnami/oauth2-proxy"
+  repository: "bitnamilegacy/oauth2-proxy"
   tag: "7.4.0"
 
   ## Name of Kubernetes secret holding
@@ -62,7 +75,7 @@ oauth2Proxy:
 
   # List of groups
   allowedGroups:
-  
+
   cookieRefresh: "5m"
   keycloak:
     # restrict logins to users with this role (may be given multiple times). Only works with the keycloak-oidc provider.
@@ -80,7 +93,6 @@ oauth2Proxy:
 
     # which OIDC claim contains the user groups?
     oidc_groups_claim:
-
 
 serviceAccount:
   # Specifies whether a service account should be created

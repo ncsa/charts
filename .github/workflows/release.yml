@@ -26,6 +26,8 @@ jobs:
 
       - name: Install Helm Repo
         run: |
+          # Note: Bitnami chart repository (not bitnami-legacy)
+          # bitnami-legacy is for Docker images only (docker.io/bitnamilegacy)
           helm repo add bitnami https://charts.bitnami.com/bitnami
           helm repo update
 

@@ -27,6 +27,7 @@ sources:
   - https://github.com/mlflow/mlflow
 
 # dependencies for the helm chart, use helm dep install to the install them.
+# NOTE: Using bitnami chart repo (not bitnami-legacy). Bitnami-legacy is for Docker images only.
 dependencies:
   - name: postgresql
     version: ~11
