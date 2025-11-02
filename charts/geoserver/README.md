@@ -1,4 +1,12 @@
 # geoserver
+
+## Version Information
+
+- **Current Version**: `2.26.1` ([docker.osgeo.org/geoserver:2.26.1](https://repo.osgeo.org/#browse/browse:geoserver-docker:v2/geoserver/tags))
+- **Last Updated**: 2025-11-19
+
+---
+
 A simple Helm chart for GeoServer
 
 
@@ -48,7 +56,7 @@ Below are the supported configuration options that can be overridden or customiz
 | `persistence.capacity` | The size of the PVC to provision for elasticsearch data | `10Gi`                        |
 | `persistence.existingClaim` | An existing claim to use | None                          |
 | `image.repository` | The Docker image repo/name to run | `docker.osgeo.org/geoserver`  |
-| `image.tag` | The Docker image tag to run, leave blank to use app version | `""`                          |
+| `image.tag` | Container image tag (leave blank to use appVersion) | `""`                          |
 | `image.pullPolicy` | The Docker image pullPolicy to use when running | `IfNotPresent`                |
 | `ingress.enabled` | Whether an ingress rule should be deployed for geoserver | `false`                       |
 | `ingress.host` | The hostname to use for the ingress rule | `geoserver.local`             |
@@ -111,5 +119,5 @@ $ helm install --set persistence.existingClaim=PVC_NAME geoserver
 ### 0.2.0
 - Test version of helm chart
 
-### 0.1.0 
+### 0.1.0
 - IGNORE, this is a typo, should be 1.0.0

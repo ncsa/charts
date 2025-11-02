@@ -1,0 +1,172 @@
+name: Update GeoServer Version
+
+on:
+  schedule:
+    # Run every Sunday at 2:10 AM UTC
+    - cron: "10 2 * * 0"
+  workflow_dispatch:
+
+jobs:
+  check-and-update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install requests pyyaml packaging
+
+      - name: Check for new GeoServer version
+        id: check_version
+        run: |
+          python3 - << 'PYEOF'
+          import requests
+          import yaml
+          import os
+          import re
+          from packaging import version as pkg_version
+
+          with open('charts/geoserver/Chart.yaml', 'r') as f:
+              chart = yaml.safe_load(f)
+              current_version = chart['appVersion']
+
+          print(f"Current version: {current_version}")
+
+          # GeoServer uses OSGeo Docker registry
+          # We'll check the tags from docker.osgeo.org/geoserver
+          # This registry follows OCI distribution spec
+          response = requests.get('https://hub.docker.com/v2/repositories/osgeolive/geoserver/tags?page_size=100')
+          data = response.json()
+
+          # Match versions like 2.26.1, 2.25.3, etc.
+          version_pattern = re.compile(r'^\d+\.\d+\.\d+$')
+          versions = [tag['name'] for tag in data['results'] if version_pattern.match(tag['name'])]
+          versions.sort(key=lambda v: pkg_version.parse(v), reverse=True)
+
+          latest_version = versions[0] if versions else current_version
+          print(f"Latest version: {latest_version}")
+
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+              f.write(f"current_version={current_version}\n")
+              f.write(f"latest_version={latest_version}\n")
+              f.write(f"update_needed={'true' if latest_version != current_version else 'false'}\n")
+
+          print(f"Update needed: {latest_version != current_version}")
+          PYEOF
+
+      - name: Update chart files
+        if: steps.check_version.outputs.update_needed == 'true'
+        env:
+          NEW_VERSION: ${{ steps.check_version.outputs.latest_version }}
+        run: |
+          python3 - << 'PYEOF'
+          import yaml
+          import re
+          import os
+          from datetime import datetime
+
+          new_version = os.environ['NEW_VERSION']
+
+          # Update Chart.yaml
+          with open('charts/geoserver/Chart.yaml', 'r') as f:
+              chart = yaml.safe_load(f)
+
+          # Update appVersion
+          chart['appVersion'] = new_version
+
+          # Bump chart version (patch - third number)
+          chart_version_parts = chart['version'].split('.')
+          chart_version_parts[-1] = str(int(chart_version_parts[-1]) + 1)
+          new_chart_version = '.'.join(chart_version_parts)
+          chart['version'] = new_chart_version
+
+          with open('charts/geoserver/Chart.yaml', 'w') as f:
+              yaml.dump(chart, f, default_flow_style=False, sort_keys=False)
+
+          print(f"Updated Chart.yaml: chart version {new_chart_version}, appVersion {new_version}")
+
+          # Note: values.yaml tag is intentionally left empty to use appVersion from Chart.yaml
+
+          # Update README.md
+          with open('charts/geoserver/README.md', 'r') as f:
+              readme_content = f.read()
+
+          current_date = datetime.utcnow().strftime('%Y-%m-%d')
+
+          version_section = f"## Version Information\n\n- **Current Version**: `{new_version}` ([docker.osgeo.org/geoserver:{new_version}](https://repo.osgeo.org/#browse/browse:geoserver-docker:v2/geoserver/tags))\n- **Last Updated**: {current_date}\n\n---\n"
+
+          if '## Version Information' in readme_content:
+              readme_content = re.sub(
+                  r'## Version Information\n\n.*?\n\n---\n',
+                  version_section,
+                  readme_content,
+                  flags=re.DOTALL
+              )
+          else:
+              readme_content = re.sub(
+                  r'(# geoserver\n)',
+                  f'\\1\n{version_section}',
+                  readme_content
+              )
+
+          # Note: image.tag in configuration table should remain empty to use appVersion
+
+          with open('charts/geoserver/README.md', 'w') as f:
+              f.write(readme_content)
+
+          print("Updated README.md with version information")
+          PYEOF
+
+      - name: Create Pull Request
+        if: steps.check_version.outputs.update_needed == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: |
+            Update GeoServer to version ${{ steps.check_version.outputs.latest_version }}
+
+            - Updated Docker image from ${{ steps.check_version.outputs.current_version }} to ${{ steps.check_version.outputs.latest_version }}
+            - Updated Chart.yaml appVersion and bumped chart version (patch)
+            - Updated README.md with current version
+          branch: update-geoserver-${{ steps.check_version.outputs.latest_version }}
+          delete-branch: true
+          title: "chore: Update GeoServer to version ${{ steps.check_version.outputs.latest_version }}"
+          body: |
+            ## Automated GeoServer Version Update
+
+            This PR updates the GeoServer chart to use the latest available Docker image.
+
+            ### Changes
+            - **Previous version**: `${{ steps.check_version.outputs.current_version }}`
+            - **New version**: `${{ steps.check_version.outputs.latest_version }}`
+            - **Docker image**: `docker.osgeo.org/geoserver:${{ steps.check_version.outputs.latest_version }}`
+
+            ### Files Updated
+            - `charts/geoserver/Chart.yaml` - Updated appVersion and bumped chart version (patch)
+            - `charts/geoserver/values.yaml` - Updated image tag
+            - `charts/geoserver/README.md` - Updated version information section
+
+            ### Notes
+            - This PR was automatically created by the Update GeoServer Version workflow
+            - Please review the changes and test before merging
+            - Check [OSGeo GeoServer tags](https://repo.osgeo.org/#browse/browse:geoserver-docker:v2/geoserver/tags) for details
+
+            ---
+            *Generated by GitHub Actions*
+          labels: |
+            automated
+            dependencies
+            geoserver
+          assignees: ywkim312
+          draft: false
