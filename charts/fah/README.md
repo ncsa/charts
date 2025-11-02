@@ -1,5 +1,12 @@
 # Folding@Home Helm Chart
 
+## Version Information
+
+- **Current Version**: `8.4.9` ([linuxserver/foldingathome:8.4.9](https://hub.docker.com/r/linuxserver/foldingathome/tags))
+- **Last Updated**: 2025-10-28
+
+---
+
 A Helm chart for deploying Folding@Home on Kubernetes clusters, supporting both CPU-only and GPU-accelerated folding.
 
 ## Overview
