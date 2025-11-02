@@ -13,6 +13,7 @@ This repository currently maintains the following Helm charts:
 | [fah](charts/fah) | 1.0.2 | 8.4.9 | Folding@Home - Distributed computing for disease research |
 | [geoserver](charts/geoserver) | 1.3.0 | 2.26.1 | Open source server for sharing geospatial data |
 | [mlflow](charts/mlflow) | 1.2.1 | 2.2.1 | Open source platform for the machine learning lifecycle |
+| [uptime-kuma](charts/uptime-kuma) | 1.0.0 | 2.0.2 | Fancy self-hosted monitoring tool with 90+ notification integrations |
 
 ### Chart Details
 
@@ -20,6 +21,7 @@ This repository currently maintains the following Helm charts:
 - **fah**: Supports both CPU and GPU DaemonSets for distributed computing with configurable resource limits
 - **geoserver**: GeoServer deployment with proxy configuration support and persistent storage options
 - **mlflow**: Includes PostgreSQL and MinIO dependencies for complete ML lifecycle management
+- **uptime-kuma**: Self-hosted monitoring with HTTP(s)/TCP/Ping monitoring, status pages, and notifications (⚠️ requires local/block storage, no NFS)
 
 For repository management guidelines and automation details, see [AGENTS.md](AGENTS.md).
 
@@ -65,7 +67,8 @@ For more information on using Helm, refer to the [Helm documentation](https://he
 │   ├── elasticsearch2/
 │   ├── fah/
 │   ├── geoserver/
-│   └── mlflow/
+│   ├── mlflow/
+│   └── uptime-kuma/
 ├── AGENTS.md            # Repository guidelines and automation
 └── README.md            # This file
 ```

@@ -1,0 +1,36 @@
+apiVersion: v2
+type: application
+
+# Information about uptime-kuma.
+name: uptime-kuma
+icon: https://raw.githubusercontent.com/louislam/uptime-kuma/master/public/icon.svg
+home: https://github.com/louislam/uptime-kuma
+description: A fancy self-hosted monitoring tool for uptime monitoring with 90+ notification integrations.
+
+# This is the chart version. This version number should be incremented each time you make changes
+# to the chart and its templates, including the app version.
+# Versions are expected to follow Semantic Versioning (https://semver.org/)
+version: 1.0.0
+
+# This is the version number of the application being deployed. This version number should be
+# incremented each time you make changes to the application. Versions are not expected to
+# follow Semantic Versioning. They should reflect the version the application is using.
+appVersion: "2.0.2"
+
+# List of people that maintain this helm chart.
+maintainers:
+  - name: Rob Kooper
+    email: kooper@illinois.edu
+
+# location of source code
+sources:
+  - https://github.com/louislam/uptime-kuma
+
+annotations:
+  artifacthub.io/links: |
+    - name: Docker Image
+      url: https://hub.docker.com/r/louislam/uptime-kuma
+    - name: Helm Chart
+      url: https://github.com/ncsa/charts
+  artifacthub.io/changes: |
+    - Initial release of uptime-kuma helm chart

@@ -1,0 +1,219 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "title": "Uptime Kuma Helm Chart Values",
+  "type": "object",
+  "properties": {
+    "image": {
+      "type": "object",
+      "properties": {
+        "repository": {
+          "type": "string",
+          "description": "Docker image repository"
+        },
+        "pullPolicy": {
+          "type": "string",
+          "description": "Image pull policy",
+          "enum": ["Always", "IfNotPresent", "Never"]
+        },
+        "tag": {
+          "type": "string",
+          "description": "Image tag (overrides the appVersion from Chart.yaml)"
+        }
+      }
+    },
+    "imagePullSecrets": {
+      "type": "array",
+      "description": "Image pull secrets for private registries",
+      "items": {
+        "type": "object"
+      }
+    },
+    "nameOverride": {
+      "type": "string",
+      "description": "Override the name of the chart"
+    },
+    "fullnameOverride": {
+      "type": "string",
+      "description": "Override the fullname of the chart"
+    },
+    "serviceAccount": {
+      "type": "object",
+      "properties": {
+        "create": {
+          "type": "boolean",
+          "description": "Specifies whether a service account should be created"
+        },
+        "annotations": {
+          "type": "object",
+          "description": "Annotations to add to the service account"
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the service account to use"
+        }
+      }
+    },
+    "podAnnotations": {
+      "type": "object",
+      "description": "Annotations to add to the pod"
+    },
+    "podSecurityContext": {
+      "type": "object",
+      "description": "Security context for the pod"
+    },
+    "securityContext": {
+      "type": "object",
+      "description": "Security context for the container"
+    },
+    "service": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Kubernetes service type",
+          "enum": ["ClusterIP", "NodePort", "LoadBalancer"]
+        },
+        "port": {
+          "type": "integer",
+          "description": "Service port",
+          "minimum": 1,
+          "maximum": 65535,
+          "default": 3001
+        }
+      },
+      "required": ["type", "port"]
+    },
+    "ingress": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable ingress controller resource"
+        },
+        "className": {
+          "type": "string",
+          "description": "Ingress class name"
+        },
+        "annotations": {
+          "type": "object",
+          "description": "Ingress annotations"
+        },
+        "hosts": {
+          "type": "array",
+          "description": "Ingress hosts configuration",
+          "items": {
+            "type": "object",
+            "properties": {
+              "host": {
+                "type": "string",
+                "description": "Hostname"
+              },
+              "paths": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "path": {
+                      "type": "string"
+                    },
+                    "pathType": {
+                      "type": "string",
+                      "enum": ["Exact", "Prefix", "ImplementationSpecific"]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tls": {
+          "type": "array",
+          "description": "Ingress TLS configuration",
+          "items": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "persistence": {
+      "type": "object",
+      "description": "Persistence configuration for /app/data (WARNING: Do NOT use NFS!)",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable persistent storage"
+        },
+        "existingClaim": {
+          "type": "string",
+          "description": "Use an existing PersistentVolumeClaim"
+        },
+        "size": {
+          "type": "string",
+          "description": "Size of the PersistentVolumeClaim",
+          "pattern": "^[0-9]+[EPTGMK]i?$"
+        },
+        "accessMode": {
+          "type": "string",
+          "description": "Access mode for the PersistentVolumeClaim",
+          "enum": ["ReadWriteOnce", "ReadOnlyMany", "ReadWriteMany"]
+        },
+        "storageClass": {
+          "type": "string",
+          "description": "Storage class for the PersistentVolumeClaim (use '-' for default, or specify a local/block storage class - NOT NFS!)"
+        }
+      },
+      "required": ["enabled"]
+    },
+    "resources": {
+      "type": "object",
+      "description": "CPU/Memory resource requests and limits",
+      "properties": {
+        "limits": {
+          "type": "object",
+          "properties": {
+            "cpu": {
+              "type": "string",
+              "description": "CPU limit",
+              "pattern": "^[0-9]+m?$"
+            },
+            "memory": {
+              "type": "string",
+              "description": "Memory limit",
+              "pattern": "^[0-9]+[EPTGMK]i?$"
+            }
+          }
+        },
+        "requests": {
+          "type": "object",
+          "properties": {
+            "cpu": {
+              "type": "string",
+              "description": "CPU request",
+              "pattern": "^[0-9]+m?$"
+            },
+            "memory": {
+              "type": "string",
+              "description": "Memory request",
+              "pattern": "^[0-9]+[EPTGMK]i?$"
+            }
+          }
+        }
+      }
+    },
+    "nodeSelector": {
+      "type": "object",
+      "description": "Node labels for pod assignment"
+    },
+    "tolerations": {
+      "type": "array",
+      "description": "Tolerations for pod assignment",
+      "items": {
+        "type": "object"
+      }
+    },
+    "affinity": {
+      "type": "object",
+      "description": "Affinity rules for pod assignment"
+    }
+  }
+}
