@@ -68,14 +68,18 @@ Example workflows:
 
 When making changes to a chart:
 
-1. **Check for pending changes**: Run `git status` in the chart directory
-2. **If NO pending changes exist**: Bump the chart version (patch) in `Chart.yaml`
-3. **If pending changes exist**: Do NOT bump the version (changes are already tracked)
+1. **Check git tags**: Verify if the current chart version has a git tag (e.g., `fah-1.0.0`)
+2. **If a tag exists for the current version**: Bump the chart version (patch increment) in `Chart.yaml`
+3. **If NO tag exists for the current version**: Do NOT bump the version (changes are being accumulated for the next release)
+4. **Always update CHANGELOG.md**: Add a new version section with the date and changes made
+5. **Update the date in CHANGELOG**: Use today's date for new entries, or keep existing dates for unreleased versions
 
 Version format: `MAJOR.MINOR.PATCH`
 - **MAJOR**: Breaking changes
 - **MINOR**: New features, backwards compatible
 - **PATCH**: Bug fixes, minor updates
+
+**Important**: Only bump the patch version when tagging/releasing a version in git. Untagged versions should accumulate changes under a single version entry in the changelog.
 
 #### Automated Version Updates
 
@@ -111,11 +115,12 @@ Format:
 ...
 ```
 
-Update the changelog:
-- When bumping chart versions
-- When changing functionality
-- When updating application versions
-- When fixing bugs
+**Changelog Update Rules**:
+- **Always update CHANGELOG.md** when making changes to a chart
+- **Add a new version section** if one doesn't exist for the unreleased version
+- **Update the date** to today's date when adding the first entry for a version
+- **Keep accumulating changes** under the same version section until the version is tagged/released in git
+- **When a version is released** (tagged), that section becomes finalized and future changes go into a new unreleased version section
 
 ### 4. Git Workflow Restrictions
 
@@ -125,6 +130,21 @@ Update the changelog:
 - Automated workflows create PRs using `peter-evans/create-pull-request` action
 - Human review and approval required before merging
 - Branch protection recommended on `main`
+
+### 4.5. Commit Organization
+
+**Commits MUST be grouped by chart**:
+
+- Each commit should modify files for only one chart (e.g., only files under `charts/fah/`)
+- Do not mix changes from multiple charts in a single commit
+- Exception: Changes to documentation files like `AGENTS.md`, `README.md` (repository-level) that affect multiple charts can be in a single commit
+- Use clear commit messages that indicate which chart is being modified
+- This makes it easier to track changes, review PRs, and manage chart versions independently
+
+Example good commit messages:
+- `fah: bump version to 1.0.3 and add values.schema.json`
+- `geoserver: update CHANGELOG and add schema validation`
+- `docs: update AGENTS.md with commit guidelines`
 
 ### 5. Required Chart Files
 
@@ -201,6 +221,7 @@ When adding a new chart to the repository:
 - Always create `values.schema.json` for input validation
 - Keep resource requests/limits commented in values.yaml but provide recommendations in README
 - Add resource usage observations from real deployments to documentation
+- **Git commands**: Always use `git -c core.pager=cat` or `git --no-pager` to avoid pager output in scripts and automation
 
 ## Important Patterns and Conventions
 
