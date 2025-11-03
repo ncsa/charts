@@ -1,6 +1,15 @@
 # AGENTS.md - Chart Repository Guidelines
 
-> **Note**: This document should be updated whenever new rules, patterns, or guidelines are discovered during development or maintenance of the charts. Keep it current as the source of truth for repository conventions.
+> **⚠️ IMPORTANT**: This document is the **source of truth** for all repository conventions and must be kept current.
+> 
+> **You MUST update AGENTS.md whenever**:
+> - You discover a new pattern or rule during work that isn't documented here
+> - You fix or change an existing process (e.g., workflow changes, release procedure updates)
+> - You encounter an issue that required a workaround or special handling
+> - You implement a new automation or workflow
+> 
+> **Do not assume knowledge exists elsewhere** - if it's not in AGENTS.md, it's not captured for future work.
+> Update this document as you go, using `git commit --amend` if the commit hasn't been pushed yet.
 
 ## Directory Structure
 
@@ -62,19 +71,14 @@ The **primary release workflow** uses a **matrix strategy** to automatically rel
      - Reads the chart version from `Chart.yaml`
      - Checks if a git tag already exists for that version (e.g., `fah-1.0.3`)
      - If tag does NOT exist:
-       - Packages the chart using `helm package`
-       - Uploads the pre-packaged chart using `helm/chart-releaser-action` (with `skip_packaging: true`)
-       - Creates a GitHub release and git tag
-       - Updates `index.yaml` on the `gh-pages` branch
-     - If tag exists: skips all steps (already released)
-  3. The `skip_packaging: true` flag is important because:
-     - Prevents the action from auto-detecting changed charts (which fails for new charts with no prior release tag)
-     - Ensures we always upload the pre-packaged chart we just created
-     - Allows new charts like uptime-kuma to be released correctly even on their first release
-  4. Git tags are created before the action is called:
-     - The workflow creates and pushes the git tag (e.g., `uptime-kuma-1.0.0`)
-     - The `helm/chart-releaser-action` then uses this tag to create the GitHub release
-     - This prevents "unbound variable" errors in the action
+       - Calls `helm/chart-releaser-action` with `charts_dir: charts/${{ matrix.chart }}`
+       - The action packages the chart, creates a GitHub release, creates the git tag, and updates `index.yaml` on `gh-pages`
+     - If tag exists: skips the action (already released)
+  3. Per-chart directory scoping (`charts_dir: charts/${{ matrix.chart }}`) is important because:
+     - The action only processes that specific chart, not all charts
+     - Avoids auto-detection issues where new charts aren't recognized as changed
+     - Each chart is released independently and correctly, even on first release
+     - Works reliably for both existing and new charts
 
 - **Adding a new chart**: Simply add a new line to the matrix in `release.yml`:
   ```yaml
