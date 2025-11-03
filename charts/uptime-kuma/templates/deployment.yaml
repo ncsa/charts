@@ -38,6 +38,9 @@ spec:
             seccompProfile:
               type: RuntimeDefault
             capabilities:
+              add:
+                - CHOWN
+                - FOWNER
               drop:
                 - ALL
           command:
@@ -45,13 +48,37 @@ spec:
             - -c
             - |
               mkdir -p /volume/data
-              chown {{ .Values.securityContext.runAsUser }}:{{ .Values.podSecurityContext.fsGroup }} /volume/data
-              chmod 755 /volume/data
+              chown -R {{ .Values.securityContext.runAsUser }}:{{ .Values.podSecurityContext.fsGroup }} /volume/data
+              chmod -R 755 /volume/data
           volumeMounts:
             - name: data
               mountPath: /volume
       {{- end }}
       containers:
+      {{- if .Values.nscd.enabled }}
+        # NSCD sidecar for DNS caching
+        - name: nscd
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          securityContext:
+            runAsUser: 0
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            seccompProfile:
+              type: RuntimeDefault
+            capabilities:
+              drop:
+                - ALL
+          command:
+            - /usr/sbin/nscd
+            - -F
+          volumeMounts:
+            - name: nscd-cache
+              mountPath: /var/cache/nscd
+            - name: nscd-run
+              mountPath: /run/nscd
+          resources:
+            {{- toYaml .Values.nscd.resources | nindent 12 }}
+      {{- end }}
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
@@ -89,6 +116,13 @@ spec:
             # Temporary writable directory for read-only root filesystem
             - name: tmp
               mountPath: /tmp
+            {{- if .Values.nscd.enabled }}
+            # NSCD cache and runtime directories
+            - name: nscd-cache
+              mountPath: /var/cache/nscd
+            - name: nscd-run
+              mountPath: /run/nscd
+            {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       volumes:
@@ -101,6 +135,12 @@ spec:
           {{- end }}
         - name: tmp
           emptyDir: {}
+        {{- if .Values.nscd.enabled }}
+        - name: nscd-cache
+          emptyDir: {}
+        - name: nscd-run
+          emptyDir: {}
+        {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

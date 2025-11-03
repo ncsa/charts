@@ -10,7 +10,7 @@ description: A fancy self-hosted monitoring tool for uptime monitoring with 90+ 
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.1.0
+version: 1.2.0
 
 # Kubernetes version requirement
 kubeVersion: ">=1.25.0"
@@ -36,4 +36,7 @@ annotations:
     - name: Helm Chart
       url: https://github.com/ncsa/charts
   artifacthub.io/changes: |
-    - Initial release of uptime-kuma helm chart
+    - kind: added
+      description: Added NSCD daemon as optional sidecar for DNS caching
+    - kind: fixed
+      description: Fixed permission issues in init container for restricted storage backends

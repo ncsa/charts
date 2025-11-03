@@ -1,5 +1,18 @@
 # AGENTS.md - Chart Repository Guidelines
 
+> # 🚨 CRITICAL: READ THIS ENTIRE FILE BEFORE STARTING ANY WORK 🚨
+>
+> This document contains **mandatory rules and conventions** for this repository.
+> 
+> **FAILURE TO FOLLOW THESE GUIDELINES WILL RESULT IN INCORRECT COMMITS.**
+>
+> ## Before Starting ANY Task:
+> 1. **READ AGENTS.MD COMPLETELY** - Every section, every time
+> 2. **FOLLOW ALL RULES** - Especially version bumping, changelog updates, and commit organization
+> 3. **CHECK THE CHECKLIST** - Use the Agent Checklist section below
+>
+> ---
+>
 > **⚠️ IMPORTANT**: This document is the **source of truth** for all repository conventions and must be kept current.
 > 
 > **You MUST update AGENTS.md whenever**:
@@ -147,10 +160,14 @@ Example workflows:
 When making changes to a chart:
 
 1. **Check git tags**: Verify if the current chart version has a git tag (e.g., `fah-1.0.0`)
-2. **If a tag exists for the current version**: Bump the chart version (patch increment) in `Chart.yaml`
+2. **If a tag exists for the current version**: Bump the chart version in `Chart.yaml`
+   - **MAJOR**: Breaking changes
+   - **MINOR**: New features, backwards compatible
+   - **PATCH**: Bug fixes, minor updates
 3. **If NO tag exists for the current version**: Do NOT bump the version (changes are being accumulated for the next release)
 4. **Always update CHANGELOG.md**: Add a new version section with the date and changes made
-5. **Update the date in CHANGELOG**: Use today's date for new entries, or keep existing dates for unreleased versions
+5. **Always update Chart.yaml annotations**: Update `artifacthub.io/changes` with minimal summary of changes
+6. **Update the date in CHANGELOG**: Use today's date for new entries, or keep existing dates for unreleased versions
 
 Version format: `MAJOR.MINOR.PATCH`
 - **MAJOR**: Breaking changes
@@ -199,6 +216,28 @@ Format:
 - **Update the date** to today's date when adding the first entry for a version
 - **Keep accumulating changes** under the same version section until the version is tagged/released in git
 - **When a version is released** (tagged), that section becomes finalized and future changes go into a new unreleased version section
+- **Always update `artifacthub.io/changes` annotation** in `Chart.yaml` with minimal summary of changes
+
+**Artifact Hub Changes Format**:
+
+The `artifacthub.io/changes` annotation in `Chart.yaml` should contain a concise, minimal summary:
+
+```yaml
+annotations:
+  artifacthub.io/changes: |
+    - kind: added
+      description: Added NSCD daemon as optional sidecar for DNS caching
+    - kind: fixed
+      description: Fixed permission issues in init container for restricted storage backends
+    - kind: changed
+      description: Updated default resource limits
+    - kind: removed
+      description: Removed deprecated configuration option
+```
+
+**Valid kinds**: `added`, `changed`, `deprecated`, `removed`, `fixed`, `security`
+
+Keep descriptions short (one line per change). This is displayed in Artifact Hub UI and should complement, not duplicate, the full CHANGELOG.md.
 
 ### 4. Git Workflow Restrictions
 

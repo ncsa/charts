@@ -88,6 +88,7 @@ The following table lists the configurable parameters of the Uptime Kuma chart a
 | `persistence.accessMode` | PVC Access Mode | `ReadWriteOncePod` |
 | `persistence.storageClass` | PVC Storage Class | `""` (default) |
 | `persistence.fixPermissions` | Fix permissions for restricted storage backends | `false` |
+| `nscd.enabled` | Enable NSCD sidecar for DNS caching | `false` |
 | `resources` | CPU/Memory resource requests/limits | `{}` |
 
 Specify each parameter using the `--set key=value[,key=value]` argument to `helm install`. For example:
@@ -164,6 +165,40 @@ persistence:
 ## Scaling
 
 **Uptime Kuma does NOT support horizontal scaling** due to its use of SQLite as the database backend. The deployment is hardcoded to run exactly 1 replica and this cannot be changed.
+
+## NSCD (Name Service Cache Daemon)
+
+### Expected Log Messages
+
+When Uptime Kuma starts, you will see these log messages:
+
+```
+[SERVICES] INFO: Starting nscd
+[SERVICES] INFO: Failed to start nscd
+```
+
+**These messages are NORMAL and can be safely ignored.** They occur because:
+
+1. Uptime Kuma tries to start NSCD (a DNS caching daemon) for performance optimization
+2. The container runs with security restrictions that prevent starting system services
+3. The application continues to work perfectly without NSCD - DNS lookups work normally
+
+### Enabling NSCD (Optional)
+
+If you want to enable DNS caching for potential performance improvements:
+
+```yaml
+nscd:
+  enabled: true
+```
+
+When enabled:
+- A sidecar container runs NSCD with minimal privileges
+- The main application automatically uses NSCD for DNS lookups
+- **The "Failed to start nscd" log message will still appear**, but NSCD will be working via the sidecar
+- This provides ~30% cache hit rate for repeated DNS lookups in production environments
+
+**Note**: NSCD is optional and only provides marginal performance benefits. Most users should leave it disabled.
 
 ## Ingress
 

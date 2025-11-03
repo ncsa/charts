@@ -237,6 +237,57 @@
       },
       "required": ["enabled"]
     },
+    "nscd": {
+      "type": "object",
+      "description": "NSCD (Name Service Cache Daemon) configuration for DNS caching",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable NSCD sidecar container for DNS caching",
+          "default": false
+        },
+        "resources": {
+          "type": "object",
+          "description": "Resource limits for the NSCD sidecar container",
+          "properties": {
+            "limits": {
+              "type": "object",
+              "properties": {
+                "cpu": {
+                  "type": "string",
+                  "description": "CPU limit for NSCD sidecar",
+                  "pattern": "^[0-9]+m?$",
+                  "default": "50m"
+                },
+                "memory": {
+                  "type": "string",
+                  "description": "Memory limit for NSCD sidecar",
+                  "pattern": "^[0-9]+[EPTGMK]i?$",
+                  "default": "32Mi"
+                }
+              }
+            },
+            "requests": {
+              "type": "object",
+              "properties": {
+                "cpu": {
+                  "type": "string",
+                  "description": "CPU request for NSCD sidecar",
+                  "pattern": "^[0-9]+m?$",
+                  "default": "10m"
+                },
+                "memory": {
+                  "type": "string",
+                  "description": "Memory request for NSCD sidecar",
+                  "pattern": "^[0-9]+[EPTGMK]i?$",
+                  "default": "16Mi"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "resources": {
       "type": "object",
       "description": "CPU/Memory resource requests and limits",

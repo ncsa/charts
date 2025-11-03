@@ -2,6 +2,21 @@
 
 All notable changes to this Helm chart will be documented in this file.
 
+## [1.2.0] - 2025-11-03
+
+### Added
+- Optional NSCD (Name Service Cache Daemon) sidecar for DNS caching (disabled by default)
+- Resource limits for NSCD sidecar (50m CPU, 32Mi memory)
+- CHOWN and FOWNER capabilities to init container for restricted storage backends
+- Documentation in README about expected "Failed to start nscd" log messages
+
+### Changed
+- Init container now uses recursive chown/chmod with `-R` flag for proper subdirectory permissions
+- NSCD volumes and mounts are now conditional based on `nscd.enabled` flag
+
+### Fixed
+- Init container permission handling for storage backends like Cinder CSI that require explicit capabilities
+
 ## [1.1.0] - 2025-11-02
 
 ### Added
