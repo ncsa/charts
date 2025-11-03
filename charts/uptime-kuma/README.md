@@ -13,9 +13,20 @@ A Helm chart for deploying [Uptime Kuma](https://github.com/louislam/uptime-kuma
 
 ## Prerequisites
 
-- Kubernetes 1.19+
+- Kubernetes 1.25+
 - Helm 3.0+
 - PersistentVolume support in the cluster
+
+## Security Features
+
+This chart is configured with Kubernetes 1.25+ security best practices:
+
+- **Read-Only Root Filesystem**: Container root filesystem is read-only, with temporary storage provided via an `emptyDir` volume for `/tmp`
+- **Non-Root User**: Application runs as UID 1000 (non-root)
+- **FSGroup**: Pod security context sets fsGroup to 1000 for proper file ownership
+- **Capability Dropping**: All Linux capabilities are dropped from the container
+- **Privilege Escalation Prevention**: `allowPrivilegeEscalation` is disabled
+- **Seccomp**: RuntimeDefault seccomp profile is applied for syscall filtering
 
 ## Installing the Chart
 
@@ -61,6 +72,11 @@ The following table lists the configurable parameters of the Uptime Kuma chart a
 | `image.repository` | Image repository | `louislam/uptime-kuma` |
 | `image.tag` | Image tag | `""` (uses appVersion from Chart.yaml) |
 | `image.pullPolicy` | Image pull policy | `IfNotPresent` |
+| `podSecurityContext.fsGroup` | File system group for pod | `1000` |
+| `securityContext.runAsUser` | User ID to run container | `1000` |
+| `securityContext.runAsNonRoot` | Enforce non-root execution | `true` |
+| `securityContext.readOnlyRootFilesystem` | Mount root filesystem as read-only | `true` |
+| `securityContext.allowPrivilegeEscalation` | Prevent privilege escalation | `false` |
 | `service.type` | Kubernetes service type | `ClusterIP` |
 | `service.port` | Kubernetes service port | `3001` |
 | `ingress.enabled` | Enable ingress controller resource | `false` |
@@ -69,8 +85,9 @@ The following table lists the configurable parameters of the Uptime Kuma chart a
 | `persistence.enabled` | Enable persistence using PVC | `true` |
 | `persistence.existingClaim` | Use an existing PVC | `nil` |
 | `persistence.size` | PVC Storage Request | `4Gi` |
-| `persistence.accessMode` | PVC Access Mode | `ReadWriteOnce` |
+| `persistence.accessMode` | PVC Access Mode | `ReadWriteOncePod` |
 | `persistence.storageClass` | PVC Storage Class | `""` (default) |
+| `persistence.fixPermissions` | Fix permissions for restricted storage backends | `false` |
 | `resources` | CPU/Memory resource requests/limits | `{}` |
 
 Specify each parameter using the `--set key=value[,key=value]` argument to `helm install`. For example:

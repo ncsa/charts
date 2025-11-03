@@ -59,11 +59,74 @@
     },
     "podSecurityContext": {
       "type": "object",
-      "description": "Security context for the pod"
+      "description": "Security context for the pod",
+      "properties": {
+        "fsGroup": {
+          "type": "integer",
+          "description": "File system group ID for the pod",
+          "minimum": 1,
+          "default": 1000
+        },
+        "fsGroupChangePolicy": {
+          "type": "string",
+          "description": "Strategy for changing file ownership during pod startup",
+          "enum": ["OnRootMismatch", "Always"],
+          "default": "OnRootMismatch"
+        }
+      }
     },
     "securityContext": {
       "type": "object",
-      "description": "Security context for the container"
+      "description": "Security context for the container",
+      "properties": {
+        "allowPrivilegeEscalation": {
+          "type": "boolean",
+          "description": "Whether the process can gain additional privileges",
+          "default": false
+        },
+        "capabilities": {
+          "type": "object",
+          "description": "Linux capabilities for the container",
+          "properties": {
+            "drop": {
+              "type": "array",
+              "description": "Capabilities to drop",
+              "items": {
+                "type": "string"
+              },
+              "default": ["ALL"]
+            }
+          }
+        },
+        "readOnlyRootFilesystem": {
+          "type": "boolean",
+          "description": "Mount the root filesystem as read-only",
+          "default": true
+        },
+        "runAsNonRoot": {
+          "type": "boolean",
+          "description": "Enforce running as a non-root user",
+          "default": true
+        },
+        "runAsUser": {
+          "type": "integer",
+          "description": "User ID to run the container as",
+          "minimum": 1,
+          "default": 1000
+        },
+        "seccompProfile": {
+          "type": "object",
+          "description": "Seccomp profile",
+          "properties": {
+            "type": {
+              "type": "string",
+              "description": "Seccomp profile type",
+              "enum": ["RuntimeDefault", "Localhost", "Unconfined"],
+              "default": "RuntimeDefault"
+            }
+          }
+        }
+      }
     },
     "service": {
       "type": "object",
@@ -155,11 +218,21 @@
         "accessMode": {
           "type": "string",
           "description": "Access mode for the PersistentVolumeClaim",
-          "enum": ["ReadWriteOnce", "ReadOnlyMany", "ReadWriteMany"]
+          "enum": [
+            "ReadWriteOnce",
+            "ReadOnlyMany",
+            "ReadWriteMany",
+            "ReadWriteOncePod"
+          ]
         },
         "storageClass": {
           "type": "string",
           "description": "Storage class for the PersistentVolumeClaim (use '-' for default, or specify a local/block storage class - NOT NFS!)"
+        },
+        "fixPermissions": {
+          "type": "boolean",
+          "description": "Enable init container to fix permissions for restricted storage backends (e.g., Cinder CSI)",
+          "default": false
         }
       },
       "required": ["enabled"]

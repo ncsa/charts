@@ -26,16 +26,20 @@ serviceAccount:
 
 podAnnotations: {}
 
-podSecurityContext: {}
-  # fsGroup: 2000
+podSecurityContext:
+  fsGroup: 1000
+  fsGroupChangePolicy: OnRootMismatch
 
-securityContext: {}
-  # capabilities:
-  #   drop:
-  #   - ALL
-  # readOnlyRootFilesystem: true
-  # runAsNonRoot: true
-  # runAsUser: 1000
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 1000
+  seccompProfile:
+    type: RuntimeDefault
 
 service:
   type: ClusterIP
@@ -65,10 +69,15 @@ persistence:
   # Use an existing PVC if specified
   # existingClaim: uptime-kuma-data
   size: 4Gi
-  accessMode: ReadWriteOnce
+  accessMode: ReadWriteOncePod
   # storageClass: "-"  # Use default storage class
   # Optionally specify a storage class that provides local/non-NFS storage
   storageClass: ""
+  # Fix permissions for restricted storage backends (e.g., Cinder CSI)
+  # When enabled, an init container will create a data subdirectory with proper permissions
+  # and the app will be mounted into that subdirectory instead of the volume root.
+  # Set to true if the app fails with "permission denied" errors on write operations.
+  fixPermissions: false
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
