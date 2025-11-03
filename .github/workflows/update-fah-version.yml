@@ -1,6 +1,9 @@
 name: Update FAH Version
 
 on:
+  push:
+    paths:
+      - "charts/fah/**"
   schedule:
     # Run every Sunday at 2 AM UTC
     - cron: "0 2 * * 0"
@@ -142,8 +145,52 @@ jobs:
           print(f"Updated root README.md: fah chart version {new_chart_version}, appVersion {new_version}")
           PYEOF
 
+      - name: Check for existing PR
+        id: check_pr
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Find any open PR with the 'fah', 'automated', and 'dependencies' labels (created by this workflow)
+          pr_number=$(gh pr list --label fah,automated,dependencies --state open --json number --jq '.[0].number // empty')
+
+          if [ -n "$pr_number" ]; then
+            echo "pr_number=$pr_number" >> "$GITHUB_OUTPUT"
+            echo "Found existing workflow PR #$pr_number"
+          else
+            echo "pr_number=" >> "$GITHUB_OUTPUT"
+            echo "No existing workflow PR found"
+          fi
+
+      - name: Close PR if no update needed
+        if: steps.check_version.outputs.update_needed == 'false' && steps.check_pr.outputs.pr_number != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ steps.check_pr.outputs.pr_number }}
+        run: |
+          gh pr close "$PR_NUMBER" --comment "Closing this PR as the latest version is already in use or has been updated elsewhere."
+          echo "Closed PR #$PR_NUMBER"
+
+      - name: Update existing PR
+        if: steps.check_version.outputs.update_needed == 'true' && steps.check_pr.outputs.pr_number != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ steps.check_pr.outputs.pr_number }}
+        run: |
+          # Get the branch name from the PR
+          branch=$(gh pr view "$PR_NUMBER" --json headRefName --jq '.headRefName')
+          echo "Updating PR #$PR_NUMBER on branch: $branch"
+
+          # Push changes to the existing PR branch
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add charts/fah/Chart.yaml charts/fah/README.md README.md
+          git commit -m "Update FAH to version ${{ steps.check_version.outputs.latest_version }}"
+          git push origin "$branch" --force
+
+          echo "Updated PR #$PR_NUMBER with new changes"
+
       - name: Create Pull Request
-        if: steps.check_version.outputs.update_needed == 'true'
+        if: steps.check_version.outputs.update_needed == 'true' && steps.check_pr.outputs.pr_number == ''
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}

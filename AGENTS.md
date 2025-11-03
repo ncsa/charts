@@ -107,9 +107,20 @@ The **primary release workflow** uses a **matrix strategy** to automatically rel
 
 - Workflow file naming: `update-<chart-name>-version.yml`
 - Purpose: Check for new versions of the application and create PRs with updates
-- Schedule: Typically runs weekly (configurable via cron)
-- Manual trigger: Must support `workflow_dispatch` for on-demand runs
-- These workflows create pull requests (never push directly) with version updates
+- Triggers:
+  - **Push events**: Automatically triggered when chart files are modified (e.g., `charts/fah/**`)
+  - **Schedule**: Typically runs weekly (configurable via cron)
+  - **Manual trigger**: Must support `workflow_dispatch` for on-demand runs
+- PR Management: The workflow intelligently handles existing PRs:
+  - **Always checks** for existing open PRs with the chart label
+  - **If updates are needed**:
+    - If PR exists: Pushes new changes to the existing PR branch (updating it)
+    - If NO PR exists: Creates a new PR
+  - **If NO updates needed**:
+    - If PR exists: Closes the PR (version is already current or was updated elsewhere)
+    - If NO PR exists: No action needed (already up to date)
+
+This prevents duplicate PRs from being created when new versions are released before an existing update PR is merged.
 
 Example workflows:
 - `.github/workflows/update-fah-version.yml`
@@ -347,6 +358,7 @@ The matrix-based release workflow is automatic and requires no manual interventi
 - Keep resource requests/limits commented in values.yaml but provide recommendations in README
 - Add resource usage observations from real deployments to documentation
 - **Git commands**: Always use `git -c core.pager=cat` or `git --no-pager` to avoid pager output in scripts and automation
+- **Workflow validation**: Always run `actionlint` after making changes to GitHub Actions workflows in `.github/workflows/` to catch syntax errors and shellcheck issues
 
 ## Important Patterns and Conventions
 
