@@ -11,6 +11,19 @@
 > **Do not assume knowledge exists elsewhere** - if it's not in AGENTS.md, it's not captured for future work.
 > Update this document as you go, using `git commit --amend` if the commit hasn't been pushed yet.
 
+## Agent Checklist - Before Starting Any Task
+
+**To ensure guidelines are followed consistently, check this checklist at the start of every task:**
+
+- [ ] **Read AGENTS.md completely** - Understand all guidelines before beginning work
+- [ ] **Use TodoWrite** - Create a task list for multi-step work to track progress
+- [ ] **Git commands** - ALWAYS use `git --no-pager` or `git -c core.pager=cat` for all git commands
+- [ ] **Commit organization** - Group changes by chart, one chart per commit
+- [ ] **Incremental updates** - Update AGENTS.md as you discover new patterns, don't batch at the end
+- [ ] **New patterns found** - If you discover something not documented, add it to AGENTS.md immediately
+- [ ] **Verification** - Run `helm lint` and `helm template --dry-run` before committing chart changes
+- [ ] **Mark todos complete** - Update TodoWrite as you complete each task, don't batch completions
+
 ## Directory Structure
 
 This repository contains Kubernetes Helm charts organized in the following structure:
@@ -428,3 +441,100 @@ oauth2Proxy:
 ```
 
 Reference: https://github.com/bitnami/containers/issues/83267
+
+## Kubernetes Version-Specific Patterns
+
+### Kubernetes 1.25+ Only Charts
+
+When a chart targets **only Kubernetes 1.25 and above**, follow these patterns:
+
+**1. Chart.yaml Requirements**
+```yaml
+kubeVersion: ">=1.25.0"
+```
+
+**2. Security Context Best Practices**
+- Enable read-only root filesystem: `readOnlyRootFilesystem: true`
+- Set fsGroup: `fsGroup: 1000` with `fsGroupChangePolicy: OnRootMismatch`
+- Drop all capabilities: `capabilities.drop: [ALL]`
+- Enforce non-root: `runAsNonRoot: true`, `runAsUser: <non-zero>`
+- Prevent privilege escalation: `allowPrivilegeEscalation: false`
+- Use seccomp: `seccompProfile.type: RuntimeDefault`
+
+**3. Ingress Templates**
+- Remove all `semverCompare` version checks
+- Use only `networking.k8s.io/v1` API version (stable in 1.19+, required for 1.25+)
+- Always require `ingressClassName` field (available since 1.18)
+- Always require `pathType` field (available since 1.18)
+- Use modern backend format with `service.name` and `service.port.number`
+
+**4. Volumes for Read-Only Filesystems**
+- Use `emptyDir: {}` for temporary directories (`/tmp`, etc.)
+- Mount persistent storage at specific paths (e.g., `/app/data`)
+- Mount temporary volumes at standard locations
+
+**5. Access Modes**
+- For single-instance applications: use `ReadWriteOncePod` (available since 1.22)
+- More restrictive than `ReadWriteOnce`, better for single-pod guarantee
+- Works well with Cinder CSI and other restricted storage backends
+
+### Cinder CSI Storage Backend Pattern
+
+When supporting restricted storage backends like **Cinder CSI**:
+
+**Problem**: Direct volume mounting fails with permission errors because the root of the volume is owned by root with restricted permissions.
+
+**Solution**: Use `fixPermissions` init container pattern:
+
+1. **values.yaml**:
+```yaml
+persistence:
+  fixPermissions: false  # User sets true for Cinder CSI
+```
+
+2. **deployment.yaml init container**:
+```yaml
+{{- if and .Values.persistence.enabled .Values.persistence.fixPermissions }}
+initContainers:
+  - name: init-data-permissions
+    image: busybox:1.36
+    securityContext:
+      runAsUser: 0
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: false
+      seccompProfile:
+        type: RuntimeDefault
+      capabilities:
+        drop:
+          - ALL
+    command:
+      - /bin/sh
+      - -c
+      - |
+        mkdir -p /volume/data
+        chown 1000:1000 /volume/data
+        chmod 755 /volume/data
+    volumeMounts:
+      - name: data
+        mountPath: /volume
+{{- end }}
+```
+
+3. **deployment.yaml volume mount** (use subPath):
+```yaml
+{{- if and .Values.persistence.enabled .Values.persistence.fixPermissions }}
+- name: data
+  mountPath: /app/data
+  subPath: data
+{{- else }}
+- name: data
+  mountPath: /app/data
+{{- end }}
+```
+
+**Key Points**:
+- Init container runs as root (`runAsUser: 0`) with `allowPrivilegeEscalation: false`
+- Creates subdirectory and fixes ownership to application user (1000)
+- Uses `chmod 755` (not `700`) to allow fsGroup read/execute access
+- Main container mounts subPath when `fixPermissions: true`
+- Must still have proper `fsGroup` and `securityContext` in pod spec
