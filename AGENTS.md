@@ -51,16 +51,52 @@ charts/<chart-name>/
 
 ### 1. GitHub Actions Automation
 
-**Each chart MUST have its own GitHub Actions workflow** in `.github/workflows/` to automate updates:
+#### A. Chart Release Workflow (`release.yml`)
+
+The **primary release workflow** uses a **matrix strategy** to automatically release all charts:
+
+- **Trigger**: Runs on every push to `main` or manual trigger via `workflow_dispatch`
+- **How it works**:
+  1. Defines a matrix of all managed charts (one per line under `strategy.matrix.chart`)
+  2. For each chart in the matrix:
+     - Reads the chart version from `Chart.yaml`
+     - Checks if a git tag already exists for that version (e.g., `fah-1.0.3`)
+     - If tag does NOT exist: packages the chart, creates a GitHub release, and tags it
+     - If tag exists: skips it (already released)
+  3. Updates `index.yaml` on the `gh-pages` branch
+
+- **Adding a new chart**: Simply add a new line to the matrix in `release.yml`:
+  ```yaml
+  matrix:
+    chart:
+      - elasticsearch2
+      - fah
+      - geoserver
+      - mlflow
+      - uptime-kuma
+      - new-chart-name  # Add here
+  ```
+
+- **Benefits**:
+  - Scalable: One workflow handles all charts, just add to the matrix
+  - Automatic: No manual release process needed
+  - Reliable: Prevents duplicate releases by checking for existing tags
+  - Simple: Matrix is clearly visible and easy to update
+
+#### B. Chart Update Workflows
+
+**Each chart SHOULD have its own GitHub Actions workflow** in `.github/workflows/` to automate upstream version checks:
 
 - Workflow file naming: `update-<chart-name>-version.yml`
 - Purpose: Check for new versions of the application and create PRs with updates
 - Schedule: Typically runs weekly (configurable via cron)
 - Manual trigger: Must support `workflow_dispatch` for on-demand runs
+- These workflows create pull requests (never push directly) with version updates
 
 Example workflows:
 - `.github/workflows/update-fah-version.yml`
 - `.github/workflows/update-geoserver-version.yml`
+- `.github/workflows/update-uptime-kuma-version.yml`
 
 ### 2. Version Management
 
@@ -191,16 +227,27 @@ When adding a new chart to the repository:
 
 1. Create the chart directory structure under `charts/<chart-name>/`
 2. Include all required files: `Chart.yaml`, `CHANGELOG.md`, `README.md`, `values.yaml`, `templates/`
-3. Create a GitHub Actions workflow file: `.github/workflows/update-<chart-name>-version.yml`
-4. **Update the root `README.md`** file:
+3. **Update `.github/workflows/release.yml`**:
+   - Add the chart name to the `strategy.matrix.chart` list:
+     ```yaml
+     matrix:
+       chart:
+         - existing-chart
+         - new-chart-name
+     ```
+   - This enables automatic releases for the new chart
+4. *(Optional)* Create a GitHub Actions workflow file: `.github/workflows/update-<chart-name>-version.yml` if you want automated upstream version checking
+5. **Update the root `README.md`** file:
    - Add the chart to the "Available Charts" table with version, app version, and description
    - Add details about the chart in the "Chart Details" section
-5. Update this `AGENTS.md` file to include the new chart in the "Tracked Charts" list
-6. Commit and create a pull request (never push directly)
+6. Update this `AGENTS.md` file to include the new chart in the "Tracked Charts" list
+7. Commit and create a pull request (never push directly)
 
-## Workflow Example: Updating a Chart
+## Workflow Examples
 
-1. Automated workflow detects new version
+### Chart Update Workflow (e.g., update-uptime-kuma-version.yml)
+
+1. Automated workflow detects new upstream version (e.g., new Docker image tag)
 2. Workflow updates:
    - `Chart.yaml` (appVersion + chart version bump)
    - `README.md` (version information)
@@ -209,6 +256,41 @@ When adding a new chart to the repository:
 4. Workflow creates pull request
 5. Human reviews PR
 6. Human merges PR (no automated merging)
+
+### Chart Release Workflow (release.yml)
+
+The matrix-based release workflow is automatic and requires no manual intervention:
+
+1. **Trigger**: Runs whenever changes are pushed to `main` (or manually via `workflow_dispatch`)
+2. **For each chart in the matrix**:
+   - Reads `Chart.yaml` to get chart name and version
+   - Checks if git tag `{chart-name}-{version}` already exists
+   - If tag does NOT exist:
+     - Packages the chart using `helm package`
+     - Uses `helm/chart-releaser-action` to create a GitHub release
+     - Creates the git tag
+     - Updates `index.yaml` on `gh-pages` branch
+   - If tag exists: skips (already released)
+
+3. **Example flow**:
+   ```
+   Developer pushes Chart.yaml with version 1.0.3
+        ↓
+   release.yml workflow triggers
+        ↓
+   Checks for tag "fah-1.0.3"
+        ↓
+   Tag doesn't exist
+        ↓
+   Packages chart → Creates release → Tags it → Updates index.yaml
+        ↓
+   Chart is now available via Helm repository
+   ```
+
+4. **Recovery from failed releases**:
+   - If a release fails partway through (e.g., GitHub API error), simply run the workflow again
+   - The tag check ensures no duplicate releases are created
+   - The `skip_existing` flag in the action prevents errors on re-runs
 
 ## Best Practices
 

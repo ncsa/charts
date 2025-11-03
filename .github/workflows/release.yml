@@ -9,6 +9,15 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        chart:
+          - elasticsearch2
+          - fah
+          - geoserver
+          - mlflow
+          - uptime-kuma
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -32,7 +41,35 @@ jobs:
           helm repo add bitnami https://charts.bitnami.com/bitnami
           helm repo update
 
-      - name: publish charts
+      - name: Get chart version
+        id: chart-version
+        run: |
+          VERSION=$(grep "^version:" charts/${{ matrix.chart }}/Chart.yaml | awk '{print $2}')
+          {
+            echo "version=$VERSION"
+            echo "tag=${{ matrix.chart }}-$VERSION"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Check if tag exists
+        id: check-tag
+        run: |
+          TAG="${{ steps.chart-version.outputs.tag }}"
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "Tag $TAG already exists, skipping release"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+            echo "Tag $TAG does not exist, will create release"
+          fi
+
+      - name: Package chart
+        if: steps.check-tag.outputs.exists == 'false'
+        run: |
+          mkdir -p .cr-release-packages
+          helm package charts/${{ matrix.chart }} --destination .cr-release-packages
+
+      - name: Upload release and update index
+        if: steps.check-tag.outputs.exists == 'false'
         uses: helm/chart-releaser-action@v1.7.0
         with:
           skip_existing: true
