@@ -72,13 +72,12 @@ jobs:
         if: steps.check-tag.outputs.exists == 'false'
         run: |
           # Extract the changelog entry for this version
-          # Looks for the first ## [version] section and captures everything until the next ## section
           VERSION="${{ steps.check-tag.outputs.version }}"
           CHANGELOG_FILE="charts/${{ matrix.chart }}/CHANGELOG.md"
 
           if [ -f "$CHANGELOG_FILE" ]; then
-            # Extract from first ## [version] to the next ##
-            CHANGELOG=$(awk "/^## \[$VERSION\]/,/^## \[/{if(/^## \[/ && !/\[$VERSION\]/) exit; print}" "$CHANGELOG_FILE" | head -n -1)
+            # Extract from ## [version] to the next ## (or end of file)
+            CHANGELOG=$(sed -n "/^## \[$VERSION\]/,/^## \[/p" "$CHANGELOG_FILE" | sed '$d')
 
             if [ -z "$CHANGELOG" ]; then
               CHANGELOG="Release $VERSION"
@@ -87,12 +86,13 @@ jobs:
             CHANGELOG="Release $VERSION"
           fi
 
-          # Save to file for use in gh release create
-          {
-            echo 'changelog<<EOF'
-            echo "$CHANGELOG"
-            echo 'EOF'
-          } >> "$GITHUB_OUTPUT"
+          # URL-encode newlines for safe passage through GitHub Actions variables
+          # Replace % with %25, newlines with %0A, carriage returns with %0D
+          CHANGELOG="${CHANGELOG//'%'/'%25'}"
+          CHANGELOG="${CHANGELOG//$'\n'/'%0A'}"
+          CHANGELOG="${CHANGELOG//$'\r'/'%0D'}"
+
+          echo "changelog=$CHANGELOG" >> "$GITHUB_OUTPUT"
 
       - name: Create git tag
         if: steps.check-tag.outputs.exists == 'false'
@@ -111,26 +111,31 @@ jobs:
       - name: Update Helm index
         if: steps.check-tag.outputs.exists == 'false'
         run: |
-          # Create temp directory for index work
-          mkdir -p /tmp/index-work
-          cd /tmp/index-work
-
           # Fetch gh-pages branch
           git fetch origin gh-pages --depth=1
 
-          # Get current index from gh-pages
-          git show origin/gh-pages:index.yaml > index.yaml 2>/dev/null || printf "apiVersion: v1\nentries: {}\n" > index.yaml
+          # Get current index from gh-pages into temp location
+          git show origin/gh-pages:index.yaml > /tmp/index.yaml 2>/dev/null || printf "apiVersion: v1\nentries: {}\n" > /tmp/index.yaml
 
-          # Copy all chart packages to temp dir for helm repo index
+          # Create temp directory for helm repo index work
+          mkdir -p /tmp/index-work
+          cd /tmp/index-work
+
+          # Copy all chart packages to temp dir
           cp -r "$GITHUB_WORKSPACE"/.cr-release-packages/* .
+
+          # Copy the existing index
+          cp /tmp/index.yaml .
 
           # Update index with new chart package
           helm repo index . --url https://github.com/ncsa/charts/releases/download --merge index.yaml
 
-          # Commit and push to gh-pages
-          git checkout gh-pages
-          cp index.yaml "$GITHUB_WORKSPACE/"
+          # Copy updated index back to workspace
+          cp index.yaml "$GITHUB_WORKSPACE/index.yaml"
+
+          # Commit and push to gh-pages (from workspace where git context exists)
           cd "$GITHUB_WORKSPACE"
+          git checkout gh-pages
           git add index.yaml
           git commit -m "chore: update index for ${{ steps.check-tag.outputs.tag }}" || true
           git push origin gh-pages
