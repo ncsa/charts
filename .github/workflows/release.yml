@@ -62,11 +62,43 @@ jobs:
             echo "Tag $TAG does not exist, will create release"
           fi
 
-      - name: Release chart
+      - name: Package chart
         if: steps.check-tag.outputs.exists == 'false'
-        uses: helm/chart-releaser-action@v1.7.0
-        with:
-          charts_dir: charts/${{ matrix.chart }}
-          skip_existing: true
+        run: |
+          mkdir -p .cr-release-packages
+          helm package charts/${{ matrix.chart }} --destination .cr-release-packages
+
+      - name: Create git tag
+        if: steps.check-tag.outputs.exists == 'false'
+        run: |
+          TAG="${{ steps.chart-version.outputs.tag }}"
+          git tag "$TAG"
+          git push origin "$TAG"
+
+      - name: Create GitHub release
+        if: steps.check-tag.outputs.exists == 'false'
+        run: |
+          TAG="${{ steps.chart-version.outputs.tag }}"
+          CHART_FILE=".cr-release-packages/${{ matrix.chart }}-${{ steps.chart-version.outputs.version }}.tgz"
+          gh release create "$TAG" "$CHART_FILE" --title "$TAG" --notes "Helm chart release for ${{ matrix.chart }}" --repo ncsa/charts
         env:
-          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update Helm index
+        if: steps.check-tag.outputs.exists == 'false'
+        run: |
+          # Fetch gh-pages branch
+          git fetch origin gh-pages --depth=1
+
+          # Get current index from gh-pages
+          git show origin/gh-pages:index.yaml > index.yaml 2>/dev/null || printf "apiVersion: v1\nentries: {}\n" > index.yaml
+
+          # Update index with new chart package
+          helm repo index . --url https://github.com/ncsa/charts/releases/download --merge index.yaml
+
+          # Commit and push to gh-pages
+          git checkout gh-pages
+          cp index.yaml .
+          git add index.yaml
+          git commit -m "chore: update index for ${{ matrix.chart }}-${{ steps.chart-version.outputs.version }}" || true
+          git push origin gh-pages

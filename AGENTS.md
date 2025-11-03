@@ -71,14 +71,17 @@ The **primary release workflow** uses a **matrix strategy** to automatically rel
      - Reads the chart version from `Chart.yaml`
      - Checks if a git tag already exists for that version (e.g., `fah-1.0.3`)
      - If tag does NOT exist:
-       - Calls `helm/chart-releaser-action` with `charts_dir: charts/${{ matrix.chart }}`
-       - The action packages the chart, creates a GitHub release, creates the git tag, and updates `index.yaml` on `gh-pages`
-     - If tag exists: skips the action (already released)
-  3. Per-chart directory scoping (`charts_dir: charts/${{ matrix.chart }}`) is important because:
-     - The action only processes that specific chart, not all charts
-     - Avoids auto-detection issues where new charts aren't recognized as changed
-     - Each chart is released independently and correctly, even on first release
-     - Works reliably for both existing and new charts
+       - Packages the chart using `helm package`
+       - Creates and pushes a git tag using `git tag` and `git push`
+       - Creates a GitHub release using `gh release create` with the packaged .tgz file
+       - Updates `index.yaml` on the `gh-pages` branch using `helm repo index`
+     - If tag exists: skips all steps (already released)
+  3. **Why this approach**:
+     - Uses standard tools (`helm`, `git`, `gh`) instead of relying on action auto-detection
+     - Avoids the `chart-releaser-action`'s global change detection which fails for new charts
+     - Explicit and easy to understand - each step is clear
+     - Reliable for all charts (new, existing, modified, or unmodified since last release)
+     - No complex action configuration or workarounds needed
 
 - **Adding a new chart**: Simply add a new line to the matrix in `release.yml`:
   ```yaml
