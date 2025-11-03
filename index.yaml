@@ -521,4 +521,31 @@ entries:
     urls:
     - https://github.com/ncsa/charts/releases/download/swagger-1.0.0/swagger-1.0.0.tgz
     version: 1.0.0
-generated: "2025-11-02T19:18:31.617319171Z"
+  uptime-kuma:
+  - annotations:
+      artifacthub.io/changes: |
+        - Initial release of uptime-kuma helm chart
+      artifacthub.io/links: |
+        - name: Docker Image
+          url: https://hub.docker.com/r/louislam/uptime-kuma
+        - name: Helm Chart
+          url: https://github.com/ncsa/charts
+    apiVersion: v2
+    appVersion: 2.0.2
+    created: "2025-11-03T01:10:07.62847906Z"
+    description: A fancy self-hosted monitoring tool for uptime monitoring with 90+
+      notification integrations.
+    digest: 2344e9f65cabbe8350ed977f795810158a17c8ad6ae407e24c650bcfed795f4a
+    home: https://github.com/louislam/uptime-kuma
+    icon: https://raw.githubusercontent.com/louislam/uptime-kuma/master/public/icon.svg
+    maintainers:
+    - email: kooper@illinois.edu
+      name: Rob Kooper
+    name: uptime-kuma
+    sources:
+    - https://github.com/louislam/uptime-kuma
+    type: application
+    urls:
+    - https://github.com/ncsa/charts/releases/download/uptime-kuma-1.0.0/uptime-kuma-1.0.0.tgz
+    version: 1.0.0
+generated: "2025-11-03T01:10:07.62851654Z"
