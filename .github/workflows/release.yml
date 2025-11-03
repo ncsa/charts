@@ -86,9 +86,11 @@ jobs:
             CHANGELOG="Release $VERSION"
           fi
 
-          # URL-encode newlines for safe passage through GitHub Actions variables
-          # Replace % with %25, newlines with %0A, carriage returns with %0D
+          # URL-encode special characters for safe passage through GitHub Actions variables
+          # Need to escape backticks, $, quotes, etc. for shell safety
+          # Replace % with %25, backticks with %60, newlines with %0A, carriage returns with %0D
           CHANGELOG="${CHANGELOG//'%'/'%25'}"
+          CHANGELOG="${CHANGELOG//\`/'%60'}"
           CHANGELOG="${CHANGELOG//$'\n'/'%0A'}"
           CHANGELOG="${CHANGELOG//$'\r'/'%0D'}"
 
@@ -135,7 +137,11 @@ jobs:
 
           # Commit and push to gh-pages (from workspace where git context exists)
           cd "$GITHUB_WORKSPACE"
+          # Remove index.yaml before switching branches to avoid conflict
+          rm -f index.yaml
           git checkout gh-pages
+          # Copy the updated index back
+          cp /tmp/index-work/index.yaml .
           git add index.yaml
           git commit -m "chore: update index for ${{ steps.check-tag.outputs.tag }}" || true
           git push origin gh-pages
