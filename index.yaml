@@ -532,10 +532,10 @@ entries:
           url: https://github.com/ncsa/charts
     apiVersion: v2
     appVersion: 2.0.2
-    created: "2025-11-03T01:10:07.62847906Z"
+    created: "2025-11-03T01:43:23.403225136Z"
     description: A fancy self-hosted monitoring tool for uptime monitoring with 90+
       notification integrations.
-    digest: 2344e9f65cabbe8350ed977f795810158a17c8ad6ae407e24c650bcfed795f4a
+    digest: 6c63b56dcb1e01276c8aeee4fda3dc6626c476c675cc262ddc248d24804234e2
     home: https://github.com/louislam/uptime-kuma
     icon: https://raw.githubusercontent.com/louislam/uptime-kuma/master/public/icon.svg
     maintainers:
@@ -546,6 +546,6 @@ entries:
     - https://github.com/louislam/uptime-kuma
     type: application
     urls:
-    - https://github.com/ncsa/charts/releases/download/uptime-kuma-1.0.0/uptime-kuma-1.0.0.tgz
+    - https://github.com/ncsa/charts/releases/download/uptime-kuma-1.0.0.tgz
     version: 1.0.0
-generated: "2025-11-03T01:10:07.62851654Z"
+generated: "2025-11-03T01:43:23.402565992Z"
