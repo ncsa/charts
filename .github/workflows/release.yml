@@ -68,33 +68,23 @@ jobs:
           helm package charts/${{ matrix.chart }} --destination .cr-release-packages
 
       - name: Extract changelog entry
-        id: changelog
         if: steps.check-tag.outputs.exists == 'false'
         run: |
-          # Extract the changelog entry for this version
+          # Extract the changelog entry for this version and save to file
           VERSION="${{ steps.check-tag.outputs.version }}"
           CHANGELOG_FILE="charts/${{ matrix.chart }}/CHANGELOG.md"
+          RELEASE_NOTES_FILE="/tmp/release-notes.md"
 
           if [ -f "$CHANGELOG_FILE" ]; then
             # Extract from ## [version] to the next ## (or end of file)
-            CHANGELOG=$(sed -n "/^## \[$VERSION\]/,/^## \[/p" "$CHANGELOG_FILE" | sed '$d')
+            sed -n "/^## \[$VERSION\]/,/^## \[/p" "$CHANGELOG_FILE" | sed '$d' > "$RELEASE_NOTES_FILE"
 
-            if [ -z "$CHANGELOG" ]; then
-              CHANGELOG="Release $VERSION"
+            if [ ! -s "$RELEASE_NOTES_FILE" ]; then
+              echo "Release $VERSION" > "$RELEASE_NOTES_FILE"
             fi
           else
-            CHANGELOG="Release $VERSION"
+            echo "Release $VERSION" > "$RELEASE_NOTES_FILE"
           fi
-
-          # URL-encode special characters for safe passage through GitHub Actions variables
-          # Need to escape backticks, $, quotes, etc. for shell safety
-          # Replace % with %25, backticks with %60, newlines with %0A, carriage returns with %0D
-          CHANGELOG="${CHANGELOG//'%'/'%25'}"
-          CHANGELOG="${CHANGELOG//\`/'%60'}"
-          CHANGELOG="${CHANGELOG//$'\n'/'%0A'}"
-          CHANGELOG="${CHANGELOG//$'\r'/'%0D'}"
-
-          echo "changelog=$CHANGELOG" >> "$GITHUB_OUTPUT"
 
       - name: Create git tag
         if: steps.check-tag.outputs.exists == 'false'
@@ -106,7 +96,7 @@ jobs:
         if: steps.check-tag.outputs.exists == 'false'
         run: |
           CHART_FILE=".cr-release-packages/${{ matrix.chart }}-${{ steps.check-tag.outputs.version }}.tgz"
-          gh release create "${{ steps.check-tag.outputs.tag }}" "$CHART_FILE" --title "${{ steps.check-tag.outputs.tag }}" --notes "${{ steps.changelog.outputs.changelog }}" --repo ncsa/charts
+          gh release create "${{ steps.check-tag.outputs.tag }}" "$CHART_FILE" --title "${{ steps.check-tag.outputs.tag }}" --notes-file /tmp/release-notes.md --repo ncsa/charts
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
