@@ -61,9 +61,16 @@ The **primary release workflow** uses a **matrix strategy** to automatically rel
   2. For each chart in the matrix:
      - Reads the chart version from `Chart.yaml`
      - Checks if a git tag already exists for that version (e.g., `fah-1.0.3`)
-     - If tag does NOT exist: packages the chart, creates a GitHub release, and tags it
-     - If tag exists: skips it (already released)
-  3. Updates `index.yaml` on the `gh-pages` branch
+     - If tag does NOT exist:
+       - Packages the chart using `helm package`
+       - Uploads the pre-packaged chart using `helm/chart-releaser-action` (with `skip_packaging: true`)
+       - Creates a GitHub release and git tag
+       - Updates `index.yaml` on the `gh-pages` branch
+     - If tag exists: skips all steps (already released)
+  3. The `skip_packaging: true` flag is important because:
+     - Prevents the action from auto-detecting changed charts (which fails for new charts with no prior release tag)
+     - Ensures we always upload the pre-packaged chart we just created
+     - Allows new charts like uptime-kuma to be released correctly even on their first release
 
 - **Adding a new chart**: Simply add a new line to the matrix in `release.yml`:
   ```yaml
@@ -181,6 +188,31 @@ Example good commit messages:
 - `fah: bump version to 1.0.3 and add values.schema.json`
 - `geoserver: update CHANGELOG and add schema validation`
 - `docs: update AGENTS.md with commit guidelines`
+
+**Amending Commits**:
+
+When fixing issues in unpushed commits, use `git commit --amend` to combine changes into a single clean commit:
+
+- **✅ DO amend** if the commit has NOT been pushed to GitHub yet:
+  ```bash
+  # Make changes to files
+  git add <files>
+  git commit --amend --no-edit  # Adds to previous commit without changing message
+  git commit --amend            # Adds to previous commit and allows editing message
+  ```
+
+- **❌ DO NOT amend** if the commit has already been pushed to origin/main:
+  ```bash
+  # Instead, create a new commit with the fix:
+  git add <files>
+  git commit -m "fix: description of what was fixed"
+  ```
+
+**Why this matters**:
+- Amending a pushed commit creates history conflicts for other developers
+- Unpushed commits can be freely amended without affecting anyone else
+- Always check with `git log origin/main` to see what's been pushed
+- When in doubt, create a new commit instead of amending
 
 ### 5. Required Chart Files
 
