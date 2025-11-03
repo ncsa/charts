@@ -24,36 +24,15 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Configure Git
-        run: |
-          git config user.name "$GITHUB_ACTOR"
-          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
-
-      - name: Install Helm
-        uses: azure/setup-helm@v4
-        with:
-          version: v3.16.3
-
-      - name: Install Helm Repo
-        run: |
-          # Note: Bitnami chart repository (not bitnami-legacy)
-          # bitnami-legacy is for Docker images only (docker.io/bitnamilegacy)
-          helm repo add bitnami https://charts.bitnami.com/bitnami
-          helm repo update
-
-      - name: Get chart version
-        id: chart-version
-        run: |
-          VERSION=$(grep "^version:" charts/${{ matrix.chart }}/Chart.yaml | awk '{print $2}')
-          {
-            echo "version=$VERSION"
-            echo "tag=${{ matrix.chart }}-$VERSION"
-          } >> "$GITHUB_OUTPUT"
-
-      - name: Check if tag exists
+      - name: Get chart version and check if tag exists
         id: check-tag
         run: |
-          TAG="${{ steps.chart-version.outputs.tag }}"
+          VERSION=$(grep "^version:" charts/${{ matrix.chart }}/Chart.yaml | awk '{print $2}')
+          TAG="${{ matrix.chart }}-$VERSION"
+          {
+            echo "version=$VERSION"
+            echo "tag=$TAG"
+          } >> "$GITHUB_OUTPUT"
           if git rev-parse "$TAG" >/dev/null 2>&1; then
             echo "exists=true" >> "$GITHUB_OUTPUT"
             echo "Tag $TAG already exists, skipping release"
@@ -62,43 +41,96 @@ jobs:
             echo "Tag $TAG does not exist, will create release"
           fi
 
+      - name: Configure Git
+        if: steps.check-tag.outputs.exists == 'false'
+        run: |
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+
+      - name: Install Helm
+        if: steps.check-tag.outputs.exists == 'false'
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.16.3
+
+      - name: Install Helm Repo
+        if: steps.check-tag.outputs.exists == 'false'
+        run: |
+          # Note: Bitnami chart repository (not bitnami-legacy)
+          # bitnami-legacy is for Docker images only (docker.io/bitnamilegacy)
+          helm repo add bitnami https://charts.bitnami.com/bitnami
+          helm repo update
+
       - name: Package chart
         if: steps.check-tag.outputs.exists == 'false'
         run: |
           mkdir -p .cr-release-packages
           helm package charts/${{ matrix.chart }} --destination .cr-release-packages
 
+      - name: Extract changelog entry
+        id: changelog
+        if: steps.check-tag.outputs.exists == 'false'
+        run: |
+          # Extract the changelog entry for this version
+          # Looks for the first ## [version] section and captures everything until the next ## section
+          VERSION="${{ steps.check-tag.outputs.version }}"
+          CHANGELOG_FILE="charts/${{ matrix.chart }}/CHANGELOG.md"
+
+          if [ -f "$CHANGELOG_FILE" ]; then
+            # Extract from first ## [version] to the next ##
+            CHANGELOG=$(awk "/^## \[$VERSION\]/,/^## \[/{if(/^## \[/ && !/\[$VERSION\]/) exit; print}" "$CHANGELOG_FILE" | head -n -1)
+
+            if [ -z "$CHANGELOG" ]; then
+              CHANGELOG="Release $VERSION"
+            fi
+          else
+            CHANGELOG="Release $VERSION"
+          fi
+
+          # Save to file for use in gh release create
+          {
+            echo 'changelog<<EOF'
+            echo "$CHANGELOG"
+            echo 'EOF'
+          } >> "$GITHUB_OUTPUT"
+
       - name: Create git tag
         if: steps.check-tag.outputs.exists == 'false'
         run: |
-          TAG="${{ steps.chart-version.outputs.tag }}"
-          git tag "$TAG"
-          git push origin "$TAG"
+          git tag "${{ steps.check-tag.outputs.tag }}"
+          git push origin "${{ steps.check-tag.outputs.tag }}"
 
       - name: Create GitHub release
         if: steps.check-tag.outputs.exists == 'false'
         run: |
-          TAG="${{ steps.chart-version.outputs.tag }}"
-          CHART_FILE=".cr-release-packages/${{ matrix.chart }}-${{ steps.chart-version.outputs.version }}.tgz"
-          gh release create "$TAG" "$CHART_FILE" --title "$TAG" --notes "Helm chart release for ${{ matrix.chart }}" --repo ncsa/charts
+          CHART_FILE=".cr-release-packages/${{ matrix.chart }}-${{ steps.check-tag.outputs.version }}.tgz"
+          gh release create "${{ steps.check-tag.outputs.tag }}" "$CHART_FILE" --title "${{ steps.check-tag.outputs.tag }}" --notes "${{ steps.changelog.outputs.changelog }}" --repo ncsa/charts
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Update Helm index
         if: steps.check-tag.outputs.exists == 'false'
         run: |
+          # Create temp directory for index work
+          mkdir -p /tmp/index-work
+          cd /tmp/index-work
+
           # Fetch gh-pages branch
           git fetch origin gh-pages --depth=1
 
           # Get current index from gh-pages
           git show origin/gh-pages:index.yaml > index.yaml 2>/dev/null || printf "apiVersion: v1\nentries: {}\n" > index.yaml
 
+          # Copy all chart packages to temp dir for helm repo index
+          cp -r "$GITHUB_WORKSPACE"/.cr-release-packages/* .
+
           # Update index with new chart package
           helm repo index . --url https://github.com/ncsa/charts/releases/download --merge index.yaml
 
           # Commit and push to gh-pages
           git checkout gh-pages
-          cp index.yaml .
+          cp index.yaml "$GITHUB_WORKSPACE/"
+          cd "$GITHUB_WORKSPACE"
           git add index.yaml
-          git commit -m "chore: update index for ${{ matrix.chart }}-${{ steps.chart-version.outputs.version }}" || true
+          git commit -m "chore: update index for ${{ steps.check-tag.outputs.tag }}" || true
           git push origin gh-pages
