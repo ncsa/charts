@@ -71,6 +71,10 @@ The **primary release workflow** uses a **matrix strategy** to automatically rel
      - Prevents the action from auto-detecting changed charts (which fails for new charts with no prior release tag)
      - Ensures we always upload the pre-packaged chart we just created
      - Allows new charts like uptime-kuma to be released correctly even on their first release
+  4. Git tags are created before the action is called:
+     - The workflow creates and pushes the git tag (e.g., `uptime-kuma-1.0.0`)
+     - The `helm/chart-releaser-action` then uses this tag to create the GitHub release
+     - This prevents "unbound variable" errors in the action
 
 - **Adding a new chart**: Simply add a new line to the matrix in `release.yml`:
   ```yaml

@@ -68,11 +68,17 @@ jobs:
           mkdir -p .cr-release-packages
           helm package charts/${{ matrix.chart }} --destination .cr-release-packages
 
+      - name: Create git tag
+        if: steps.check-tag.outputs.exists == 'false'
+        run: |
+          TAG="${{ steps.chart-version.outputs.tag }}"
+          git tag "$TAG"
+          git push origin "$TAG"
+
       - name: Upload release and update index
         if: steps.check-tag.outputs.exists == 'false'
         uses: helm/chart-releaser-action@v1.7.0
         with:
-          skip_packaging: true
           skip_existing: true
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
