@@ -31,10 +31,19 @@ Folding@Home is a distributed computing project for disease research. This chart
 
 ## Installation
 
+### Add the Helm Repository
+
+First, add the NCSA Helm repository:
+
+```bash
+helm repo add ncsa https://opensource.ncsa.illinois.edu/charts/
+helm repo update
+```
+
 ### Basic Installation
 
 ```bash
-helm install fah charts/fah/ \
+helm install fah ncsa/fah \
   --set fah.username="your-username" \
   --set fah.team="your-team-number" \
   --set secret.accountToken="your-account-token"
@@ -70,6 +79,14 @@ gpu:
 ```
 
 Then install:
+
+```bash
+helm install fah ncsa/fah -f values.yaml
+```
+
+### Install from Local Source
+
+Alternatively, you can install directly from the local chart directory:
 
 ```bash
 helm install fah charts/fah/ -f values.yaml

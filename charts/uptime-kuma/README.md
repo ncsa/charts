@@ -19,7 +19,26 @@ A Helm chart for deploying [Uptime Kuma](https://github.com/louislam/uptime-kuma
 
 ## Installing the Chart
 
+### Add the Helm Repository
+
+First, add the NCSA Helm repository:
+
+```bash
+helm repo add ncsa https://opensource.ncsa.illinois.edu/charts/
+helm repo update
+```
+
+### Install from Repository
+
 To install the chart with the release name `my-uptime-kuma`:
+
+```bash
+helm install my-uptime-kuma ncsa/uptime-kuma
+```
+
+### Install from Local Source
+
+Alternatively, you can install directly from the local chart directory:
 
 ```bash
 helm install my-uptime-kuma ./uptime-kuma
