@@ -83,8 +83,8 @@ def update_chart_yaml(chart_folder, new_version, old_version):
 
     # Update appVersion line
     chart_content = re.sub(
-        r'^appVersion:\s*["\']?([^\s"\']+)["\']?\s*$',
-        f"appVersion: {new_version}",
+        r'^(appVersion:\s*)["\']?([^\s"\']+)["\']?(\s*)$',
+        rf"\g<1>{new_version}\g<3>",
         chart_content,
         flags=re.MULTILINE,
     )
@@ -103,8 +103,8 @@ def update_chart_yaml(chart_folder, new_version, old_version):
         new_chart_version = bump_chart_version(old_chart_version, bump_type)
 
         chart_content = re.sub(
-            r"^version:\s*[0-9]+\.[0-9]+\.[0-9]+\s*$",
-            f"version: {new_chart_version}",
+            r"^(version:\s*)[0-9]+\.[0-9]+\.[0-9]+(\s*)$",
+            rf"\g<1>{new_chart_version}\g<2>",
             chart_content,
             flags=re.MULTILINE,
         )
@@ -157,7 +157,7 @@ def update_changelog(
         return
 
     current_date = datetime.utcnow().strftime("%Y-%m-%d")
-    changelog_entry = f"## [{new_chart_version}] - {current_date}\n\n### Updated\n- Updated application from {old_version} to {new_version}\n"
+    changelog_entry = f"## [{new_chart_version}] - {current_date}\n\n### Updated\n- Updated application from {old_version} to {new_version}\n\n"
 
     changelog_path = f"charts/{chart_folder}/CHANGELOG.md"
     if os.path.exists(changelog_path):
