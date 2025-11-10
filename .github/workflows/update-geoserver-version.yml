@@ -46,10 +46,12 @@ jobs:
 
           print(f"Current version: {current_version}")
 
-          # GeoServer uses OSGeo Docker registry
-          # We'll check the tags from docker.osgeo.org/geoserver
-          # This registry follows OCI distribution spec
-          response = requests.get('https://hub.docker.com/v2/repositories/osgeolive/geoserver/tags?page_size=100')
+          # GeoServer uses the OSGeo Docker registry
+          # Query the OCI distribution tags endpoint directly
+          response = requests.get(
+              'https://repo.osgeo.org/repository/geoserver-docker/v2/geoserver/tags/list'
+          )
+          response.raise_for_status()
           data = response.json()
 
           # Match versions like 2.26.1, 2.25.3, etc.
