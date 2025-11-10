@@ -56,7 +56,7 @@ jobs:
 
           # Match versions like 2.26.1, 2.25.3, etc.
           version_pattern = re.compile(r'^\d+\.\d+\.\d+$')
-          versions = [tag['name'] for tag in data['results'] if version_pattern.match(tag['name'])]
+          versions = [tag for tag in data.get('tags', []) if version_pattern.match(tag)]
           versions.sort(key=lambda v: pkg_version.parse(v), reverse=True)
 
           latest_version = versions[0] if versions else current_version
