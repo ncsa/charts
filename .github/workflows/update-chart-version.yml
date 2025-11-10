@@ -1,0 +1,184 @@
+name: Update Chart Version
+
+on:
+  workflow_call:
+    inputs:
+      chart_folder:
+        description: "Folder name of the chart (e.g., 'geoserver', 'fah', 'uptime-kuma')"
+        required: true
+        type: string
+      docker_tags_url:
+        description: "URL to fetch Docker tags from (e.g., 'https://hub.docker.com/v2/repositories/...')"
+        required: true
+        type: string
+      assignee:
+        description: "GitHub username to assign the PR to"
+        required: true
+        type: string
+      chart_name:
+        description: "Friendly name of the chart for PR titles and labels"
+        required: true
+        type: string
+      docker_image:
+        description: "Docker image name for documentation (e.g., 'docker.osgeo.org/geoserver' or 'linuxserver/foldingathome')"
+        required: true
+        type: string
+      version_pattern:
+        description: "Regex pattern to match valid versions (default: '^\\d+\\.\\d+\\.\\d+$')"
+        required: false
+        type: string
+        default: "^\\d+\\.\\d+\\.\\d+$"
+      chart_label:
+        description: "Label to apply to PRs (e.g., 'geoserver')"
+        required: true
+        type: string
+
+jobs:
+  check-and-update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install requests packaging
+
+      - name: Check for new version
+        id: check_version
+        env:
+          CHART_FOLDER: ${{ inputs.chart_folder }}
+          DOCKER_TAGS_URL: ${{ inputs.docker_tags_url }}
+          VERSION_PATTERN: ${{ inputs.version_pattern }}
+        run: python3 .github/scripts/check_version.py
+
+      - name: Detect CHANGELOG.md
+        id: detect_changelog
+        env:
+          CHART_FOLDER: ${{ inputs.chart_folder }}
+        run: |
+          if [ -f "charts/$CHART_FOLDER/CHANGELOG.md" ]; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Update chart files
+        if: steps.check_version.outputs.update_needed == 'true'
+        env:
+          CHART_FOLDER: ${{ inputs.chart_folder }}
+          NEW_VERSION: ${{ steps.check_version.outputs.latest_version }}
+          OLD_VERSION: ${{ steps.check_version.outputs.current_version }}
+          INCLUDE_CHANGELOG: ${{ steps.detect_changelog.outputs.exists }}
+        run: python3 .github/scripts/update_chart_files.py
+
+      - name: Check for existing PR
+        id: check_pr
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CHART_LABEL: ${{ inputs.chart_label }}
+        run: |
+          # Find any open PR with the chart label, 'automated', and 'dependencies' labels
+          pr_number=$(gh pr list --label "$CHART_LABEL,automated,dependencies" --state open --json number --jq '.[0].number // empty')
+
+          if [ -n "$pr_number" ]; then
+            echo "pr_number=$pr_number" >> "$GITHUB_OUTPUT"
+            echo "Found existing workflow PR #$pr_number"
+          else
+            echo "pr_number=" >> "$GITHUB_OUTPUT"
+            echo "No existing workflow PR found"
+          fi
+
+      - name: Close PR if no update needed
+        if: steps.check_version.outputs.update_needed == 'false' && steps.check_pr.outputs.pr_number != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ steps.check_pr.outputs.pr_number }}
+        run: |
+          gh pr close "$PR_NUMBER" --comment "Closing this PR as the latest version is already in use or has been updated elsewhere."
+          echo "Closed PR #$PR_NUMBER"
+
+      - name: Update existing PR
+        if: steps.check_version.outputs.update_needed == 'true' && steps.check_pr.outputs.pr_number != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ steps.check_pr.outputs.pr_number }}
+          CHART_FOLDER: ${{ inputs.chart_folder }}
+          INCLUDE_CHANGELOG: ${{ steps.detect_changelog.outputs.exists }}
+        run: |
+          # Get the branch name from the PR
+          branch=$(gh pr view "$PR_NUMBER" --json headRefName --jq '.headRefName')
+          echo "Updating PR #$PR_NUMBER on branch: $branch"
+
+          # Push changes to the existing PR branch
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+          # Build git add command based on which files were updated
+          chart_folder=$CHART_FOLDER
+          git add "charts/$chart_folder/Chart.yaml" README.md
+
+          if [ "$INCLUDE_CHANGELOG" = "true" ] && [ -f "charts/$chart_folder/CHANGELOG.md" ]; then
+            git add "charts/$chart_folder/CHANGELOG.md"
+          fi
+
+          if [ -f "charts/$chart_folder/README.md" ]; then
+            git add "charts/$chart_folder/README.md"
+          fi
+
+          git commit -m "Update ${{ inputs.chart_name }} to version ${{ steps.check_version.outputs.latest_version }}"
+          git push origin "$branch" --force
+
+          echo "Updated PR #$PR_NUMBER with new changes"
+
+      - name: Create Pull Request
+        if: steps.check_version.outputs.update_needed == 'true' && steps.check_pr.outputs.pr_number == ''
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: |
+            Update ${{ inputs.chart_name }} to version ${{ steps.check_version.outputs.latest_version }}
+
+            - Updated Docker image from ${{ steps.check_version.outputs.current_version }} to ${{ steps.check_version.outputs.latest_version }}
+            - Updated Chart.yaml appVersion and bumped chart version (patch)
+            - Updated documentation with current version
+          branch: update-${{ inputs.chart_folder }}-${{ steps.check_version.outputs.latest_version }}
+          delete-branch: true
+          title: "chore: Update ${{ inputs.chart_name }} to version ${{ steps.check_version.outputs.latest_version }}"
+          body: |
+            ## Automated ${{ inputs.chart_name }} Version Update
+
+            This PR updates the ${{ inputs.chart_name }} chart to use the latest available Docker image.
+
+            ### Changes
+            - **Previous version**: `${{ steps.check_version.outputs.current_version }}`
+            - **New version**: `${{ steps.check_version.outputs.latest_version }}`
+            - **Docker image**: `${{ inputs.docker_image }}:${{ steps.check_version.outputs.latest_version }}`
+
+            ### Files Updated
+            - `charts/${{ inputs.chart_folder }}/Chart.yaml` - Updated appVersion and bumped chart version (patch)
+            - `charts/${{ inputs.chart_folder }}/README.md` - Updated version information (if present)
+            - `README.md` - Updated chart table with new versions
+
+            ### Notes
+            - This PR was automatically created by the Update ${{ inputs.chart_name }} Version workflow
+            - Please review the changes and test before merging
+
+            ---
+            *Generated by GitHub Actions*
+          labels: |
+            automated
+            dependencies
+            ${{ inputs.chart_label }}
+          assignees: ${{ inputs.assignee }}
+          draft: false
