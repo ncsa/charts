@@ -148,6 +148,45 @@ The **primary release workflow** uses a **matrix strategy** to automatically rel
 
 This prevents duplicate PRs from being created when new versions are released before an existing update PR is merged.
 
+**Reusable Workflow Template**:
+
+Individual chart update workflows now use a centralized reusable workflow template (`.github/workflows/update-chart-version.yml`) to reduce duplication and simplify maintenance:
+
+- **Template location**: `.github/workflows/update-chart-version.yml`
+- **Template features**:
+  - Automatically detects if `CHANGELOG.md` exists and updates it if present
+  - Uses string manipulation instead of YAML parsing to preserve Chart.yaml comments and formatting
+  - Updates `artifacthub.io/changes` annotation with version update information
+  - Supports customizable Docker tag URLs (OCI registries, Docker Hub, etc.)
+  - Supports custom version patterns (default: semantic versioning `X.Y.Z`)
+  
+- **Template inputs** (passed by individual workflows):
+  - `chart_folder`: Chart directory name (e.g., `geoserver`)
+  - `chart_name`: Friendly name for PR titles (e.g., `GeoServer`)
+  - `docker_tags_url`: URL to fetch Docker tags from (e.g., Docker Hub API, OCI registries)
+  - `docker_image`: Docker image name for documentation (e.g., `docker.osgeo.org/geoserver`)
+  - `chart_label`: Label to apply to PRs for filtering
+  - `assignee`: GitHub username to assign the PR to
+  - `version_pattern` (optional): Regex to match valid versions (default: `^\d+\.\d+\.\d+$`)
+
+- **Individual workflow files** (minimal, only calls the template):
+  ```yaml
+  jobs:
+    update:
+      uses: ./.github/workflows/update-chart-version.yml
+      with:
+        chart_folder: fah
+        chart_name: Folding@Home
+        docker_tags_url: https://hub.docker.com/v2/repositories/linuxserver/foldingathome/tags?page_size=100
+        docker_image: linuxserver/foldingathome
+        chart_label: fah
+        assignee: robkooper
+  ```
+
+- **Supporting scripts** (in `.github/scripts/`):
+  - `check_version.py`: Fetches current version from Chart.yaml and latest version from Docker registry
+  - `update_chart_files.py`: Updates all chart files (preserves YAML comments, updates artifacts annotations, handles CHANGELOG)
+
 Example workflows:
 - `.github/workflows/update-fah-version.yml`
 - `.github/workflows/update-geoserver-version.yml`

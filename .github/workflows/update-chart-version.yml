@@ -120,9 +120,11 @@ jobs:
           branch=$(gh pr view "$PR_NUMBER" --json headRefName --jq '.headRefName')
           echo "Updating PR #$PR_NUMBER on branch: $branch"
 
-          # Push changes to the existing PR branch
+          # Checkout and fetch the PR branch
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
+          git fetch origin "$branch"
+          git checkout "$branch"
 
           # Build git add command based on which files were updated
           chart_folder=$CHART_FOLDER
