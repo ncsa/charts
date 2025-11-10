@@ -187,6 +187,24 @@ Individual chart update workflows now use a centralized reusable workflow templa
   - `check_version.py`: Fetches current version from Chart.yaml and latest version from Docker registry
   - `update_chart_files.py`: Updates all chart files (preserves YAML comments, updates artifacts annotations, handles CHANGELOG)
 
+- **Single Chart Bump Per PR**:
+  - The workflow intelligently handles multiple Docker image updates on the same PR
+  - **Chart version bumps only ONCE per PR**, regardless of how many image version updates occur
+  - **Version bump logic**: Chart version bump type matches the Docker image version bump type:
+    - Docker patch update (e.g., 2.26.1 → 2.26.2): Chart patch bump (e.g., 1.3.1 → 1.3.2)
+    - Docker minor update (e.g., 2.26.0 → 2.27.0): Chart minor bump (e.g., 1.3.0 → 1.4.0)
+    - Docker major update (e.g., 2.0.0 → 3.0.0): Chart major bump (e.g., 1.0.0 → 2.0.0)
+  - **How it works**: 
+    - First update on PR: Calculates bump based on comparing original Docker version to new version
+    - Subsequent updates on same PR: `git reset --soft origin/main` resets chart to original version, then applies same bump logic
+    - Result: Chart version reflects the highest bump type from all updates, applied only once
+  - **Example**:
+    - Original: Chart 1.3.1, Docker 2.26.1
+    - Update 1: Docker 2.26.1 → 2.26.2 (patch) → Chart 1.3.1 → 1.3.2
+    - Update 2: Docker 2.26.2 → 2.27.0 (minor) → Chart 1.3.2 → 1.4.0 (minor bump applied)
+    - Update 3: Docker 2.27.0 → 2.28.0 (minor) → Chart stays 1.4.0 (no additional bump)
+  - **When PR is merged**: Next PR starts fresh from the new chart version (1.4.0 in this example)
+
 Example workflows:
 - `.github/workflows/update-fah-version.yml`
 - `.github/workflows/update-geoserver-version.yml`

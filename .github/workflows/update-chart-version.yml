@@ -87,9 +87,13 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CHART_LABEL: ${{ inputs.chart_label }}
+          CHART_FOLDER: ${{ inputs.chart_folder }}
         run: |
-          # Find any open PR with the chart label, 'automated', and 'dependencies' labels
-          pr_number=$(gh pr list --label "$CHART_LABEL,automated,dependencies" --state open --json number --jq '.[0].number // empty')
+          # Find any open PR created by this workflow specifically
+          # Search for PRs with the chart label AND automation labels AND branch name pattern
+          # This ensures we don't match PRs from other automated tools (e.g., dependabot, renovate)
+          pr_number=$(gh pr list --state open --json number,labels,headRefName --jq \
+            ".[] | select(.labels[].name == \"$CHART_LABEL\" and .labels[].name == \"automated\" and .labels[].name == \"dependencies\" and .headRefName | startswith(\"update-$CHART_FOLDER-\")) | .number" | head -1)
 
           if [ -n "$pr_number" ]; then
             echo "pr_number=$pr_number" >> "$GITHUB_OUTPUT"
@@ -120,11 +124,23 @@ jobs:
           branch=$(gh pr view "$PR_NUMBER" --json headRefName --jq '.headRefName')
           echo "Updating PR #$PR_NUMBER on branch: $branch"
 
-          # Checkout and fetch the PR branch
+          # Setup git config
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          git fetch origin "$branch"
-          git checkout "$branch"
+
+          # Stash changes made on main before checking out PR branch
+          git stash
+
+          # Fetch and checkout/create the PR branch
+          git fetch origin "$branch" 2>/dev/null || true
+          git checkout -b "$branch" origin/"$branch" 2>/dev/null || git checkout -b "$branch"
+
+          # Pop the stashed changes onto the PR branch
+          git stash pop
+
+          # Reset to main branch state, then apply only the current updates
+          # This ensures we have a single clean commit with the final version
+          git reset --soft origin/main
 
           # Build git add command based on which files were updated
           chart_folder=$CHART_FOLDER
