@@ -10,6 +10,70 @@ import sys
 from datetime import datetime
 
 
+def determine_version_bump_type(old_version, new_version):
+    """Determine if this is a patch, minor, or major version bump.
+
+    Returns 'major', 'minor', or 'patch' based on comparing version numbers.
+    """
+    try:
+        old_parts = old_version.split(".")
+        new_parts = new_version.split(".")
+
+        # Ensure we have at least 3 parts
+        while len(old_parts) < 3:
+            old_parts.append("0")
+        while len(new_parts) < 3:
+            new_parts.append("0")
+
+        old_major, old_minor, old_patch = (
+            int(old_parts[0]),
+            int(old_parts[1]),
+            int(old_parts[2]),
+        )
+        new_major, new_minor, new_patch = (
+            int(new_parts[0]),
+            int(new_parts[1]),
+            int(new_parts[2]),
+        )
+
+        # Compare version parts
+        if new_major != old_major:
+            return "major"
+        elif new_minor != old_minor:
+            return "minor"
+        else:
+            return "patch"
+    except (ValueError, IndexError):
+        # If version parsing fails, default to patch
+        return "patch"
+
+
+def bump_chart_version(chart_version, bump_type):
+    """Bump the chart version by the specified type.
+
+    Args:
+        chart_version: Current chart version (e.g., '1.3.1')
+        bump_type: 'major', 'minor', or 'patch'
+
+    Returns:
+        New chart version
+    """
+    parts = chart_version.split(".")
+    major, minor, patch = int(parts[0]), int(parts[1]), int(parts[2])
+
+    if bump_type == "major":
+        major += 1
+        minor = 0
+        patch = 0
+    elif bump_type == "minor":
+        minor += 1
+        patch = 0
+    else:  # patch
+        patch += 1
+
+    return f"{major}.{minor}.{patch}"
+
+
 def update_chart_yaml(chart_folder, new_version, old_version):
     """Update Chart.yaml with new version and update artifacthub.io/changes."""
     chart_path = f"charts/{chart_folder}/Chart.yaml"
@@ -25,7 +89,7 @@ def update_chart_yaml(chart_folder, new_version, old_version):
         flags=re.MULTILINE,
     )
 
-    # Update version line (chart version - bump patch)
+    # Update version line (chart version - bump based on docker version change)
     old_version_match = re.search(
         r"^version:\s*([0-9]+\.[0-9]+\.[0-9]+)\s*$", chart_content, re.MULTILINE
     )
@@ -33,9 +97,10 @@ def update_chart_yaml(chart_folder, new_version, old_version):
 
     if old_version_match:
         old_chart_version = old_version_match.group(1)
-        chart_version_parts = old_chart_version.split(".")
-        chart_version_parts[-1] = str(int(chart_version_parts[-1]) + 1)
-        new_chart_version = ".".join(chart_version_parts)
+
+        # Determine bump type based on docker version change
+        bump_type = determine_version_bump_type(old_version, new_version)
+        new_chart_version = bump_chart_version(old_chart_version, bump_type)
 
         chart_content = re.sub(
             r"^version:\s*[0-9]+\.[0-9]+\.[0-9]+\s*$",
@@ -44,7 +109,7 @@ def update_chart_yaml(chart_folder, new_version, old_version):
             flags=re.MULTILINE,
         )
         print(
-            f"Updated Chart.yaml: chart version {new_chart_version}, appVersion {new_version}"
+            f"Updated Chart.yaml: chart version {old_chart_version} → {new_chart_version} ({bump_type}), appVersion {new_version}"
         )
     else:
         print(
