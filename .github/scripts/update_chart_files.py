@@ -123,11 +123,13 @@ def update_chart_yaml(chart_folder, new_version, old_version):
     )
 
     if "artifacthub.io/changes:" in chart_content:
-        # Append to existing changes - add after the annotation line
+        # Replace the entire artifacthub.io/changes section with just the new entry
+        # This removes old comments and replaces with the current update
         chart_content = re.sub(
-            r"(artifacthub\.io/changes:\s*\|)",
+            r"(artifacthub\.io/changes:\s*\|)\s*\n\s*-.*?(?=\n\s{2}[a-z]|\n\s{0,1}$|\Z)",
             rf"\1\n    {changes_entry}",
             chart_content,
+            flags=re.MULTILINE | re.DOTALL,
         )
     else:
         # Add new annotation if it doesn't exist
@@ -155,17 +157,18 @@ def update_changelog(
         return
 
     current_date = datetime.utcnow().strftime("%Y-%m-%d")
-    changelog_entry = f"## [{new_chart_version}] - {current_date}\n\n### Updated\n- Updated application from {old_version} to {new_version}\n\n"
+    changelog_entry = f"## [{new_chart_version}] - {current_date}\n\n### Updated\n- Updated application from {old_version} to {new_version}\n"
 
     changelog_path = f"charts/{chart_folder}/CHANGELOG.md"
     if os.path.exists(changelog_path):
         with open(changelog_path, "r") as f:
             changelog_content = f.read()
 
-        # Insert new entry after the main heading
+        # Insert new entry right after the header section (after the format/versioning explanation)
+        # Find the first ## (version header) and insert before it
         changelog_content = re.sub(
-            r"(# Changelog\n\n.*?\n\n)",
-            rf"\1{changelog_entry}",
+            r"(# Changelog\n\nAll notable.*?\n\nThe format.*?\n\n)(## \[)",
+            rf"\1{changelog_entry}\2",
             changelog_content,
             count=1,
             flags=re.DOTALL,
