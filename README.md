@@ -11,7 +11,7 @@ This repository currently maintains the following Helm charts:
 |-------|---------|-------------|-------------|
 | [elasticsearch2](charts/elasticsearch2) | 0.2.2 | 2.4.6 | Elasticsearch 2.x deployment for legacy applications |
 | [fah](charts/fah) | 1.0.2 | 8.4.9 | Folding@Home - Distributed computing for disease research |
-| [geoserver](charts/geoserver) | 1.3.0 | 2.26.1 | Open source server for sharing geospatial data |
+| [geoserver](charts/geoserver) | 1.4.0 | 2.28.0 | Open source server for sharing geospatial data |
 | [mlflow](charts/mlflow) | 1.2.1 | 2.2.1 | Open source platform for the machine learning lifecycle |
 | [uptime-kuma](charts/uptime-kuma) | 1.0.0 | 2.0.2 | Fancy self-hosted monitoring tool with 90+ notification integrations |
 
