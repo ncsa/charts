@@ -2,8 +2,8 @@
 
 ## Version Information
 
-- **Current Version**: `2.26.1` ([docker.osgeo.org/geoserver:2.26.1](https://repo.osgeo.org/#browse/browse:geoserver-docker:v2/geoserver/tags))
-- **Last Updated**: 2025-11-19
+- **Current Version**: `2.28.0`
+- **Last Updated**: 2025-11-30
 
 ---
 
