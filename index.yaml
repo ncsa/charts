@@ -13,6 +13,26 @@ entries:
   fah:
   - annotations:
       artifacthub.io/changes: |
+        - Updated Fah from 8.4.9 to 8.5.5
+    apiVersion: v2
+    appVersion: 8.5.5
+    created: "2026-01-04T23:48:46.324694479Z"
+    description: Folding@Home - Distributed computing for disease research
+    digest: b9066ece945dfa54fd572d32aa4f71554c4189bf8b98c6d1869c20a80c44cfb5
+    home: https://foldingathome.org/
+    icon: https://foldingathome.org/wp-content/uploads/2016/08/cropped-folding-at-home-logo.png
+    maintainers:
+    - email: kooper@illinois.edu
+      name: Rob Kooper
+    - email: cheller@illinois.edu
+      name: Christopher Heller
+    name: fah
+    type: application
+    urls:
+    - https://github.com/ncsa/charts/releases/download/fah-1.1.0.tgz
+    version: 1.1.0
+  - annotations:
+      artifacthub.io/changes: |
         - kind: added
           description: "Initial release of Folding@Home Helm chart"
         - kind: added
@@ -605,4 +625,4 @@ entries:
     urls:
     - https://github.com/ncsa/charts/releases/download/uptime-kuma-1.0.0.tgz
     version: 1.0.0
-generated: "2025-11-03T15:31:12.811158891Z"
+generated: "2026-01-04T23:48:46.32404569Z"
