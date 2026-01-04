@@ -2,8 +2,8 @@ apiVersion: v2
 name: fah
 description: Folding@Home - Distributed computing for disease research
 type: application
-version: 1.0.3
-appVersion: 8.4.9
+version: 1.1.0
+appVersion: 8.5.5
 home: https://foldingathome.org/
 icon: https://foldingathome.org/wp-content/uploads/2016/08/cropped-folding-at-home-logo.png
 maintainers:
@@ -13,11 +13,4 @@ maintainers:
     email: cheller@illinois.edu
 annotations:
   artifacthub.io/changes: |
-    - kind: added
-      description: "Initial release of Folding@Home Helm chart"
-    - kind: added
-      description: "Support for CPU and GPU DaemonSets"
-    - kind: added
-      description: "Read-only root filesystem support"
-    - kind: added
-      description: "Configurable resource limits and storage"
+    - Updated Fah from 8.4.9 to 8.5.5
