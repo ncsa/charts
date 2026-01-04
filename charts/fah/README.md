@@ -2,8 +2,8 @@
 
 ## Version Information
 
-- **Current Version**: `8.4.9` ([linuxserver/foldingathome:8.4.9](https://hub.docker.com/r/linuxserver/foldingathome/tags))
-- **Last Updated**: 2025-10-28
+- **Current Version**: `8.5.5`
+- **Last Updated**: 2026-01-04
 
 ---
 
