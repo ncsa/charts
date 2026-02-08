@@ -1,5 +1,12 @@
 # Uptime Kuma Helm Chart
 
+## Version Information
+
+- **Current Version**: `2.1.0`
+- **Last Updated**: 2026-02-08
+
+---
+
 A Helm chart for deploying [Uptime Kuma](https://github.com/louislam/uptime-kuma), a fancy self-hosted monitoring tool.
 
 ## Features
