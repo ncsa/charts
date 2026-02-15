@@ -5,3 +5,5 @@ charts/*/charts/
 charts/mlflow/deployed-values
 .idea/
 
+# Ignore files produced by the deploy template makefile
+**/make-deploy/*/*
