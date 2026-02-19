@@ -13,7 +13,7 @@ This repository currently maintains the following Helm charts:
 | [fah](charts/fah) | 1.1.0 | 8.5.5 | Folding@Home - Distributed computing for disease research |
 | [geoserver](charts/geoserver) | 1.3.0 | 2.26.1 | Open source server for sharing geospatial data |
 | [mlflow](charts/mlflow) | 1.2.1 | 2.2.1 | Open source platform for the machine learning lifecycle |
-| [uptime-kuma](charts/uptime-kuma) | 1.3.1 | 2.1.1 | Fancy self-hosted monitoring tool with 90+ notification integrations |
+| [uptime-kuma](charts/uptime-kuma) | 1.3.2 | 2.1.3 | Fancy self-hosted monitoring tool with 90+ notification integrations |
 
 ### Chart Details
 
