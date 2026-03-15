@@ -2,8 +2,8 @@
 
 ## Version Information
 
-- **Current Version**: `2.2.0`
-- **Last Updated**: 2026-03-08
+- **Current Version**: `2.2.1`
+- **Last Updated**: 2026-03-15
 
 ---
 
