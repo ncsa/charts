@@ -88,6 +88,33 @@ entries:
   geoserver:
   - annotations:
       artifacthub.io/changes: |
+        - Updated Geoserver from 2.26.1 to 3.0.0
+      artifacthub.io/links: |
+        - name: Docker Image
+          url: https://docker.osgeo.org/geoserver
+        - name: Helm Chart
+          url: https://github.com/ncsa/charts
+    apiVersion: v2
+    appVersion: 3.0.0
+    created: "2026-06-16T15:45:53.232352178Z"
+    description: An open source server for sharing geospatial data.
+    digest: dd0609642648667a5936d185bee58eb29b419db9dc0125c02a31a9b19450184f
+    home: http://geoserver.org/
+    icon: https://raw.githubusercontent.com/geoserver/geoserver/master/doc/en/themes/geoserver/static/geoserver.ico
+    maintainers:
+    - email: kooper@illinois.edu
+      name: Rob Kooper
+    - email: ywkim@illinois.edu
+      name: Yong Wook Kim
+    name: geoserver
+    sources:
+    - https://github.com/geoserver/geoserver
+    type: application
+    urls:
+    - https://github.com/ncsa/charts/releases/download/geoserver-2.0.0.tgz
+    version: 2.0.0
+  - annotations:
+      artifacthub.io/changes: |
         - Added variable for PROXY configuration
       artifacthub.io/links: |
         - name: Docker Image
@@ -814,4 +841,4 @@ entries:
     urls:
     - https://github.com/ncsa/charts/releases/download/uptime-kuma-1.0.0.tgz
     version: 1.0.0
-generated: "2026-05-31T12:03:04.628276544Z"
+generated: "2026-06-16T15:45:53.231661669Z"
