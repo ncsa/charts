@@ -1,0 +1,36 @@
+# This name is used for the client-id as well as the helm deployment
+name: {{ env.Getenv "NAME"}}
+
+namespace: mlflow
+
+MLFlow:
+  artifacts:
+    # Specify the bucket name for models and other artifacts
+    #    Bucket names must be between 3 and 63 characters long.
+    #    Bucket names can consist only of lowercase letters, numbers, dots (.), and hyphens (-).
+    #    Bucket names must begin and end with a letter or number.
+    bucketName: {{ strings.ReplaceAll "-" " " (env.Getenv "NAME") | strings.CamelCase}}
+
+
+OAuth2:
+  enabled: true
+  # Kubernetes secret holding the client auth secret. Leave blank to work with
+  # a public client. This is needed for the device flow to work
+  secret:
+
+  # Generated secret key if you want to use a confidential client instead.
+  # Ignore this otherwise
+  client_secret: {{ random.String 24}}
+  keycloak_realm_url: "https://keycloak.software-dev.ncsa.illinois.edu/realms/mlflow"
+
+chartVersion: 1.*
+postgresql:
+  persistence:
+    storageClass: csi-cinder-sc-delete
+minio:
+  persistence:
+    storageClass: nfs-taiga
+
+ingress:
+  enabled: true
+  host: "{{ env.Getenv "NAME"}}.software-dev.ncsa.illinois.edu"

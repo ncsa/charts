@@ -1,0 +1,31 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ "{{ .Values.cluster }}-" }}{{ (ds "Template").name }}
+  labels:
+    cluster: {{ "{{ .Values.cluster }}" }}
+    app: {{ (ds "Template").name }}
+  namespace: argocd
+  annotations:
+    {{ "{{- toYaml .Values.notifications | nindent 4 }}" }}
+spec:
+  project: {{ "{{ .Values.cluster }}" }}
+  destination:
+    name: {{ "{{ .Values.cluster }}" }}
+    namespace: {{ (ds "Template").namespace }}
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+      allowEmpty: false
+    syncOptions:
+      - CreateNamespace=true
+  source:
+    repoURL: https://opensource.ncsa.illinois.edu/charts
+    chart: mlflow
+    targetRevision: "{{ (ds "Template").chartVersion }}"
+    helm:
+      version: v3
+      releaseName: {{ (ds "Template").name }}
+      values: |
+        {{ template "application.values" . }}
