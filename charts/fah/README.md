@@ -2,8 +2,8 @@
 
 ## Version Information
 
-- **Current Version**: `8.5.5`
-- **Last Updated**: 2026-01-04
+- **Current Version**: `8.5.6`
+- **Last Updated**: 2026-08-09
 
 ---
 
