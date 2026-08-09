@@ -571,6 +571,33 @@ entries:
   uptime-kuma:
   - annotations:
       artifacthub.io/changes: |
+        - Updated Uptime-kuma from 2.4.0 to 2.5.0
+      artifacthub.io/links: |
+        - name: Docker Image
+          url: https://hub.docker.com/r/louislam/uptime-kuma
+        - name: Helm Chart
+          url: https://github.com/ncsa/charts
+    apiVersion: v2
+    appVersion: 2.5.0
+    created: "2026-08-09T14:01:55.663405485Z"
+    description: A fancy self-hosted monitoring tool for uptime monitoring with 90+
+      notification integrations.
+    digest: e09757a7ccf526d810123f34d29268dd99d5b19f0f32a9df21cb6dd99070c46d
+    home: https://github.com/louislam/uptime-kuma
+    icon: https://raw.githubusercontent.com/louislam/uptime-kuma/master/public/icon.svg
+    kubeVersion: '>=1.25.0'
+    maintainers:
+    - email: kooper@illinois.edu
+      name: Rob Kooper
+    name: uptime-kuma
+    sources:
+    - https://github.com/louislam/uptime-kuma
+    type: application
+    urls:
+    - https://github.com/ncsa/charts/releases/download/uptime-kuma-1.7.0.tgz
+    version: 1.7.0
+  - annotations:
+      artifacthub.io/changes: |
         - Updated Uptime-kuma from 2.3.2 to 2.4.0
       artifacthub.io/links: |
         - name: Docker Image
@@ -841,4 +868,4 @@ entries:
     urls:
     - https://github.com/ncsa/charts/releases/download/uptime-kuma-1.0.0.tgz
     version: 1.0.0
-generated: "2026-06-16T15:45:53.231661669Z"
+generated: "2026-08-09T14:01:55.662651153Z"
