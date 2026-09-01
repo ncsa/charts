@@ -1,0 +1,28 @@
+{
+  "id": "da07497d-8833-48ee-a189-fc6bbd85b950",
+  "name": "ldap_groups",
+  "description": "LDAP Groups",
+  "protocol": "openid-connect",
+  "attributes": {
+    "include.in.token.scope": "true",
+    "display.on.consent.screen": "true",
+    "gui.order": "",
+    "consent.screen.text": "LDAP Groups"
+  },
+  "protocolMappers": [
+    {
+      "id": "b82b4c4e-feee-44bb-9ede-820beb5d4d18",
+      "name": "LDAP Group Membership",
+      "protocol": "openid-connect",
+      "protocolMapper": "oidc-group-membership-mapper",
+      "consentRequired": false,
+      "config": {
+        "full.path": "true",
+        "id.token.claim": "true",
+        "access.token.claim": "true",
+        "claim.name": "groups",
+        "userinfo.token.claim": "true"
+      }
+    }
+  ]
+}

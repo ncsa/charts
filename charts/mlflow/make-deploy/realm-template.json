@@ -1,0 +1,165 @@
+{
+  "realm": "mlflow",
+  "enabled": true,
+  "displayNameHtml": "<img height=\"190\" width=\"500\" src=\"https://www.ncsa.illinois.edu/wp-content/uploads/2022/10/NCSA080922-1708x650-hero.jpg\"><br> <h2>Login to MLFlow</h2>",
+  "clients": [
+  ],
+  "components": {
+    "org.keycloak.storage.UserStorageProvider": [
+      {
+        "name": "NCSA LDAP",
+        "providerId": "ldap",
+        "subComponents": {
+          "org.keycloak.storage.ldap.mappers.LDAPStorageMapper": [
+            {
+              "name": "email",
+              "providerId": "user-attribute-ldap-mapper",
+              "config": {
+                "ldap.attribute": [
+                  "mail"
+                ],
+                "user.model.attribute": [
+                  "email"
+                ]
+              }
+            },
+            {
+              "name": "last name",
+              "providerId": "user-attribute-ldap-mapper",
+              "config": {
+                "ldap.attribute": [
+                  "sn"
+                ],
+                "user.model.attribute": [
+                  "lastName"
+                ]
+              }
+            },
+            {
+              "name": "username",
+              "providerId": "user-attribute-ldap-mapper",
+              "config": {
+                "ldap.attribute": [
+                  "uid"
+                ],
+                "user.model.attribute": [
+                  "username"
+                ]
+              }
+            },
+            {
+              "name": "first name",
+              "providerId": "user-attribute-ldap-mapper",
+              "config": {
+                "ldap.attribute": [
+                  "givenName"
+                ],
+                "user.model.attribute": [
+                  "firstName"
+                ]
+              }
+            },
+            {
+              "name": "uidNumber",
+              "providerId": "user-attribute-ldap-mapper",
+              "config": {
+                "ldap.attribute": [
+                  "uidNumber"
+                ],
+                "user.model.attribute": [
+                  "uidNumber"
+                ]
+              }
+            },
+            {
+              "name": "gidNumber",
+              "providerId": "user-attribute-ldap-mapper",
+              "config": {
+                "ldap.attribute": [
+                  "gidNumber"
+                ],
+                "user.model.attribute": [
+                  "gidNumber"
+                ]
+              }
+            },
+            {
+              "name": "groups",
+              "providerId": "group-ldap-mapper",
+              "config": {
+                "membership.attribute.type": [
+                  "DN"
+                ],
+                "group.name.ldap.attribute": [
+                  "cn"
+                ],
+                "membership.user.ldap.attribute": [
+                  "uid"
+                ],
+                "groups.dn": [
+                  "ou=Groups,dc=ncsa,dc=illinois,dc=edu"
+                ],
+                "mode": [
+                  "READ_ONLY"
+                ],
+                "user.roles.retrieve.strategy": [
+                  "GET_GROUPS_FROM_USER_MEMBEROF_ATTRIBUTE"
+                ],
+                "membership.ldap.attribute": [
+                  "uniqueMember"
+                ],
+                "mapped.group.attributes": [
+                  "gidNumber"
+                ],
+                "group.object.classes": [
+                  "groupofuniquenames"
+                ]
+              }
+            }
+          ]
+        },
+        "config": {
+          "customUserSearchFilter": [
+            "(&(objectClass=inetorgperson)(|(memberOf=cn=org_software,ou=Groups,dc=ncsa,dc=illinois,dc=edu)(memberOf=cn=sd_class_admin,ou=Groups,dc=ncsa,dc=illinois,dc=edu)))"
+          ],
+          "fullSyncPeriod": [
+            "-1"
+          ],
+          "usersDn": [
+            "ou=People,dc=ncsa,dc=illinois,dc=edu"
+          ],
+          "trustEmail": [
+            "true"
+          ],
+          "enabled": [
+            "true"
+          ],
+          "changedSyncPeriod": [
+            "-1"
+          ],
+          "usernameLDAPAttribute": [
+            "uid"
+          ],
+          "rdnLDAPAttribute": [
+            "uid"
+          ],
+          "vendor": [
+            "other"
+          ],
+          "editMode": [
+            "READ_ONLY"
+          ],
+          "uuidLDAPAttribute": [
+            "uid"
+          ],
+          "connectionUrl": [
+            "ldaps://ldap1.ncsa.illinois.edu:636 ldaps://ldap2.ncsa.illinois.edu:636 ldaps://ldap3.ncsa.illinois.edu:636 ldaps://ldap4.ncsa.illinois.edu:636"
+          ],
+          "authType": [
+            "none"
+          ]
+        }
+      }
+    ]
+  }
+}
