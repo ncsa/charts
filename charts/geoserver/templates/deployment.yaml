@@ -89,18 +89,21 @@ spec:
               port: geoserver
             failureThreshold: {{ .Values.startup.failureThreshold }}
             periodSeconds: {{ .Values.startup.periodSeconds }}
+            timeoutSeconds: {{ .Values.startup.timeoutSeconds }}
           livenessProbe:
             httpGet:
               path: /geoserver/
               port: geoserver
             failureThreshold: {{ .Values.startup.failureThreshold }}
             periodSeconds: {{ .Values.startup.periodSeconds }}
+            timeoutSeconds: {{ .Values.startup.timeoutSeconds }}
           readinessProbe:
             httpGet:
               path: /geoserver/
               port: geoserver
             failureThreshold: {{ .Values.startup.failureThreshold }}
             periodSeconds: {{ .Values.startup.periodSeconds }}
+            timeoutSeconds: {{ .Values.startup.timeoutSeconds }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       volumes:
