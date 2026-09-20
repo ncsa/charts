@@ -10,12 +10,12 @@ description: An open source server for sharing geospatial data.
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 2.0.0
+version: 2.0.1
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
-appVersion: 3.0.0
+appVersion: 3.0.1
 
 # List of people that maintain this helm chart.
 maintainers:
@@ -35,4 +35,4 @@ annotations:
     - name: Helm Chart
       url: https://github.com/ncsa/charts
   artifacthub.io/changes: |
-    - Updated Geoserver from 2.26.1 to 3.0.0
+    - Updated Geoserver from 3.0.0 to 3.0.1
