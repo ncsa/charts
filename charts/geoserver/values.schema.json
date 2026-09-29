@@ -181,6 +181,26 @@
       "type": "string",
       "description": "Base URL for GeoServer if behind a proxy (e.g., https://example.com/geoserver)"
     },
+    "extraEnv": {
+      "type": "array",
+      "description": "Additional environment variables for the GeoServer container",
+      "default": [],
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Environment variable name"
+          },
+          "value": {
+            "type": "string",
+            "description": "Environment variable value"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
     "envs": {
       "type": "object",
       "properties": {

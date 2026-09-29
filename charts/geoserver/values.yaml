@@ -74,6 +74,14 @@ proxyBaseUrl: ""
 envs:
   extraJavaOpts: "-Xms512m -Xmx2g"
 
+# Extra environment variables for the GeoServer container.
+# Use this for Docker image env vars that are not exposed as dedicated values above.
+extraEnv: []
+# - name: ROOT_WEBAPP_REDIRECT
+#   value: "true"
+# - name: WEBAPP_CONTEXT
+#   value: "geoserver"
+
 serviceAccount:
   # Specifies whether a service account should be created
   create: true

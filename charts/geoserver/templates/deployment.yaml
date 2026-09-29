@@ -76,6 +76,9 @@ spec:
                   name: {{ include "geoserver.fullname" . }}
                   key: geoserver_admin_password
                   {{- end }}
+            {{- with .Values.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
           ports:
             - name: geoserver
               containerPort: 8080
