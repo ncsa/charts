@@ -58,6 +58,7 @@ Below are the supported configuration options that can be overridden or customiz
 | `image.repository` | The Docker image repo/name to run | `docker.osgeo.org/geoserver`  |
 | `image.tag` | Container image tag (leave blank to use appVersion) | `""`                          |
 | `image.pullPolicy` | The Docker image pullPolicy to use when running | `IfNotPresent`                |
+| `extraEnv` | Extra environment variables for the GeoServer container | `[]`                          |
 | `ingress.enabled` | Whether an ingress rule should be deployed for geoserver | `false`                       |
 | `ingress.host` | The hostname to use for the ingress rule | `geoserver.local`             |
 | `resources` | [Resource limits](https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/) that should be applied to elasticsearch instances | None                          |
